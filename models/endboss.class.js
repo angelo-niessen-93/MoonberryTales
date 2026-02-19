@@ -5,15 +5,15 @@ class Endboss extends MovableObject {
 
     height = 400;
     width = 250;
-    y = 110;         
+    y = 110;
     speed = 1.2;
     IMAGES_WALKING = [
-            '../img/Boss2/Walk1.png',
-            '../img/Boss2/Walk2.png',
-            '../img/Boss2/Walk3.png',
-            '../img/Boss2/Walk4.png',
-            '../img/Boss2/Walk5.png',
-            '../img/Boss2/Walk6.png',
+        '../img/Boss2/Walk1.png',
+        '../img/Boss2/Walk2.png',
+        '../img/Boss2/Walk3.png',
+        '../img/Boss2/Walk4.png',
+        '../img/Boss2/Walk5.png',
+        '../img/Boss2/Walk6.png',
     ];
 
     constructor(x = null) {
@@ -23,6 +23,7 @@ class Endboss extends MovableObject {
         this.patrolMaxX = Math.min(Endboss.SPAWN_MAX_X, this.x + 160);
         this.movingLeft = true;
         this.othersDirection = true;
+
         this.loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
         this.animate();

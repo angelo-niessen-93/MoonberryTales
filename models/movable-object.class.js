@@ -1,40 +1,59 @@
 class MovableObject {
-    x = 120;
-    y = 310;
-    img;
-    height = 150;
-    width = 100;
-    imageCache = {};
-    currentImage = 0;
-    speed = 0;
-    othersDirection = false;
-    
-    loadImage(path) {
-        this.img = new Image();
-        this.img.src = path;
+  x = 120;
+  y = 310;
+  width = 100;
+  height = 150;
+
+  img;
+  imageCache = {};
+  currentImage = 0;
+
+  speed = 0;
+  speedY = 0;
+  acceleration = 2;
+  othersDirection = false;
+
+  applyGravity() {
+    setInterval(() => {
+      if (this.isAboveGround() || this.speedY > 0) {
+        this.y -= this.speedY;
+        this.speedY -= this.acceleration;
+      }
+    }, 1000 / 25);
+  }
+
+  isAboveGround() {
+    return this.y < 260;
+  }
+
+  loadImage(path) {
+    this.img = new Image();
+    this.img.src = path;
+  }
+
+  loadImages(paths) {
+    paths.forEach(path => {
+      const img = new Image();
+      img.src = path;
+      this.imageCache[path] = img;
+    });
+  }
+
+  playAnimation(images) {
+    const index = this.currentImage % images.length;
+    this.img = this.imageCache[images[index]];
+    this.currentImage++;
+  }
+
+  moveRight() {
+    this.x += this.speed;
+  }
+
+  moveLeft() {
+    this.x -= this.speed;
+
+    if (this.x <= -this.width) {
+      this.x = 0;
     }
-
-    loadImages(arr) {
-        arr.forEach(path => {
-
-        let img = new Image();
-        img.src = path;
-        this.imageCache[path] = img;
-        });
-    }
-
-    moveRight() {
-        console.log('Moving right');
-    }
-
-    moveLeft(){
-     setInterval(() => {
-            this.x -= this.speed;
-
-            if (this.x <= -this.width) {
-                this.x = 0;
-            }
-        }, 1000 / 60);
-    } 
+  }
 }
-
