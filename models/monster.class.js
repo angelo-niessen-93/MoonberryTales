@@ -1,5 +1,9 @@
 class Monster extends MovableObject {
     y = 320;
+    static LEVEL_END_X = 720 * 5;
+    static NO_SPAWN_END_BUFFER = 720;
+    static MIN_SPAWN_X = 300;
+    static SPAWN_AHEAD_DISTANCE = 350;
 
     static WALKING_SETS = {
         skeleton: [
@@ -31,7 +35,7 @@ class Monster extends MovableObject {
         ghost: { width: 120, height: 170, y: 300 },
     };
 
-    constructor(type = null) {
+    constructor(type = null, x = null, patrolMinX = null, patrolMaxX = null) {
         super();
 
         const availableTypes = Object.keys(Monster.WALKING_SETS);
@@ -49,24 +53,84 @@ class Monster extends MovableObject {
         }
 
         this.loadImage(this.IMAGES_WALKING[0]);
-        this.speed = 0.15 + Math.random() * 0.25;
-        this.x = 200 + Math.random() * 500;
+        this.speed = 0.45 + Math.random() * 0.25;
+        this.x = x ?? this.getRandomSpawnX();
+        this.setPatrolRange(patrolMinX, patrolMaxX);
+        this.movingLeft = true;
+        this.othersDirection = true;
         this.loadImages(this.IMAGES_WALKING);
         this.animate();
     }
 
-    moveLeft() {
-        setInterval(() => {
-            this.x -= this.speed;
+    static createForLevel(characterStartX = 120, count = 10) {
+        const minX = Math.max(
+            Monster.MIN_SPAWN_X,
+            characterStartX + Monster.SPAWN_AHEAD_DISTANCE
+        );
+        const maxX = Monster.LEVEL_END_X - Monster.NO_SPAWN_END_BUFFER;
+        const step = (maxX - minX) / Math.max(1, count - 1);
+        const monsters = [];
 
-            if (this.x <= -this.width) {
-                this.x = 720 + Math.random() * 500;
+        for (let i = 0; i < count; i++) {
+            const jitter = (Math.random() - 0.5) * 140;
+            const x = Math.min(maxX, Math.max(minX, minX + step * i + jitter));
+            const patrolMinX = Math.max(minX, x - 220);
+            const patrolMaxX = Math.min(maxX, x + 220);
+            monsters.push(new Monster(null, x, patrolMinX, patrolMaxX));
+        }
+
+        return monsters;
+    }
+
+    getRandomSpawnX() {
+        const playerX = this.world?.character?.x ?? 120;
+        const minX = Math.max(Monster.MIN_SPAWN_X, playerX + Monster.SPAWN_AHEAD_DISTANCE);
+        const maxX = Monster.LEVEL_END_X - Monster.NO_SPAWN_END_BUFFER;
+
+        if (minX >= maxX) {
+            return maxX;
+        }
+
+        return minX + Math.random() * (maxX - minX);
+    }
+
+    setPatrolRange(minX = null, maxX = null) {
+        const levelMin = Monster.MIN_SPAWN_X;
+        const levelMax = Monster.LEVEL_END_X - Monster.NO_SPAWN_END_BUFFER;
+        const defaultHalfRange = 260;
+
+        this.patrolMinX = Math.max(levelMin, minX ?? this.x - defaultHalfRange);
+        this.patrolMaxX = Math.min(levelMax, maxX ?? this.x + defaultHalfRange);
+
+        if (this.patrolMaxX <= this.patrolMinX) {
+            this.patrolMaxX = Math.min(levelMax, this.patrolMinX + 200);
+        }
+    }
+
+    movePatrol() {
+        setInterval(() => {
+            if (this.movingLeft) {
+                this.x -= this.speed;
+                this.othersDirection = true;
+
+                if (this.x <= this.patrolMinX) {
+                    this.x = this.patrolMinX;
+                    this.movingLeft = false;
+                }
+            } else {
+                this.x += this.speed;
+                this.othersDirection = false;
+
+                if (this.x >= this.patrolMaxX) {
+                    this.x = this.patrolMaxX;
+                    this.movingLeft = true;
+                }
             }
         }, 1000 / 60);
     }
 
     animate() {
-        this.moveLeft();
+        this.movePatrol();
 
         setInterval(() => {
             let i = this.currentImage % this.IMAGES_WALKING.length;
@@ -76,5 +140,3 @@ class Monster extends MovableObject {
         }, 100);
     }
 }
-
-
