@@ -29,6 +29,49 @@ class Monster extends MovableObject {
         ],
     };
 
+    static ATTACK_SETS = {
+        skeleton: [
+            '../img/Skeleton/skeleton10_attack1.png',
+            '../img/Skeleton/skeleton11_attack2.png',
+            '../img/Skeleton/skeleton12_attack3.png',
+        ],
+        dragon: [
+            '../img/Dragon/dragon09_attack1.png',
+            '../img/Dragon/dragon10_attack2.png',
+            '../img/Dragon/dragon11_attack3.png',
+            '../img/Dragon/dragon12_attack4.png',
+        ],
+        ghost: [
+            '../img/Ghost/ghost09_attack1.png',
+            '../img/Ghost/ghost10_attack2.png',
+            '../img/Ghost/ghost11_attack3.png',
+            '../img/Ghost/ghost12_attack4.png',
+        ],
+    };
+
+    static DEAD_SETS = {
+        skeleton: [
+            '../img/Skeleton/skeleton15_death1.png',
+            '../img/Skeleton/skeleton16_death2.png',
+            '../img/Skeleton/skeleton17_death3.png',
+            '../img/Skeleton/skeleton18_death4.png',
+            '../img/Skeleton/skeleton19_death5.png',
+        ],
+        dragon: [
+            '../img/Dragon/dragon15_death1.png',
+            '../img/Dragon/dragon16_death2.png',
+            '../img/Dragon/dragon17_death3.png',
+            '../img/Dragon/dragon18_death4.png',
+        ],
+        ghost: [
+            '../img/Ghost/ghost15_death1.png',
+            '../img/Ghost/ghost16_death2.png',
+            '../img/Ghost/ghost17_death3.png',
+            '../img/Ghost/ghost18_death4.png',
+    ],
+    };
+
+
     static TYPE_SIZES = {
         skeleton: { width: 100, height: 150, y: 320 },
         dragon: { width: 160, height: 220, y: 300 },
@@ -44,6 +87,7 @@ class Monster extends MovableObject {
             : availableTypes[Math.floor(Math.random() * availableTypes.length)];
 
         this.IMAGES_WALKING = Monster.WALKING_SETS[this.type];
+        this.IMAGES_ATTACKING = Monster.ATTACK_SETS[this.type] || [];
 
         const size = Monster.TYPE_SIZES[this.type];
         if (size) {
@@ -58,7 +102,11 @@ class Monster extends MovableObject {
         this.setPatrolRange(patrolMinX, patrolMaxX);
         this.movingLeft = true;
         this.othersDirection = true;
+        this.isAttacking = false;
+        this.attackFrame = 0;
+        this.lastAttackAt = 0;
         this.loadImages(this.IMAGES_WALKING);
+        this.loadImages(this.IMAGES_ATTACKING);
         this.animate();
     }
 
@@ -109,6 +157,10 @@ class Monster extends MovableObject {
 
     movePatrol() {
         setInterval(() => {
+            if (this.isAttacking) {
+                return;
+            }
+
             if (this.movingLeft) {
                 this.x -= this.speed;
                 this.othersDirection = true;
@@ -129,12 +181,44 @@ class Monster extends MovableObject {
         }, 1000 / 60);
     }
 
+    triggerAttack(target = null) {
+        if (!this.IMAGES_ATTACKING.length) {
+            return;
+        }
+
+        const now = Date.now();
+        if (now - this.lastAttackAt < 500) {
+            return;
+        }
+
+        if (target) {
+            this.othersDirection = target.x < this.x;
+        }
+
+        this.lastAttackAt = now;
+        this.isAttacking = true;
+        this.attackFrame = 0;
+    }
+
     animate() {
         this.movePatrol();
 
         setInterval(() => {
-            let i = this.currentImage % this.IMAGES_WALKING.length;
-            let path = this.IMAGES_WALKING[i];
+            if (this.isAttacking && this.IMAGES_ATTACKING.length) {
+                const path = this.IMAGES_ATTACKING[this.attackFrame];
+                this.img = this.imageCache[path];
+                this.attackFrame++;
+
+                if (this.attackFrame >= this.IMAGES_ATTACKING.length) {
+                    this.isAttacking = false;
+                    this.attackFrame = 0;
+                }
+
+                return;
+            }
+
+            const i = this.currentImage % this.IMAGES_WALKING.length;
+            const path = this.IMAGES_WALKING[i];
             this.img = this.imageCache[path];
             this.currentImage++;
         }, 100);

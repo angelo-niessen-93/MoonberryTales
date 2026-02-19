@@ -4,6 +4,15 @@ class Tiles extends MovableObject {
         '../img/dark_tiles/dark_tile27.png',
         '../img/dark_tiles/dark_tile28.png',
     ];
+    
+    // Hier passt du die Plattform-Hitbox an.
+    // x/y sind Offsets relativ zum Tile-Bild, width/height ist die Hitbox-Groesse.
+    static HITBOX = {
+        x: 2,
+        y: 50,
+        width: 60,
+        height: 10,
+    };
 
     constructor(imagePath, x = 0, y = 350) {
         super().loadImage(imagePath);
@@ -11,6 +20,15 @@ class Tiles extends MovableObject {
         this.y = y;
         this.width = 64;
         this.height = 64;
+    }
+
+    getHitbox() {
+        return {
+            x: this.x + Tiles.HITBOX.x,
+            y: this.y + Tiles.HITBOX.y,
+            width: Tiles.HITBOX.width,
+            height: Tiles.HITBOX.height,
+        };
     }
 
     static createPlatform(startX = 600, y = 350) {

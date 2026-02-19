@@ -13,6 +13,7 @@ class World {
     this.enemies = this.level.enemies;
     this.chain = this.level.chain;
     this.tiles = this.level.tiles;
+    this.items = this.level.items;
     this.backgroundObjects = this.level.backgroundObjects;
 
     this.setWorld();
@@ -22,11 +23,15 @@ class World {
   createLevel() {
     if (typeof level1 !== "undefined") return level1;
 
+    const tiles = Tiles.createPlatformsForArea(-720, 720 * 5, 320, [170, 230, 290, 350]);
+    const items = Items.createForLevel(tiles, -720, 720 * 5, 28);
+
     return new Level(
       Monster.createForLevel(120, 10),
       Chain.createForArea(-720, 720 * 5, 720),
       BackgroundObject.createForArea(-720, 720 * 5, 720, 0),
-      Tiles.createPlatformsForArea(-720, 720 * 5, 320, [170, 230, 290, 350])
+      tiles,
+      items
     );
   }
 
@@ -36,6 +41,8 @@ class World {
   }
 
   draw = () => {
+    this.resolveCharacterGround();
+    this.checkCharacterCollisions();
     this.clearCanvas();
     this.moveCamera();
 
@@ -43,6 +50,7 @@ class World {
       this.backgroundObjects,
       this.chain,
       this.tiles,
+      this.items,
       [this.character],
       this.enemies
     ].forEach(group => this.addObjectsToMap(group));
@@ -50,6 +58,54 @@ class World {
     this.resetCamera();
     requestAnimationFrame(this.draw);
   };
+
+  resolveCharacterGround() {
+    const baseGroundY = 260;
+    const character = this.character;
+
+    let groundedPlatformY = null;
+    const feetLeft = character.x + 20;
+    const feetRight = character.x + character.width - 20;
+    const feetY = character.y + character.height;
+
+    this.tiles.forEach(tile => {
+      const hitbox = typeof tile.getHitbox === "function"
+        ? tile.getHitbox()
+        : { x: tile.x, y: tile.y, width: tile.width, height: tile.height };
+
+      const overlapsX = feetRight > hitbox.x && feetLeft < hitbox.x + hitbox.width;
+      const isNearTop = feetY >= hitbox.y - 12 && feetY <= hitbox.y + hitbox.height;
+      const isFallingOrStanding = character.speedY <= 0;
+
+      if (!overlapsX || !isNearTop || !isFallingOrStanding) {
+        return;
+      }
+
+      if (groundedPlatformY === null || hitbox.y < groundedPlatformY) {
+        groundedPlatformY = hitbox.y;
+      }
+    });
+
+    character.groundY = groundedPlatformY !== null
+      ? groundedPlatformY - character.height
+      : baseGroundY;
+
+    if (character.y > character.groundY) {
+      character.y = character.groundY;
+      character.speedY = 0;
+    }
+  }
+
+  checkCharacterCollisions() {
+    this.enemies.forEach(enemy => {
+      if (this.character.isColliding(enemy)) {
+        if (typeof enemy.triggerAttack === "function") {
+          enemy.triggerAttack(this.character);
+        }
+        this.character.takeHit(enemy.x);
+      }
+    });
+  }
 
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -74,19 +130,34 @@ class World {
       this.ctx.translate(obj.x + obj.width, 0);
       this.ctx.scale(-1, 1);
       this.ctx.drawImage(obj.img, 0, obj.y, obj.width, obj.height);
-      this.drawFrame(0, obj.y, obj.width, obj.height);
+      this.drawObjectFrame({
+        x: 0,
+        y: obj.y,
+        width: obj.width,
+        height: obj.height,
+      }, obj);
     } else {
       this.ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
-      this.drawFrame(obj.x, obj.y, obj.width, obj.height);
+      this.drawObjectFrame(obj, obj);
     }
 
     this.ctx.restore();
   }
 
-  drawFrame(x, y, width, height) {
+  drawObjectFrame(frameSource, originalObject) {
+    if (typeof originalObject.getHitbox === "function") {
+      const hitbox = originalObject.getHitbox();
+      this.drawFrame(hitbox.x, hitbox.y, hitbox.width, hitbox.height, "red");
+      return;
+    }
+
+    this.drawFrame(frameSource.x, frameSource.y, frameSource.width, frameSource.height, "blue");
+  }
+
+  drawFrame(x, y, width, height, color = "blue") {
     this.ctx.beginPath();
     this.ctx.lineWidth = 2;
-    this.ctx.strokeStyle = "blue";
+    this.ctx.strokeStyle = color;
     this.ctx.strokeRect(x, y, width, height);
   }
 }

@@ -56,4 +56,14 @@ class MovableObject {
       this.x = 0;
     }
   }
+
+  isColliding(other) {
+    const inset = 80;
+    return (
+      this.x + this.width > other.x + inset &&
+      this.y + this.height > other.y + inset &&
+      this.x < other.x + other.width - inset &&
+      this.y < other.y + other.height - inset
+    );
+  }
 }
