@@ -106,6 +106,7 @@ class Monster extends MovableObject {
         this.isAttacking = false;
         this.attackFrame = 0;
         this.deadFrame = 0;
+        this.deathAnimationDone = false;
         this.energy = 100;
         this.attackDamage = 10;
         this.lastHitAt = 0;
@@ -235,9 +236,14 @@ class Monster extends MovableObject {
             this.isAttacking = false;
             this.attackFrame = 0;
             this.deadFrame = 0;
+            this.deathAnimationDone = false;
         }
 
         return true;
+    }
+
+    canBeRemoved() {
+        return this.isDead() && this.deathAnimationDone;
     }
 
     animate() {
@@ -246,6 +252,7 @@ class Monster extends MovableObject {
         setInterval(() => {
             if (this.isDead()) {
                 if (!this.IMAGES_DEAD.length) {
+                    this.deathAnimationDone = true;
                     return;
                 }
 
@@ -255,6 +262,8 @@ class Monster extends MovableObject {
 
                 if (this.deadFrame < this.IMAGES_DEAD.length - 1) {
                     this.deadFrame++;
+                } else {
+                    this.deathAnimationDone = true;
                 }
                 return;
             }

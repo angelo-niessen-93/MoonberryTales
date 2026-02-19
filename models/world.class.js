@@ -7,7 +7,7 @@ class World {
     this.ctx = canvas.getContext("2d");
     this.keyboard = keyboard;
 
-    this.character = new Character();
+    this.character = new Knight();
     this.level = this.createLevel();
 
     this.enemies = this.level.enemies;
@@ -15,6 +15,7 @@ class World {
     this.tiles = this.level.tiles;
     this.items = this.level.items;
     this.backgroundObjects = this.level.backgroundObjects;
+    this.hud = this.level.hud;
 
     this.setWorld();
     this.draw();
@@ -23,7 +24,12 @@ class World {
   createLevel() {
     if (typeof level1 !== "undefined") return level1;
 
-    const tiles = Tiles.createPlatformsForArea(-720, 720 * 5, 320, [170, 230, 290, 350]);
+    const tiles = Tiles.createPlatformsForArea(
+      -720,
+      720 * 5,
+      320,
+      [170, 230, 290, 350],
+    );
     const items = Items.createForLevel(tiles, -720, 720 * 5, 28);
 
     return new Level(
@@ -31,13 +37,13 @@ class World {
       Chain.createForArea(-720, 720 * 5, 720),
       BackgroundObject.createForArea(-720, 720 * 5, 720, 0),
       tiles,
-      items
+      items,
     );
   }
 
   setWorld() {
     this.character.world = this;
-    this.enemies.forEach(enemy => enemy.world = this);
+    this.enemies.forEach((enemy) => (enemy.world = this));
   }
 
   draw = () => {
@@ -52,8 +58,8 @@ class World {
       this.tiles,
       this.items,
       [this.character],
-      this.enemies
-    ].forEach(group => this.addObjectsToMap(group));
+      this.enemies,
+    ].forEach((group) => this.addObjectsToMap(group));
 
     this.resetCamera();
     requestAnimationFrame(this.draw);
@@ -68,13 +74,16 @@ class World {
     const feetRight = character.x + character.width - 20;
     const feetY = character.y + character.height;
 
-    this.tiles.forEach(tile => {
-      const hitbox = typeof tile.getHitbox === "function"
-        ? tile.getHitbox()
-        : { x: tile.x, y: tile.y, width: tile.width, height: tile.height };
+    this.tiles.forEach((tile) => {
+      const hitbox =
+        typeof tile.getHitbox === "function"
+          ? tile.getHitbox()
+          : { x: tile.x, y: tile.y, width: tile.width, height: tile.height };
 
-      const overlapsX = feetRight > hitbox.x && feetLeft < hitbox.x + hitbox.width;
-      const isNearTop = feetY >= hitbox.y - 12 && feetY <= hitbox.y + hitbox.height;
+      const overlapsX =
+        feetRight > hitbox.x && feetLeft < hitbox.x + hitbox.width;
+      const isNearTop =
+        feetY >= hitbox.y - 12 && feetY <= hitbox.y + hitbox.height;
       const isFallingOrStanding = character.speedY <= 0;
 
       if (!overlapsX || !isNearTop || !isFallingOrStanding) {
@@ -86,9 +95,10 @@ class World {
       }
     });
 
-    character.groundY = groundedPlatformY !== null
-      ? groundedPlatformY - character.height
-      : baseGroundY;
+    character.groundY =
+      groundedPlatformY !== null
+        ? groundedPlatformY - character.height
+        : baseGroundY;
 
     if (character.y > character.groundY) {
       character.y = character.groundY;
@@ -97,11 +107,20 @@ class World {
   }
 
   checkCharacterCollisions() {
+    if (
+      typeof this.character.isDead === "function" &&
+      this.character.isDead()
+    ) {
+      return;
+    }
+
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const enemy = this.enemies[i];
 
       if (typeof enemy.isDead === "function" && enemy.isDead()) {
-        this.enemies.splice(i, 1);
+        if (typeof enemy.canBeRemoved === "function" && enemy.canBeRemoved()) {
+          this.enemies.splice(i, 1);
+        }
         continue;
       }
 
@@ -109,7 +128,10 @@ class World {
         if (this.character.isAttacking && typeof enemy.takeHit === "function") {
           enemy.takeHit(this.character.x, this.character.attackDamage);
 
-          if (typeof enemy.isDead === "function" && enemy.isDead()) {
+          if (
+            typeof enemy.canBeRemoved === "function" &&
+            enemy.canBeRemoved()
+          ) {
             this.enemies.splice(i, 1);
           }
           continue;
@@ -136,22 +158,29 @@ class World {
   }
 
   addObjectsToMap(objects) {
-    objects.forEach(obj => this.addToMap(obj));
+    objects.forEach((obj) => this.addToMap(obj));
   }
 
   addToMap(obj) {
+    if (!obj || !obj.img) {
+      return;
+    }
+
     this.ctx.save();
 
     if (obj.othersDirection) {
       this.ctx.translate(obj.x + obj.width, 0);
       this.ctx.scale(-1, 1);
       this.ctx.drawImage(obj.img, 0, obj.y, obj.width, obj.height);
-      this.drawObjectFrame({
-        x: 0,
-        y: obj.y,
-        width: obj.width,
-        height: obj.height,
-      }, obj);
+      this.drawObjectFrame(
+        {
+          x: 0,
+          y: obj.y,
+          width: obj.width,
+          height: obj.height,
+        },
+        obj,
+      );
     } else {
       this.ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
       this.drawObjectFrame(obj, obj);
@@ -167,7 +196,13 @@ class World {
       return;
     }
 
-    this.drawFrame(frameSource.x, frameSource.y, frameSource.width, frameSource.height, "blue");
+    this.drawFrame(
+      frameSource.x,
+      frameSource.y,
+      frameSource.width,
+      frameSource.height,
+      "blue",
+    );
   }
 
   drawFrame(x, y, width, height, color = "blue") {

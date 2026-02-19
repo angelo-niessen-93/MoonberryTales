@@ -5,8 +5,6 @@ class Tiles extends MovableObject {
         'img/dark_tiles/dark_tile28.png',
     ];
     
-    // Hier passt du die Plattform-Hitbox an.
-    // x/y sind Offsets relativ zum Tile-Bild, width/height ist die Hitbox-Groesse.
     static HITBOX = {
         x: 2,
         y: 50,
