@@ -9,7 +9,7 @@ class World {
   ctx;
   keyboard;
   camera_x = 0;
-  levelEndX = 720 * 5 - 720;
+  levelEndX = 720 * 5 ;
 
 
   constructor(canvas) {
