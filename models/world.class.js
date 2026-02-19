@@ -97,14 +97,30 @@ class World {
   }
 
   checkCharacterCollisions() {
-    this.enemies.forEach(enemy => {
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      const enemy = this.enemies[i];
+
+      if (typeof enemy.isDead === "function" && enemy.isDead()) {
+        this.enemies.splice(i, 1);
+        continue;
+      }
+
       if (this.character.isColliding(enemy)) {
+        if (this.character.isAttacking && typeof enemy.takeHit === "function") {
+          enemy.takeHit(this.character.x, this.character.attackDamage);
+
+          if (typeof enemy.isDead === "function" && enemy.isDead()) {
+            this.enemies.splice(i, 1);
+          }
+          continue;
+        }
+
         if (typeof enemy.triggerAttack === "function") {
           enemy.triggerAttack(this.character);
         }
-        this.character.takeHit(enemy.x);
+        this.character.takeHit(enemy.x, enemy.attackDamage ?? 10);
       }
-    });
+    }
   }
 
   clearCanvas() {

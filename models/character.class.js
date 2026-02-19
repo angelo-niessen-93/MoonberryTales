@@ -8,45 +8,45 @@ class Character extends MovableObject {
 
 
     IMAGES_WALKING = [
-            '../img/Knight/Walk/walk1.png',
-            '../img/Knight/Walk/walk2.png',
-            '../img/Knight/Walk/walk3.png',
-            '../img/Knight/Walk/walk4.png',
-            '../img/Knight/Walk/walk5.png',
-            '../img/Knight/Walk/walk6.png'
+            'img/Knight/Walk/walk1.png',
+            'img/Knight/Walk/walk2.png',
+            'img/Knight/Walk/walk3.png',
+            'img/Knight/Walk/walk4.png',
+            'img/Knight/Walk/walk5.png',
+            'img/Knight/Walk/walk6.png'
         ];
 
     IMAGES_JUMPING = [
-        '../img/Knight/Jump_high/high_jump2.png',
-        '../img/Knight/Jump_high/high_jump3.png',
-        '../img/Knight/Jump_high/high_jump4.png',
-        '../img/Knight/Jump_high/high_jump5.png',
-        '../img/Knight/Jump_high/high_jump6.png',
-        '../img/Knight/Jump_high/high_jump7.png'
+        'img/Knight/Jump_high/high_jump2.png',
+        'img/Knight/Jump_high/high_jump3.png',
+        'img/Knight/Jump_high/high_jump4.png',
+        'img/Knight/Jump_high/high_jump5.png',
+        'img/Knight/Jump_high/high_jump6.png',
+        'img/Knight/Jump_high/high_jump7.png'
     ];   
 
     IMAGES_ATTACKING = [
-        '../img/Knight/Extra_Attack/attack_extra1.png',
-        '../img/Knight/Extra_Attack/attack_extra2.png',
-        '../img/Knight/Extra_Attack/attack_extra3.png',
-        '../img/Knight/Extra_Attack/attack_extra4.png',
-        '../img/Knight/Extra_Attack/attack_extra5.png',
-        '../img/Knight/Extra_Attack/attack_extra6.png',  
-        '../img/Knight/Extra_Attack/attack_extra7.png',  
-        '../img/Knight/Extra_Attack/attack_extra8.png',  
+        'img/Knight/Extra_Attack/attack_extra1.png',
+        'img/Knight/Extra_Attack/attack_extra2.png',
+        'img/Knight/Extra_Attack/attack_extra3.png',
+        'img/Knight/Extra_Attack/attack_extra4.png',
+        'img/Knight/Extra_Attack/attack_extra5.png',
+        'img/Knight/Extra_Attack/attack_extra6.png',  
+        'img/Knight/Extra_Attack/attack_extra7.png',  
+        'img/Knight/Extra_Attack/attack_extra8.png',  
     ];
 
     IMAGES_DEAD = [
-        '../img/Knight/Dead/knight_death1.png',
-        '../img/Knight/Dead/knight_death2.png',
-        '../img/Knight/Dead/knight_death3.png',
-        '../img/Knight/Dead/knight_death4.png',
-        '../img/Knight/Dead/knight_death5.png',
-        '../img/Knight/Dead/knight_death6.png',
-        '../img/Knight/Dead/knight_death7.png',
-        '../img/Knight/Dead/knight_death8.png',
-        '../img/Knight/Dead/knight_death9.png',
-        '../img/Knight/Dead/knight_death10.png',
+        'img/Knight/Dead/knight_death1.png',
+        'img/Knight/Dead/knight_death2.png',
+        'img/Knight/Dead/knight_death3.png',
+        'img/Knight/Dead/knight_death4.png',
+        'img/Knight/Dead/knight_death5.png',
+        'img/Knight/Dead/knight_death6.png',
+        'img/Knight/Dead/knight_death7.png',
+        'img/Knight/Dead/knight_death8.png',
+        'img/Knight/Dead/knight_death9.png',
+        'img/Knight/Dead/knight_death10.png',
     ];
 
     world;   
@@ -54,6 +54,7 @@ class Character extends MovableObject {
     jumpSound = new Audio('audio/classic-jump.mp3');
     footstepSound = new Audio('audio/footstep.mp3');
     lastHitAt = 0;
+    attackDamage = 25;
     isAttacking = false;
     attackFrame = 0;
     lastSpacePressed = false;
@@ -61,7 +62,7 @@ class Character extends MovableObject {
 
 
     constructor() {
-        super().loadImage('../img/Knight/Walk/walk1.png');
+        super().loadImage('img/Knight/Walk/walk1.png');
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
         this.loadImages(this.IMAGES_ATTACKING);
@@ -170,13 +171,14 @@ class Character extends MovableObject {
         }
     }
 
-    takeHit(fromEnemyX) {
+    takeHit(fromEnemyX, damage = 10) {
         const now = Date.now();
         if (now - this.lastHitAt < 500) {
-            return;
+            return false;
         }
 
         this.lastHitAt = now;
+        this.takeDamage(damage);
         this.stopFootsteps();
 
         const knockback = fromEnemyX >= this.x ? -40 : 40;
@@ -189,5 +191,7 @@ class Character extends MovableObject {
         if (!this.isAboveGround()) {
             this.speedY = 8;
         }
+
+        return true;
     }
 }

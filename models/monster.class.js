@@ -7,67 +7,67 @@ class Monster extends MovableObject {
 
     static WALKING_SETS = {
         skeleton: [
-            '../img/Skeleton/skeleton04_walk1.png',
-            '../img/Skeleton/skeleton05_walk2.png',
-            '../img/Skeleton/skeleton06_walk3.png',
-            '../img/Skeleton/skeleton07_walk4.png',
-            '../img/Skeleton/skeleton08_walk5.png',
-            '../img/Skeleton/skeleton09_walk6.png',
+            'img/Skeleton/skeleton04_walk1.png',
+            'img/Skeleton/skeleton05_walk2.png',
+            'img/Skeleton/skeleton06_walk3.png',
+            'img/Skeleton/skeleton07_walk4.png',
+            'img/Skeleton/skeleton08_walk5.png',
+            'img/Skeleton/skeleton09_walk6.png',
         ],
         dragon: [
-            '../img/Dragon/dragon04_walk1.png',
-            '../img/Dragon/dragon05_walk2.png',
-            '../img/Dragon/dragon06_walk3.png',
-            '../img/Dragon/dragon07_walk4.png',
-            '../img/Dragon/dragon08_walk5.png',
+            'img/Dragon/dragon04_walk1.png',
+            'img/Dragon/dragon05_walk2.png',
+            'img/Dragon/dragon06_walk3.png',
+            'img/Dragon/dragon07_walk4.png',
+            'img/Dragon/dragon08_walk5.png',
         ],
         ghost: [
-            '../img/Ghost/ghost05_walk1.png',
-            '../img/Ghost/ghost06_walk2.png',
-            '../img/Ghost/ghost07_walk3.png',
-            '../img/Ghost/ghost08_walk4.png',
+            'img/Ghost/ghost05_walk1.png',
+            'img/Ghost/ghost06_walk2.png',
+            'img/Ghost/ghost07_walk3.png',
+            'img/Ghost/ghost08_walk4.png',
         ],
     };
 
     static ATTACK_SETS = {
         skeleton: [
-            '../img/Skeleton/skeleton10_attack1.png',
-            '../img/Skeleton/skeleton11_attack2.png',
-            '../img/Skeleton/skeleton12_attack3.png',
+            'img/Skeleton/skeleton10_attack1.png',
+            'img/Skeleton/skeleton11_attack2.png',
+            'img/Skeleton/skeleton12_attack3.png',
         ],
         dragon: [
-            '../img/Dragon/dragon09_attack1.png',
-            '../img/Dragon/dragon10_attack2.png',
-            '../img/Dragon/dragon11_attack3.png',
-            '../img/Dragon/dragon12_attack4.png',
+            'img/Dragon/dragon09_attack1.png',
+            'img/Dragon/dragon10_attack2.png',
+            'img/Dragon/dragon11_attack3.png',
+            'img/Dragon/dragon12_attack4.png',
         ],
         ghost: [
-            '../img/Ghost/ghost09_attack1.png',
-            '../img/Ghost/ghost10_attack2.png',
-            '../img/Ghost/ghost11_attack3.png',
-            '../img/Ghost/ghost12_attack4.png',
+            'img/Ghost/ghost09_attack1.png',
+            'img/Ghost/ghost10_attack2.png',
+            'img/Ghost/ghost11_attack3.png',
+            'img/Ghost/ghost12_attack4.png',
         ],
     };
 
     static DEAD_SETS = {
         skeleton: [
-            '../img/Skeleton/skeleton15_death1.png',
-            '../img/Skeleton/skeleton16_death2.png',
-            '../img/Skeleton/skeleton17_death3.png',
-            '../img/Skeleton/skeleton18_death4.png',
-            '../img/Skeleton/skeleton19_death5.png',
+            'img/Skeleton/skeleton15_death1.png',
+            'img/Skeleton/skeleton16_death2.png',
+            'img/Skeleton/skeleton17_death3.png',
+            'img/Skeleton/skeleton18_death4.png',
+            'img/Skeleton/skeleton19_death5.png',
         ],
         dragon: [
-            '../img/Dragon/dragon15_death1.png',
-            '../img/Dragon/dragon16_death2.png',
-            '../img/Dragon/dragon17_death3.png',
-            '../img/Dragon/dragon18_death4.png',
+            'img/Dragon/dragon15_death1.png',
+            'img/Dragon/dragon16_death2.png',
+            'img/Dragon/dragon17_death3.png',
+            'img/Dragon/dragon18_death4.png',
         ],
         ghost: [
-            '../img/Ghost/ghost15_death1.png',
-            '../img/Ghost/ghost16_death2.png',
-            '../img/Ghost/ghost17_death3.png',
-            '../img/Ghost/ghost18_death4.png',
+            'img/Ghost/ghost15_death1.png',
+            'img/Ghost/ghost16_death2.png',
+            'img/Ghost/ghost17_death3.png',
+            'img/Ghost/ghost18_death4.png',
     ],
     };
 
@@ -88,6 +88,7 @@ class Monster extends MovableObject {
 
         this.IMAGES_WALKING = Monster.WALKING_SETS[this.type];
         this.IMAGES_ATTACKING = Monster.ATTACK_SETS[this.type] || [];
+        this.IMAGES_DEAD = Monster.DEAD_SETS[this.type] || [];
 
         const size = Monster.TYPE_SIZES[this.type];
         if (size) {
@@ -104,9 +105,14 @@ class Monster extends MovableObject {
         this.othersDirection = true;
         this.isAttacking = false;
         this.attackFrame = 0;
+        this.deadFrame = 0;
+        this.energy = 100;
+        this.attackDamage = 10;
+        this.lastHitAt = 0;
         this.lastAttackAt = 0;
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_ATTACKING);
+        this.loadImages(this.IMAGES_DEAD);
         this.animate();
     }
 
@@ -157,6 +163,10 @@ class Monster extends MovableObject {
 
     movePatrol() {
         setInterval(() => {
+            if (this.isDead()) {
+                return;
+            }
+
             if (this.isAttacking) {
                 return;
             }
@@ -182,6 +192,10 @@ class Monster extends MovableObject {
     }
 
     triggerAttack(target = null) {
+        if (this.isDead()) {
+            return;
+        }
+
         if (!this.IMAGES_ATTACKING.length) {
             return;
         }
@@ -200,10 +214,51 @@ class Monster extends MovableObject {
         this.attackFrame = 0;
     }
 
+    takeHit(fromCharacterX, damage = 25) {
+        if (this.isDead()) {
+            return false;
+        }
+
+        const now = Date.now();
+        if (now - this.lastHitAt < 300) {
+            return false;
+        }
+
+        this.lastHitAt = now;
+        this.takeDamage(damage);
+
+        const knockback = fromCharacterX <= this.x ? 20 : -20;
+        this.x += knockback;
+        this.x = Math.max(this.patrolMinX, Math.min(this.x, this.patrolMaxX));
+
+        if (this.isDead()) {
+            this.isAttacking = false;
+            this.attackFrame = 0;
+            this.deadFrame = 0;
+        }
+
+        return true;
+    }
+
     animate() {
         this.movePatrol();
 
         setInterval(() => {
+            if (this.isDead()) {
+                if (!this.IMAGES_DEAD.length) {
+                    return;
+                }
+
+                const deathIndex = Math.min(this.deadFrame, this.IMAGES_DEAD.length - 1);
+                const deathPath = this.IMAGES_DEAD[deathIndex];
+                this.img = this.imageCache[deathPath];
+
+                if (this.deadFrame < this.IMAGES_DEAD.length - 1) {
+                    this.deadFrame++;
+                }
+                return;
+            }
+
             if (this.isAttacking && this.IMAGES_ATTACKING.length) {
                 const path = this.IMAGES_ATTACKING[this.attackFrame];
                 this.img = this.imageCache[path];

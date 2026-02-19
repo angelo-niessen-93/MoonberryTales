@@ -12,7 +12,16 @@ class MovableObject {
   speedY = 0;
   acceleration = 2;
   othersDirection = false;
+  energy = 100;
 
+  takeDamage(amount = 10) {
+    this.energy = Math.max(0, this.energy - amount);
+  }
+
+  isDead() {
+    return this.energy <= 0;
+  }
+  
   applyGravity() {
     setInterval(() => {
       if (this.isAboveGround() || this.speedY > 0) {

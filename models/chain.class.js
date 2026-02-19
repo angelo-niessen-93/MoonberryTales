@@ -3,7 +3,7 @@ class Chain extends MovableObject {
     static MAX_X = 720 * 5;
 
     constructor(x = 0) {
-        super().loadImage('../img/Background/myst.png');
+        super().loadImage('img/Background/myst.png');
 
         this.x = x;
         this.y = 20;

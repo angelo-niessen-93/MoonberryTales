@@ -8,12 +8,27 @@ class Endboss extends MovableObject {
     y = 110;
     speed = 1.2;
     IMAGES_WALKING = [
-        '../img/Boss2/Walk1.png',
-        '../img/Boss2/Walk2.png',
-        '../img/Boss2/Walk3.png',
-        '../img/Boss2/Walk4.png',
-        '../img/Boss2/Walk5.png',
-        '../img/Boss2/Walk6.png',
+        'img/Boss2/Walk1.png',
+        'img/Boss2/Walk2.png',
+        'img/Boss2/Walk3.png',
+        'img/Boss2/Walk4.png',
+        'img/Boss2/Walk5.png',
+        'img/Boss2/Walk6.png',
+    ];
+
+    IMAGES_ATTACKING = [
+        'img/Boss2/Attack1.png',
+        'img/Boss2/Attack2.png',
+        'img/Boss2/Attack3.png',
+        'img/Boss2/Attack4.png',
+        'img/Boss2/Attack5.png',
+        'img/Boss2/Attack6.png',
+        'img/Boss2/Attack7.png',
+    ];
+
+    IMAGES_HURT = [
+        'img/Boss2/Hurt1.png',
+        'img/Boss2/Hurt2.png',          
     ];
 
     constructor(x = null) {

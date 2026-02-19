@@ -1,8 +1,8 @@
 class Tiles extends MovableObject {
     static PLATFORM_IMAGES = [
-        '../img/dark_tiles/dark_tile26.png',
-        '../img/dark_tiles/dark_tile27.png',
-        '../img/dark_tiles/dark_tile28.png',
+        'img/dark_tiles/dark_tile26.png',
+        'img/dark_tiles/dark_tile27.png',
+        'img/dark_tiles/dark_tile28.png',
     ];
     
     // Hier passt du die Plattform-Hitbox an.
