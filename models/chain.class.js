@@ -6,18 +6,13 @@ class Chain extends MovableObject {
         this.y = 20;
         this.width = 720;
         this.height = 480;
-        this.speed = 0.15;
+        this.speed = 0.35;
 
         this.animate();
     }
 
     animate() {
-        setInterval(() => {
-            this.x -= this.speed;
-
-            if (this.x <= -this.width) {
-                this.x = 0;
-            }
-        }, 1000 / 60);
+        this.moveLeft();
     }
+
 }
