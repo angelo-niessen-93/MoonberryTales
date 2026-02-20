@@ -21,8 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "./img/Knight/Idle/knight_idle9.png",
       "./img/Knight/Idle/knight_idle10.png",
       "./img/Knight/Idle/knight_idle11.png",
-      "./img/Knight/Idle/knight_idle12.png",
-      "./img/Knight/Idle/knight_idle13.png"
+      "./img/Knight/Idle/knight_idle12.png"
     ],
     Mage: [
       "./img/Mage/Idle/mage_idle1.png",
