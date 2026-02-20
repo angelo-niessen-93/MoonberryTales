@@ -78,6 +78,7 @@ class Monster extends MovableObject {
         ghost: { width: 120, height: 170, y: 300 },
     };
 
+
     constructor(type = null, x = null, patrolMinX = null, patrolMaxX = null) {
         super();
 
@@ -107,7 +108,7 @@ class Monster extends MovableObject {
         this.attackFrame = 0;
         this.deadFrame = 0;
         this.deathAnimationDone = false;
-        this.energy = 100;
+        this.energy = 50;
         this.attackDamage = 10;
         this.lastHitAt = 0;
         this.lastAttackAt = 0;

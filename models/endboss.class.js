@@ -38,9 +38,18 @@ class Endboss extends MovableObject {
         this.patrolMaxX = Math.min(Endboss.SPAWN_MAX_X, this.x + 160);
         this.movingLeft = true;
         this.othersDirection = true;
+        this.isAttacking = false;
+        this.attackFrame = 0;
+        this.attackDamage = 20;
+        this.lastAttackAt = 0;
+        this.deadFrame = 0;
+        this.deathAnimationDone = false;
+        this.energy = 150;
 
         this.loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
+        this.loadImages(this.IMAGES_ATTACKING);
+        this.loadImages(this.IMAGES_HURT);
         this.animate();
     }
 
@@ -48,8 +57,64 @@ class Endboss extends MovableObject {
         return Endboss.SPAWN_MIN_X + Math.random() * (Endboss.SPAWN_MAX_X - Endboss.SPAWN_MIN_X);
     }
 
+    triggerAttack(target = null) {
+        if (this.isDead()) {
+            return;
+        }
+
+        if (!this.IMAGES_ATTACKING.length) {
+            return;
+        }
+
+        const now = Date.now();
+        if (now - this.lastAttackAt < 700) {
+            return;
+        }
+
+        if (target) {
+            this.othersDirection = target.x < this.x;
+        }
+
+        this.lastAttackAt = now;
+        this.isAttacking = true;
+        this.attackFrame = 0;
+    }
+
+    takeHit(fromCharacterX, damage = 25) {
+        if (this.isDead()) {
+            return false;
+        }
+
+        this.takeDamage(damage);
+
+        const knockback = fromCharacterX <= this.x ? 25 : -25;
+        this.x += knockback;
+        this.x = Math.max(this.patrolMinX, Math.min(this.x, this.patrolMaxX));
+
+        if (this.isDead()) {
+            this.isAttacking = false;
+            this.attackFrame = 0;
+            this.deadFrame = 0;
+            this.deathAnimationDone = false;
+        }
+
+        return true;
+    }
+
+    canBeRemoved() {
+        return this.isDead() && this.deathAnimationDone;
+    }
+
     animate() {
         setInterval(() => {
+            if (this.isDead()) {
+                return;
+            }
+
+            if (this.isAttacking) {
+                return;
+            }
+
             if (this.movingLeft) {
                 this.x -= this.speed;
                 this.othersDirection = true;
@@ -68,6 +133,32 @@ class Endboss extends MovableObject {
         }, 1000 / 60);
 
         setInterval(() => {
+            if (this.isDead()) {
+                const hurtIndex = Math.min(this.deadFrame, this.IMAGES_HURT.length - 1);
+                const hurtPath = this.IMAGES_HURT[hurtIndex];
+                this.img = this.imageCache[hurtPath] || this.img;
+
+                if (this.deadFrame < this.IMAGES_HURT.length - 1) {
+                    this.deadFrame++;
+                } else {
+                    this.deathAnimationDone = true;
+                }
+                return;
+            }
+
+            if (this.isAttacking && this.IMAGES_ATTACKING.length) {
+                const path = this.IMAGES_ATTACKING[this.attackFrame];
+                this.img = this.imageCache[path];
+                this.attackFrame++;
+
+                if (this.attackFrame >= this.IMAGES_ATTACKING.length) {
+                    this.isAttacking = false;
+                    this.attackFrame = 0;
+                }
+
+                return;
+            }
+
             const i = this.currentImage % this.IMAGES_WALKING.length;
             const path = this.IMAGES_WALKING[i];
             this.img = this.imageCache[path];

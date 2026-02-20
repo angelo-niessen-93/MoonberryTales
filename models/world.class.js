@@ -1,13 +1,22 @@
 class World {
   camera_x = 0;
   levelEndX = 720 * 5;
+  projectiles = [];
 
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.keyboard = keyboard;
 
-    this.character = new Knight();
+    const selectedCharacter = localStorage.getItem("selectedCharacter");
+    if (selectedCharacter === "Mage") {
+      this.character = new Mage();
+    } else if (selectedCharacter === "Rogue") {
+      this.character = new Rogue();
+    } else {
+      this.character = new Knight();
+    }
+
     this.level = this.createLevel();
 
     this.enemies = this.level.enemies;
@@ -15,7 +24,6 @@ class World {
     this.tiles = this.level.tiles;
     this.items = this.level.items;
     this.backgroundObjects = this.level.backgroundObjects;
-    this.hud = this.level.hud;
 
     this.setWorld();
     this.draw();
@@ -47,6 +55,7 @@ class World {
   }
 
   draw = () => {
+    this.updateProjectiles();
     this.resolveCharacterGround();
     this.checkCharacterCollisions();
     this.clearCanvas();
@@ -57,6 +66,7 @@ class World {
       this.chain,
       this.tiles,
       this.items,
+      this.projectiles,
       [this.character],
       this.enemies,
     ].forEach((group) => this.addObjectsToMap(group));
@@ -137,11 +147,48 @@ class World {
           continue;
         }
 
+        const enemyWasAttacking = enemy.isAttacking === true;
+
         if (typeof enemy.triggerAttack === "function") {
           enemy.triggerAttack(this.character);
         }
-        this.character.takeHit(enemy.x, enemy.attackDamage ?? 10);
+
+        if (enemyWasAttacking) {
+          this.character.takeHit(enemy.x, enemy.attackDamage ?? 10);
+        }
       }
+    }
+  }
+
+  updateProjectiles() {
+    const activeProjectiles = Array.isArray(this.character.projectiles)
+      ? this.character.projectiles
+      : [];
+
+    activeProjectiles.forEach((projectile) => {
+      projectile.update(this.levelEndX);
+
+      if (!projectile.isActive) {
+        return;
+      }
+
+      for (let i = this.enemies.length - 1; i >= 0; i--) {
+        const enemy = this.enemies[i];
+        if (enemy.isDead()) {
+          continue;
+        }
+
+        if (projectile.isColliding(enemy)) {
+          enemy.takeHit(this.character.x, this.character.attackDamage);
+          projectile.isActive = false;
+          break;
+        }
+      }
+    });
+
+    this.projectiles = activeProjectiles.filter((projectile) => projectile.isActive);
+    if (Array.isArray(this.character.projectiles)) {
+      this.character.projectiles = this.projectiles;
     }
   }
 
@@ -211,4 +258,5 @@ class World {
     this.ctx.strokeStyle = color;
     this.ctx.strokeRect(x, y, width, height);
   }
+
 }
