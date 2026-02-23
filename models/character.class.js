@@ -7,9 +7,11 @@ class Character extends MovableObject {
     groundY = 260;
 
    
+    IMAGES_IDLE = [];
     IMAGES_WALKING = [];
     IMAGES_JUMPING = [];
     IMAGES_ATTACKING = [];
+    IMAGES_HURT = [];
     IMAGES_DEAD = [];
 
 
@@ -48,13 +50,16 @@ class Character extends MovableObject {
     }
 
     loadAllImages() {
-        [this.IMAGES_WALKING, this.IMAGES_JUMPING, this.IMAGES_ATTACKING, this.IMAGES_DEAD]
-            .forEach(arr => arr.forEach(path => this.loadImages([path])));
+        [this.IMAGES_IDLE, this.IMAGES_WALKING, this.IMAGES_JUMPING, this.IMAGES_ATTACKING, this.IMAGES_HURT, this.IMAGES_DEAD]
+            .filter(Array.isArray)
+            .forEach((arr) => this.loadImages(arr));
     }
 
     animate() {
        
         setInterval(() => {
+            if (!this.world || !this.world.keyboard) return;
+
             if (this.isDead()) {
                 this.stopFootsteps();
                 return;
@@ -74,6 +79,7 @@ class Character extends MovableObject {
             if (this.world.keyboard.SPACE && !this.lastSpacePressed) {
                 this.startAttack();
             }
+             
             this.lastSpacePressed = this.world.keyboard.SPACE;
 
             const isWalking = (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.isAboveGround();
@@ -85,6 +91,8 @@ class Character extends MovableObject {
 
         
         setInterval(() => {
+            if (!this.world || !this.world.keyboard) return;
+
             if (this.isDead()) {
                 this.playDeathAnimation();
                 return;
@@ -95,9 +103,18 @@ class Character extends MovableObject {
                 return;
             }
 
+            if (this.isHurt() && this.IMAGES_HURT.length) {
+                this.playAnimation(this.IMAGES_HURT);
+                return;
+            }
+
             if (this.isAboveGround()) this.playAnimation(this.IMAGES_JUMPING);
             else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) this.playAnimation(this.IMAGES_WALKING);
-            else this.img = this.imageCache[this.IMAGES_WALKING[0]]; 
+            else if (this.IMAGES_IDLE.length) this.playAnimation(this.IMAGES_IDLE);
+            else {
+                const fallbackPath = this.IMAGES_WALKING[0];
+                if (fallbackPath) this.img = this.imageCache[fallbackPath] || this.img;
+            }
         }, 100);
     }
 
@@ -156,6 +173,10 @@ class Character extends MovableObject {
         else this.deathAnimationDone = true;
     }
 
+    isHurt() {
+        return !this.isDead() && Date.now() - this.lastHitAt < 500;
+    }
+
     takeHit(fromEnemyX, damage = 10) {
         if (this.isDead()) return false;
 
@@ -181,4 +202,3 @@ class Character extends MovableObject {
         return true;
     }
 }
-

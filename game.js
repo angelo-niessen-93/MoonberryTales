@@ -5,12 +5,11 @@ let keyboard = new Keyboard();
 function init() {
     canvas = document.getElementById('canvas');
     world = new World(canvas, keyboard);
-    
 
-    console.log('My Character is',world.character);
+    console.log('My Character is', world.character);
 }
 
-window.addEventListener ("keydown", (e) => {
+window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') {
         keyboard.LEFT = true;
     }
@@ -29,10 +28,9 @@ window.addEventListener ("keydown", (e) => {
     if (e.key === 'Shift') {
         keyboard.SHIFT = true;
     }
+});
 
-}); 
-
-window.addEventListener ("keyup", (e) => {
+window.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowLeft') {
         keyboard.LEFT = false;
     }
@@ -51,4 +49,4 @@ window.addEventListener ("keyup", (e) => {
     if (e.key === 'Shift') {
         keyboard.SHIFT = false;
     }
-}); 
+});

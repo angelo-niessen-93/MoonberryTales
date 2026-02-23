@@ -20,7 +20,6 @@ class Knight extends Character {
         'img/Knight/Idle/knight_idle12.png'
    ];
 
-
     IMAGES_WALKING = [
         'img/Knight/Walk/walk1.png',
         'img/Knight/Walk/walk2.png',
@@ -63,6 +62,13 @@ class Knight extends Character {
         'img/Knight/Death/knight_death10.png',
     ];
 
+    IMAGES_HURT = [
+        'img/Knight/Hurt/hurt1.png',
+        'img/Knight/Hurt/hurt2.png',
+        'img/Knight/Hurt/hurt3.png',
+        'img/Knight/Hurt/hurt4.png'
+    ];
+
 
     attackSound = new Audio('audio/fight.mp3');
     jumpSound = new Audio('audio/classic-jump.mp3');
@@ -70,10 +76,11 @@ class Knight extends Character {
 
     constructor() {
         super();  
-      
+        this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
         this.loadImages(this.IMAGES_ATTACKING);
+        this.loadImages(this.IMAGES_HURT);
         this.loadImages(this.IMAGES_DEAD);
     }
 }

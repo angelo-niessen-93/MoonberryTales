@@ -2,6 +2,8 @@ class World {
   camera_x = 0;
   levelEndX = 720 * 5;
   projectiles = [];
+  isGameOver = false;
+  coinsCollected = 0;
 
   constructor(canvas) {
     this.canvas = canvas;
@@ -25,7 +27,16 @@ class World {
     this.items = this.level.items;
     this.backgroundObjects = this.level.backgroundObjects;
 
+    this.gameOverImage = new Image();
+    this.gameOverImage.src = "img/Game-over.png";
+
+    this.gameOverButtons = {
+      restart: { x: 210, y: 380, width: 130, height: 42, label: "Restart" },
+      home: { x: 360, y: 380, width: 190, height: 42, label: "Home" },
+    };
+
     this.setWorld();
+    this.setupGameOverInteraction();
     this.draw();
   }
 
@@ -54,10 +65,65 @@ class World {
     this.enemies.forEach((enemy) => (enemy.world = this));
   }
 
+  setupGameOverInteraction() {
+    this.canvas.addEventListener("click", (event) => {
+      if (!this.isGameOver) {
+        return;
+      }
+
+      const point = this.getCanvasPoint(event);
+      if (this.isPointInButton(point, this.gameOverButtons.restart)) {
+        window.location.reload();
+        return;
+      }
+
+      if (this.isPointInButton(point, this.gameOverButtons.home)) {
+        window.location.href = "./index.html";
+      }
+    });
+
+    this.canvas.addEventListener("mousemove", (event) => {
+      if (!this.isGameOver) {
+        this.canvas.style.cursor = "default";
+        return;
+      }
+
+      const point = this.getCanvasPoint(event);
+      const onRestart = this.isPointInButton(point, this.gameOverButtons.restart);
+      const onHome = this.isPointInButton(point, this.gameOverButtons.home);
+      this.canvas.style.cursor = onRestart || onHome ? "pointer" : "default";
+    });
+  }
+
+  getCanvasPoint(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  }
+
+  isPointInButton(point, button) {
+    return (
+      point.x >= button.x &&
+      point.x <= button.x + button.width &&
+      point.y >= button.y &&
+      point.y <= button.y + button.height
+    );
+  }
+
   draw = () => {
-    this.updateProjectiles();
-    this.resolveCharacterGround();
-    this.checkCharacterCollisions();
+    if (!this.isGameOver) {
+      this.updateProjectiles();
+      this.resolveCharacterGround();
+      this.checkCharacterCollisions();
+      this.checkItemCollections();
+
+      if (typeof this.character.isDead === "function" && this.character.isDead()) {
+        this.isGameOver = true;
+      }
+    }
+
     this.clearCanvas();
     this.moveCamera();
 
@@ -72,8 +138,95 @@ class World {
     ].forEach((group) => this.addObjectsToMap(group));
 
     this.resetCamera();
+    this.drawHud();
+
+    if (this.isGameOver) {
+      this.drawGameOverScreen();
+    }
+
     requestAnimationFrame(this.draw);
   };
+
+  drawGameOverScreen() {
+    this.ctx.save();
+
+    this.ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    const imageWidth = 460;
+    const imageHeight = 220;
+    const imageX = (this.canvas.width - imageWidth) / 2;
+    const imageY = 95;
+
+    if (this.gameOverImage.complete) {
+      this.ctx.drawImage(this.gameOverImage, imageX, imageY, imageWidth, imageHeight);
+    }
+
+    this.drawGameOverButton(this.gameOverButtons.restart, "#f7b500", "#1c1c1c");
+    this.drawGameOverButton(this.gameOverButtons.home, "#e4e4e4", "#1c1c1c");
+
+    this.ctx.restore();
+  }
+
+  drawGameOverButton(button, bgColor, textColor) {
+    this.ctx.fillStyle = bgColor;
+    this.ctx.fillRect(button.x, button.y, button.width, button.height);
+
+    this.ctx.strokeStyle = "#1c1c1c";
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(button.x, button.y, button.width, button.height);
+
+    this.ctx.fillStyle = textColor;
+    this.ctx.font = "20px sans-serif";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText(
+      button.label,
+      button.x + button.width / 2,
+      button.y + button.height / 2,
+    );
+  }
+
+  drawHud() {
+    const maxHealth = 100;
+    const currentHealth = Math.max(0, Math.min(maxHealth, this.character.energy ?? 0));
+    const healthPercent = currentHealth / maxHealth;
+
+    const barX = 20;
+    const barY = 18;
+    const barWidth = 220;
+    const barHeight = 24;
+
+    this.ctx.save();
+
+    this.ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+    this.ctx.fillRect(10, 10, 300, 78);
+
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.font = "16px sans-serif";
+    this.ctx.textAlign = "left";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText("Leben", barX, barY - 2);
+
+    this.ctx.fillStyle = "#2d2d2d";
+    this.ctx.fillRect(barX, barY + 8, barWidth, barHeight);
+
+    this.ctx.fillStyle = healthPercent > 0.35 ? "#39d353" : "#ef4444";
+    this.ctx.fillRect(barX, barY + 8, barWidth * healthPercent, barHeight);
+
+    this.ctx.strokeStyle = "#ffffff";
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(barX, barY + 8, barWidth, barHeight);
+
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.font = "15px sans-serif";
+    this.ctx.fillText(`HP: ${Math.round(currentHealth)}/${maxHealth}`, barX + 8, barY + 21);
+
+    this.ctx.font = "18px sans-serif";
+    this.ctx.fillText(`Coins: ${this.coinsCollected}`, barX, 72);
+
+    this.ctx.restore();
+  }
 
   resolveCharacterGround() {
     const baseGroundY = 260;
@@ -159,7 +312,52 @@ class World {
       }
     }
   }
+  checkItemCollections() {
+    for (let i = this.items.length - 1; i >= 0; i--) {
+      const item = this.items[i];
+      if (!item) {
+        continue;
+      }
 
+      if (!this.isItemCollected(this.character, item)) {
+        continue;
+      }
+
+      if (item.type === "heart") {
+        if ((this.character.energy ?? 0) >= 100) {
+          continue;
+        }
+        this.character.energy = Math.min(100, this.character.energy + 20);
+      } else if (item.type === "coin") {
+        this.coinsCollected += 1;
+      }
+
+      this.items.splice(i, 1);
+    }
+  }
+
+  isItemCollected(character, item) {
+    const charHitbox = {
+      x: character.x + 20,
+      y: character.y + 20,
+      width: character.width - 40,
+      height: character.height - 40,
+    };
+
+    const itemHitbox = {
+      x: item.x,
+      y: item.y,
+      width: item.width,
+      height: item.height,
+    };
+
+    return (
+      charHitbox.x + charHitbox.width > itemHitbox.x &&
+      charHitbox.y + charHitbox.height > itemHitbox.y &&
+      charHitbox.x < itemHitbox.x + itemHitbox.width &&
+      charHitbox.y < itemHitbox.y + itemHitbox.height
+    );
+  }
   updateProjectiles() {
     const activeProjectiles = Array.isArray(this.character.projectiles)
       ? this.character.projectiles
@@ -258,5 +456,4 @@ class World {
     this.ctx.strokeStyle = color;
     this.ctx.strokeRect(x, y, width, height);
   }
-
 }

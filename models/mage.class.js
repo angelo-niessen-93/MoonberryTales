@@ -67,6 +67,13 @@ class Mage extends Character {
         'img/Mage/Death/mage_death10.png',
     ];
 
+    IMAGES_HURT = [
+        'img/Mage/Hurt/hurt1.png',
+        'img/Mage/Hurt/hurt2.png',
+        'img/Mage/Hurt/hurt3.png',
+        'img/Mage/Hurt/hurt4.png'
+    ];
+
     attackSound = new Audio('audio/attack_mage.mp3');
     jumpSound = new Audio('audio/classic-jump.mp3');
     footstepSound = new Audio('audio/footstep.mp3');    
@@ -89,9 +96,11 @@ class Mage extends Character {
 
     constructor() {
         super();
+        this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
         this.loadImages(this.IMAGES_ATTACKING);
+        this.loadImages(this.IMAGES_HURT);
         this.loadImages(this.IMAGES_DEAD);
  }
 

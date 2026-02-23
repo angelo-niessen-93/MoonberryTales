@@ -71,15 +71,25 @@ class Rogue extends Character {
     "img/Rogue/Death/rogue_death10.png",
   ];
 
+  IMAGES_HURT = [
+    'img/Rogue/Hurt/hurt1.png',
+    'img/Rogue/Hurt/hurt2.png',
+    'img/Rogue/Hurt/hurt3.png',
+    'img/Rogue/Hurt/hurt4.png'
+  ];
+
   attackSound = new Audio("audio/fight.mp3");
   jumpSound = new Audio("audio/classic-jump.mp3");
   footstepSound = new Audio("audio/footstep.mp3");
 
   constructor() {
     super();
+    this.loadImages(this.IMAGES_IDLE);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_ATTACKING);
+    this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
+  
   }
 }

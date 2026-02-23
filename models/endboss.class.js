@@ -31,6 +31,15 @@ class Endboss extends MovableObject {
         'img/Boss2/Hurt2.png',          
     ];
 
+    IMAGES_DEAD = [
+        'img/Boss2/Death0.png',
+        'img/Boss2/Death1.png',
+        'img/Boss2/Death01.png',
+        'img/Boss2/Death2.png',
+        'img/Boss2/Death3.png',
+        'img/Boss2/Death4.png'
+    ];
+
     constructor(x = null) {
         super();
         this.x = x ?? this.getSpawnX();
@@ -44,12 +53,13 @@ class Endboss extends MovableObject {
         this.lastAttackAt = 0;
         this.deadFrame = 0;
         this.deathAnimationDone = false;
-        this.energy = 150;
+        this.energy = 250;
 
         this.loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_ATTACKING);
         this.loadImages(this.IMAGES_HURT);
+        this.loadImages(this.IMAGES_DEAD);
         this.animate();
     }
 
@@ -134,11 +144,11 @@ class Endboss extends MovableObject {
 
         setInterval(() => {
             if (this.isDead()) {
-                const hurtIndex = Math.min(this.deadFrame, this.IMAGES_HURT.length - 1);
-                const hurtPath = this.IMAGES_HURT[hurtIndex];
-                this.img = this.imageCache[hurtPath] || this.img;
+                const deadIndex = Math.min(this.deadFrame, this.IMAGES_DEAD.length - 1);
+                const deadPath = this.IMAGES_DEAD[deadIndex];
+                this.img = this.imageCache[deadPath] || this.img;
 
-                if (this.deadFrame < this.IMAGES_HURT.length - 1) {
+                if (this.deadFrame < this.IMAGES_DEAD.length - 1) {
                     this.deadFrame++;
                 } else {
                     this.deathAnimationDone = true;
