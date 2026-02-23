@@ -4,6 +4,27 @@ class Rogue extends Character {
   y = 230;
   speed = 4;
 
+  IMAGES_IDLE = [
+    'img/Rogue/Idle/rogue_idle1.png',
+    'img/Rogue/Idle/rogue_idle2.png',
+    'img/Rogue/Idle/rogue_idle3.png',
+    'img/Rogue/Idle/rogue_idle4.png',
+    'img/Rogue/Idle/rogue_idle5.png',
+    'img/Rogue/Idle/rogue_idle6.png',
+    'img/Rogue/Idle/rogue_idle7.png',
+    'img/Rogue/Idle/rogue_idle8.png',
+    'img/Rogue/Idle/rogue_idle9.png',
+    'img/Rogue/Idle/rogue_idle10.png',
+    'img/Rogue/Idle/rogue_idle11.png',
+    'img/Rogue/Idle/rogue_idle12.png',
+    'img/Rogue/Idle/rogue_idle13.png',
+    'img/Rogue/Idle/rogue_idle14.png',
+    'img/Rogue/Idle/rogue_idle15.png',
+    'img/Rogue/Idle/rogue_idle16.png',
+    'img/Rogue/Idle/rogue_idle17.png',
+    'img/Rogue/Idle/rogue_idle18.png'
+  ];
+
   IMAGES_WALKING = [
     "img/Rogue/Walk/walk1.png",
     "img/Rogue/Walk/walk2.png",

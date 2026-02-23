@@ -5,7 +5,22 @@ class Knight extends Character {
     y = 230;
     speed = 4;
 
-   
+   IMAGES_IDLE = [
+        'img/Knight/Idle/knight_idle1.png',
+        'img/Knight/Idle/knight_idle2.png',
+        'img/Knight/Idle/knight_idle3.png',
+        'img/Knight/Idle/knight_idle4.png',
+        'img/Knight/Idle/knight_idle5.png',
+        'img/Knight/Idle/knight_idle6.png',
+        'img/Knight/Idle/knight_idle7.png',
+        'img/Knight/Idle/knight_idle8.png',
+        'img/Knight/Idle/knight_idle9.png',
+        'img/Knight/Idle/knight_idle10.png',
+        'img/Knight/Idle/knight_idle11.png',
+        'img/Knight/Idle/knight_idle12.png'
+   ];
+
+
     IMAGES_WALKING = [
         'img/Knight/Walk/walk1.png',
         'img/Knight/Walk/walk2.png',

@@ -4,6 +4,22 @@ class Mage extends Character {
     y = 230;
     speed = 4;  
 
+    IMAGES_IDLE = [
+        'img/Mage/Idle/mage_idle1.png',
+        'img/Mage/Idle/mage_idle2.png',
+        'img/Mage/Idle/mage_idle3.png',
+        'img/Mage/Idle/mage_idle4.png',
+        'img/Mage/Idle/mage_idle5.png',
+        'img/Mage/Idle/mage_idle6.png',
+        'img/Mage/Idle/mage_idle7.png',
+        'img/Mage/Idle/mage_idle8.png',
+        'img/Mage/Idle/mage_idle9.png',
+        'img/Mage/Idle/mage_idle10.png',
+        'img/Mage/Idle/mage_idle11.png',
+        'img/Mage/Idle/mage_idle12.png',
+        'img/Mage/Idle/mage_idle13.png',
+        'img/Mage/Idle/mage_idle14.png'
+    ];
 
     IMAGES_WALKING = [
         'img/Mage/Walk/walk1.png',
