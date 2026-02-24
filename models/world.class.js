@@ -29,6 +29,10 @@ class World {
 
     this.gameOverImage = new Image();
     this.gameOverImage.src = "img/Game-over.png";
+    this.heartHudImage = new Image();
+    this.heartHudImage.src = "img/Items/heart1.png";
+    this.coinHudImage = new Image();
+    this.coinHudImage.src = "img/Items/coin1.png";
 
     this.gameOverButtons = {
       restart: { x: 210, y: 380, width: 130, height: 42, label: "Restart" },
@@ -206,7 +210,6 @@ class World {
     this.ctx.font = "16px sans-serif";
     this.ctx.textAlign = "left";
     this.ctx.textBaseline = "middle";
-    this.ctx.fillText("Leben", barX, barY - 2);
 
     this.ctx.fillStyle = "#2d2d2d";
     this.ctx.fillRect(barX, barY + 8, barWidth, barHeight);
@@ -220,10 +223,35 @@ class World {
 
     this.ctx.fillStyle = "#ffffff";
     this.ctx.font = "15px sans-serif";
-    this.ctx.fillText(`HP: ${Math.round(currentHealth)}/${maxHealth}`, barX + 8, barY + 21);
+    const heartIconSize = 16;
+    const heartIconX = barX + 8;
+    const heartIconY = barY + 13;
+    if (this.heartHudImage.complete) {
+      this.ctx.drawImage(
+        this.heartHudImage,
+        heartIconX,
+        heartIconY,
+        heartIconSize,
+        heartIconSize,
+      );
+    }
+    this.ctx.fillText(`${Math.round(currentHealth)}/${maxHealth}`, heartIconX + heartIconSize + 6, barY + 21);
+
+    const coinIconSize = 24;
+    const coinIconX = barX;
+    const coinIconY = 60;
+    if (this.coinHudImage.complete) {
+      this.ctx.drawImage(
+        this.coinHudImage,
+        coinIconX,
+        coinIconY,
+        coinIconSize,
+        coinIconSize,
+      );
+    }
 
     this.ctx.font = "18px sans-serif";
-    this.ctx.fillText(`Coins: ${this.coinsCollected}`, barX, 72);
+    this.ctx.fillText(`${this.coinsCollected}`, coinIconX + coinIconSize + 8, 72);
 
     this.ctx.restore();
   }

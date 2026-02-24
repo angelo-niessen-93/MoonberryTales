@@ -80,7 +80,7 @@ class Mage extends Character {
     projectiles = [];
     projectileCooldownMs = 350;
     lastProjectileAt = 0;
-    projectileStartFrame = 5;
+    projectileStartFrame = 2;
     hasShotInCurrentAttack = false;
     FIRE_PROJECTILE_IMAGES = [
         "img/Mage/Fire/fire1.png",
@@ -133,7 +133,7 @@ class Mage extends Character {
         }
 
         const projectileWidth = 80;
-        const projectileHeight = 80;
+        const projectileHeight = 80;    
         const spawnPadding = 8;
         const spawnX = this.othersDirection
             ? this.x + spawnPadding
@@ -146,7 +146,7 @@ class Mage extends Character {
             images: this.FIRE_PROJECTILE_IMAGES,
             width: projectileWidth,
             height: projectileHeight,
-            speed: 8,
+            speed: 5 ,
             lifetimeMs: 2000,
             hitboxInset: 24,
             frameIntervalMs: 60,
