@@ -54,6 +54,8 @@ class Endboss extends MovableObject {
         this.deadFrame = 0;
         this.deathAnimationDone = false;
         this.energy = 250;
+        this.attackSound = new Audio('audio/boss-attack.mp3');
+        this.attackSound.volume = 0.5;
 
         this.loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
@@ -88,6 +90,10 @@ class Endboss extends MovableObject {
         this.lastAttackAt = now;
         this.isAttacking = true;
         this.attackFrame = 0;
+        if (this.attackSound) {
+            this.attackSound.currentTime = 0;
+            this.attackSound.play().catch(() => {});
+        }
     }
 
     takeHit(fromCharacterX, damage = 25) {

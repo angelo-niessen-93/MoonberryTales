@@ -33,6 +33,12 @@ class World {
     this.heartHudImage.src = "img/Items/heart1.png";
     this.coinHudImage = new Image();
     this.coinHudImage.src = "img/Items/coin1.png";
+    this.gameOverSound = new Audio("audio/game-over-sound.mp3");
+    this.gameOverSound.volume = 0.5;
+    this.heartCollectSound = new Audio("audio/equipment-pick-up.mp3");
+    this.heartCollectSound.volume = 0.5;
+    this.coinCollectSound = new Audio("audio/collecting-coins.mp3");
+    this.coinCollectSound.volume = 0.5;
 
     this.gameOverButtons = {
       restart: { x: 210, y: 380, width: 130, height: 42, label: "Restart" },
@@ -125,6 +131,7 @@ class World {
 
       if (typeof this.character.isDead === "function" && this.character.isDead()) {
         this.isGameOver = true;
+        this.playGameOverSound();
       }
     }
 
@@ -356,12 +363,41 @@ class World {
           continue;
         }
         this.character.energy = Math.min(100, this.character.energy + 20);
+        this.playHeartCollectSound();
       } else if (item.type === "coin") {
         this.coinsCollected += 1;
+        this.playCoinCollectSound();
       }
 
       this.items.splice(i, 1);
     }
+  }
+
+  playCoinCollectSound() {
+    if (!this.coinCollectSound) {
+      return;
+    }
+
+    this.coinCollectSound.currentTime = 0;
+    this.coinCollectSound.play().catch(() => {});
+  }
+
+  playHeartCollectSound() {
+    if (!this.heartCollectSound) {
+      return;
+    }
+
+    this.heartCollectSound.currentTime = 0;
+    this.heartCollectSound.play().catch(() => {});
+  }
+
+  playGameOverSound() {
+    if (!this.gameOverSound) {
+      return;
+    }
+
+    this.gameOverSound.currentTime = 0;
+    this.gameOverSound.play().catch(() => {});
   }
 
   isItemCollected(character, item) {

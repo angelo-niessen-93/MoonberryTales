@@ -18,6 +18,7 @@ class Character extends MovableObject {
     attackSound = null;
     jumpSound = null;
     footstepSound = null;
+    hurtSound = new Audio("audio/hurt.mp3");
 
     lastHitAt = 0;
     attackDamage = 25;
@@ -39,11 +40,13 @@ class Character extends MovableObject {
      
         this.loadAllImages();
 
+        if (this.attackSound) this.attackSound.volume = 0.5;
         if (this.jumpSound) this.jumpSound.volume = 0.5;
         if (this.footstepSound) {
-            this.footstepSound.volume = 0.35;
+            this.footstepSound.volume = 0.5;
             this.footstepSound.loop = true;
         }
+        if (this.hurtSound) this.hurtSound.volume = 0.5;
 
         this.applyGravity();
         this.animate();
@@ -186,6 +189,10 @@ class Character extends MovableObject {
         this.lastHitAt = now;
         this.takeDamage(damage);
         this.stopFootsteps();
+        if (this.hurtSound) {
+            this.hurtSound.currentTime = 0;
+            this.hurtSound.play().catch(() => {});
+        }
 
         this.x += fromEnemyX >= this.x ? -40 : 40;
         if (this.world) this.x = Math.max(0, Math.min(this.x, this.world.levelEndX));

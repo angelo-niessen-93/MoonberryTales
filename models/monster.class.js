@@ -112,6 +112,15 @@ class Monster extends MovableObject {
         this.attackDamage = 10;
         this.lastHitAt = 0;
         this.lastAttackAt = 0;
+        const attackSoundByType = {
+            ghost: "audio/ghost-attack.mp3",
+            skeleton: "audio/skleton-attck.mp3",
+        };
+        const attackSoundPath = attackSoundByType[this.type];
+        this.attackSound = attackSoundPath ? new Audio(attackSoundPath) : null;
+        if (this.attackSound) {
+            this.attackSound.volume = 0.5;
+        }
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_ATTACKING);
         this.loadImages(this.IMAGES_DEAD);
@@ -214,6 +223,10 @@ class Monster extends MovableObject {
         this.lastAttackAt = now;
         this.isAttacking = true;
         this.attackFrame = 0;
+        if (this.attackSound) {
+            this.attackSound.currentTime = 0;
+            this.attackSound.play().catch(() => {});
+        }
     }
 
     takeHit(fromCharacterX, damage = 25) {
