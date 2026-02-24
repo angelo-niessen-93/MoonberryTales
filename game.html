@@ -9,9 +9,12 @@
 </head>
 <body onload="init()" >
     <h1>Moonberry Tales</h1>
-    <button id="music-toggle" type="button">Music: On</button>
-
-    <canvas id="canvas" width="720" height="480"></canvas>
+    <div class="canvas-wrapper">
+        <button id="music-toggle" type="button" aria-label="Musik stummschalten">
+            <img src="img/mute.png" alt="Mute">
+        </button>
+        <canvas id="canvas" width="720" height="480"></canvas>
+    </div>
 
     <script src="./models/movable-object.class.js"></script>
     <script src="./models/monster.class.js"></script>

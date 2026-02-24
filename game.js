@@ -35,11 +35,21 @@ function setupMusicToggle() {
     const button = document.getElementById("music-toggle");
     if (!button) return;
 
+    const updateButtonState = () => {
+        button.style.opacity = isMusicMuted ? "0.45" : "1";
+        button.setAttribute(
+            "aria-label",
+            isMusicMuted ? "Musik aktivieren" : "Musik stummschalten",
+        );
+    };
+
     button.addEventListener("click", () => {
         isMusicMuted = !isMusicMuted;
         gameMusic.muted = isMusicMuted;
-        button.textContent = isMusicMuted ? "Music: Off" : "Music: On";
+        updateButtonState();
     });
+
+    updateButtonState();
 }
 
 window.addEventListener('keydown', (e) => {

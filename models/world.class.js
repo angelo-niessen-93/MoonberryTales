@@ -3,6 +3,7 @@ class World {
   levelEndX = 720 * 5;
   projectiles = [];
   isGameOver = false;
+  isVictory = false;
   coinsCollected = 0;
 
   constructor(canvas) {
@@ -29,6 +30,8 @@ class World {
 
     this.gameOverImage = new Image();
     this.gameOverImage.src = "img/Game-over.png";
+    this.victoryImage = new Image();
+    this.victoryImage.src = "img/You Win!.png";
     this.heartHudImage = new Image();
     this.heartHudImage.src = "img/Items/heart1.png";
     this.coinHudImage = new Image();
@@ -41,9 +44,10 @@ class World {
     this.coinCollectSound.volume = 0.5;
 
     this.gameOverButtons = {
-      restart: { x: 210, y: 380, width: 130, height: 42, label: "Restart" },
-      home: { x: 360, y: 380, width: 190, height: 42, label: "Home" },
+      restart: { width: 130, height: 42, label: "Restart" },
+      home: { width: 190, height: 42, label: "Home" },
     };
+    this.hasEndboss = this.enemies.some((enemy) => this.isEndboss(enemy));
 
     this.setWorld();
     this.setupGameOverInteraction();
@@ -77,30 +81,32 @@ class World {
 
   setupGameOverInteraction() {
     this.canvas.addEventListener("click", (event) => {
-      if (!this.isGameOver) {
+      if (!this.isGameOver && !this.isVictory) {
         return;
       }
 
+      const buttons = this.getEndScreenButtons();
       const point = this.getCanvasPoint(event);
-      if (this.isPointInButton(point, this.gameOverButtons.restart)) {
+      if (this.isPointInButton(point, buttons.restart)) {
         window.location.reload();
         return;
       }
 
-      if (this.isPointInButton(point, this.gameOverButtons.home)) {
+      if (this.isPointInButton(point, buttons.home)) {
         window.location.href = "./index.html";
       }
     });
 
     this.canvas.addEventListener("mousemove", (event) => {
-      if (!this.isGameOver) {
+      if (!this.isGameOver && !this.isVictory) {
         this.canvas.style.cursor = "default";
         return;
       }
 
+      const buttons = this.getEndScreenButtons();
       const point = this.getCanvasPoint(event);
-      const onRestart = this.isPointInButton(point, this.gameOverButtons.restart);
-      const onHome = this.isPointInButton(point, this.gameOverButtons.home);
+      const onRestart = this.isPointInButton(point, buttons.restart);
+      const onHome = this.isPointInButton(point, buttons.home);
       this.canvas.style.cursor = onRestart || onHome ? "pointer" : "default";
     });
   }
@@ -123,13 +129,15 @@ class World {
   }
 
   draw = () => {
-    if (!this.isGameOver) {
+    if (!this.isGameOver && !this.isVictory) {
       this.updateProjectiles();
       this.resolveCharacterGround();
       this.checkCharacterCollisions();
       this.checkItemCollections();
 
-      if (typeof this.character.isDead === "function" && this.character.isDead()) {
+      if (this.isBossDefeated()) {
+        this.isVictory = true;
+      } else if (typeof this.character.isDead === "function" && this.character.isDead()) {
         this.isGameOver = true;
         this.playGameOverSound();
       }
@@ -152,31 +160,85 @@ class World {
     this.drawHud();
 
     if (this.isGameOver) {
-      this.drawGameOverScreen();
+      this.drawEndScreen(this.gameOverImage);
+    } else if (this.isVictory) {
+      this.drawEndScreen(this.victoryImage);
     }
 
     requestAnimationFrame(this.draw);
   };
 
-  drawGameOverScreen() {
+  drawEndScreen(endImage) {
     this.ctx.save();
 
     this.ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const imageWidth = 460;
-    const imageHeight = 220;
+    const isVictoryImage = endImage === this.victoryImage;
+    const fallbackWidth = 460;
+    const fallbackHeight = isVictoryImage ? 360 : 220;
+    let imageWidth = fallbackWidth;
+    let imageHeight = fallbackHeight;
+    if (endImage && endImage.complete && endImage.naturalWidth > 0 && endImage.naturalHeight > 0) {
+      const scaleByHeight = fallbackHeight / endImage.naturalHeight;
+      imageHeight = fallbackHeight;
+      imageWidth = Math.round(endImage.naturalWidth * scaleByHeight);
+    }
     const imageX = (this.canvas.width - imageWidth) / 2;
     const imageY = 95;
 
-    if (this.gameOverImage.complete) {
-      this.ctx.drawImage(this.gameOverImage, imageX, imageY, imageWidth, imageHeight);
+    if (endImage && endImage.complete) {
+      this.ctx.drawImage(endImage, imageX, imageY, imageWidth, imageHeight);
     }
 
-    this.drawGameOverButton(this.gameOverButtons.restart, "#f7b500", "#1c1c1c");
-    this.drawGameOverButton(this.gameOverButtons.home, "#e4e4e4", "#1c1c1c");
+    const buttons = this.getEndScreenButtons();
+    this.drawGameOverButton(buttons.restart, "#f7b500", "#1c1c1c");
+    this.drawGameOverButton(buttons.home, "#e4e4e4", "#1c1c1c");
 
     this.ctx.restore();
+  }
+
+  getEndScreenButtons() {
+    const gap = 20;
+    const restart = this.gameOverButtons.restart;
+    const home = this.gameOverButtons.home;
+    const totalWidth = restart.width + gap + home.width;
+    const startX = Math.round((this.canvas.width - totalWidth) / 2);
+    const y = Math.round(this.canvas.height - 100);
+
+    return {
+      restart: { ...restart, x: startX, y },
+      home: { ...home, x: startX + restart.width + gap, y },
+    };
+  }
+
+  isEndboss(enemy) {
+    if (!enemy) {
+      return false;
+    }
+
+    if (typeof Endboss !== "undefined" && enemy instanceof Endboss) {
+      return true;
+    }
+
+    return enemy.constructor?.name === "Endboss";
+  }
+
+  isBossDefeated() {
+    if (!this.hasEndboss) {
+      return false;
+    }
+
+    const boss = this.enemies.find((enemy) => this.isEndboss(enemy));
+    if (!boss) {
+      return true;
+    }
+
+    if (typeof boss.isDead === "function") {
+      return boss.isDead();
+    }
+
+    return false;
   }
 
   drawGameOverButton(button, bgColor, textColor) {
