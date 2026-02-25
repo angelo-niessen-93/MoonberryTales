@@ -1,49 +1,104 @@
 class Tiles extends MovableObject {
-    static PLATFORM_IMAGES = [
-        'img/dark_tiles/dark_tile26.png',
-        'img/dark_tiles/dark_tile27.png',
-        'img/dark_tiles/dark_tile28.png',
-    ];
-    
-    static HITBOX = {
+    static DEFAULT_SIZE = {
+        width: 64,
+        height: 64,
+    };
+
+    static DEFAULT_HITBOX = {
         x: 2,
         y: 50,
         width: 60,
         height: 10,
     };
 
-    constructor(imagePath, x = 0, y = 350) {
+    
+    static LAYOUT = [
+        { image: 'img/dark_tiles/dark_tile26.png', x: 120, y: 350 },
+        { image: 'img/dark_tiles/dark_tile27.png', x: 184, y: 350 },
+        { image: 'img/dark_tiles/dark_tile28.png', x: 248, y: 350 },
+
+        
+    ];
+
+    constructor(imagePath, x = 0, y = 350, width = Tiles.DEFAULT_SIZE.width, height = Tiles.DEFAULT_SIZE.height, hitbox = Tiles.DEFAULT_HITBOX) {
         super().loadImage(imagePath);
+        this.imagePath = imagePath;
         this.x = x;
         this.y = y;
-        this.width = 64;
-        this.height = 64;
+        this.width = width;
+        this.height = height;
+        this.hitbox = { ...hitbox };
     }
 
     getHitbox() {
         return {
-            x: this.x + Tiles.HITBOX.x,
-            y: this.y + Tiles.HITBOX.y,
-            width: Tiles.HITBOX.width,
-            height: Tiles.HITBOX.height,
+            x: this.x + this.hitbox.x,
+            y: this.y + this.hitbox.y,
+            width: this.hitbox.width,
+            height: this.hitbox.height,
         };
     }
 
+    static createFromLayout(layout = Tiles.LAYOUT, minX = -Infinity, maxX = Infinity) {
+        return layout
+            .filter((entry) => {
+                const width = entry.width ?? Tiles.DEFAULT_SIZE.width;
+                return entry.x + width >= minX && entry.x <= maxX;
+            })
+            .map((entry) => {
+                return new Tiles(
+                    entry.image,
+                    entry.x,
+                    entry.y,
+                    entry.width ?? Tiles.DEFAULT_SIZE.width,
+                    entry.height ?? Tiles.DEFAULT_SIZE.height,
+                    entry.hitbox ?? Tiles.DEFAULT_HITBOX,
+                );
+            });
+    }
+
+    static createRepeatedGroup(groupImages, startX, y, count = 1, gap = 0) {
+        const tiles = [];
+        const tileWidth = Tiles.DEFAULT_SIZE.width;
+
+        for (let i = 0; i < count; i++) {
+            const baseX = startX + i * (groupImages.length * tileWidth + gap);
+            groupImages.forEach((image, index) => {
+                tiles.push({
+                    image,
+                    x: baseX + index * tileWidth,
+                    y,
+                });
+            });
+        }
+
+        return tiles;
+    }
+
     static createPlatform(startX = 600, y = 350) {
-        const tileWidth = 64;
-        return Tiles.PLATFORM_IMAGES.map((imagePath, index) => {
-            return new Tiles(imagePath, startX + index * tileWidth, y);
+        const platformImages = [
+            'img/dark_tiles/dark_tile26.png',
+            'img/dark_tiles/dark_tile27.png',
+            'img/dark_tiles/dark_tile28.png',
+        ];
+
+        return platformImages.map((imagePath, index) => {
+            return new Tiles(imagePath, startX + index * Tiles.DEFAULT_SIZE.width, y);
         });
     }
 
     static createPlatformsForArea(minX, maxX, gapX = 320, heights = [170, 230, 290, 350]) {
-        const platforms = [];
+        
+        if (Array.isArray(Tiles.LAYOUT) && Tiles.LAYOUT.length) {
+            return Tiles.createFromLayout(Tiles.LAYOUT, minX, maxX);
+        }
 
+       
+        const platforms = [];
         for (let x = minX; x <= maxX; x += gapX) {
             const y = heights[Math.floor((x - minX) / gapX) % heights.length];
             platforms.push(...Tiles.createPlatform(x, y));
         }
-
         return platforms;
     }
 }

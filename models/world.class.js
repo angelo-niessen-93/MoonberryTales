@@ -4,7 +4,6 @@ class World {
   projectiles = [];
   isGameOver = false;
   isVictory = false;
-  coinsCollected = 0;
 
   constructor(canvas) {
     this.canvas = canvas;
@@ -32,10 +31,6 @@ class World {
     this.gameOverImage.src = "img/Game-over.png";
     this.victoryImage = new Image();
     this.victoryImage.src = "img/You Win!.png";
-    this.heartHudImage = new Image();
-    this.heartHudImage.src = "img/Items/heart1.png";
-    this.coinHudImage = new Image();
-    this.coinHudImage.src = "img/Items/coin1.png";
     this.gameOverSound = new Audio("audio/game-over-sound.mp3");
     this.gameOverSound.volume = 0.5;
     this.heartCollectSound = new Audio("audio/equipment-pick-up.mp3");
@@ -48,6 +43,7 @@ class World {
       home: { width: 190, height: 42, label: "Home" },
     };
     this.hasEndboss = this.enemies.some((enemy) => this.isEndboss(enemy));
+    this.hud = new HUD();
 
     this.setWorld();
     this.setupGameOverInteraction();
@@ -157,7 +153,7 @@ class World {
     ].forEach((group) => this.addObjectsToMap(group));
 
     this.resetCamera();
-    this.drawHud();
+    this.hud.draw(this.ctx, this.character);
 
     if (this.isGameOver) {
       this.drawEndScreen(this.gameOverImage);
@@ -258,71 +254,6 @@ class World {
       button.x + button.width / 2,
       button.y + button.height / 2,
     );
-  }
-
-  drawHud() {
-    const maxHealth = 100;
-    const currentHealth = Math.max(0, Math.min(maxHealth, this.character.energy ?? 0));
-    const healthPercent = currentHealth / maxHealth;
-
-    const barX = 20;
-    const barY = 18;
-    const barWidth = 220;
-    const barHeight = 24;
-
-    this.ctx.save();
-
-    this.ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-    this.ctx.fillRect(10, 10, 300, 78);
-
-    this.ctx.fillStyle = "#ffffff";
-    this.ctx.font = "16px sans-serif";
-    this.ctx.textAlign = "left";
-    this.ctx.textBaseline = "middle";
-
-    this.ctx.fillStyle = "#2d2d2d";
-    this.ctx.fillRect(barX, barY + 8, barWidth, barHeight);
-
-    this.ctx.fillStyle = healthPercent > 0.35 ? "#39d353" : "#ef4444";
-    this.ctx.fillRect(barX, barY + 8, barWidth * healthPercent, barHeight);
-
-    this.ctx.strokeStyle = "#ffffff";
-    this.ctx.lineWidth = 2;
-    this.ctx.strokeRect(barX, barY + 8, barWidth, barHeight);
-
-    this.ctx.fillStyle = "#ffffff";
-    this.ctx.font = "15px sans-serif";
-    const heartIconSize = 16;
-    const heartIconX = barX + 8;
-    const heartIconY = barY + 13;
-    if (this.heartHudImage.complete) {
-      this.ctx.drawImage(
-        this.heartHudImage,
-        heartIconX,
-        heartIconY,
-        heartIconSize,
-        heartIconSize,
-      );
-    }
-    this.ctx.fillText(`${Math.round(currentHealth)}/${maxHealth}`, heartIconX + heartIconSize + 6, barY + 21);
-
-    const coinIconSize = 24;
-    const coinIconX = barX;
-    const coinIconY = 60;
-    if (this.coinHudImage.complete) {
-      this.ctx.drawImage(
-        this.coinHudImage,
-        coinIconX,
-        coinIconY,
-        coinIconSize,
-        coinIconSize,
-      );
-    }
-
-    this.ctx.font = "18px sans-serif";
-    this.ctx.fillText(`${this.coinsCollected}`, coinIconX + coinIconSize + 8, 72);
-
-    this.ctx.restore();
   }
 
   resolveCharacterGround() {
@@ -427,7 +358,7 @@ class World {
         this.character.energy = Math.min(100, this.character.energy + 20);
         this.playHeartCollectSound();
       } else if (item.type === "coin") {
-        this.coinsCollected += 1;
+        this.hud.addCoin();
         this.playCoinCollectSound();
       }
 

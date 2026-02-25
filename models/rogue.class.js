@@ -81,9 +81,11 @@ class Rogue extends Character {
   attackSound = new Audio("audio/fight.mp3");
   jumpSound = new Audio("audio/classic-jump.mp3");
   footstepSound = new Audio("audio/footstep.mp3");
+  hurtSound = new Audio("audio/hurt.mp3");
 
   constructor() {
     super();
+    this.hurtSound.volume = 0.5;
     this.loadImages(this.IMAGES_IDLE);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);

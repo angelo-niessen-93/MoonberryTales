@@ -18,7 +18,7 @@ class Character extends MovableObject {
     attackSound = null;
     jumpSound = null;
     footstepSound = null;
-    hurtSound = new Audio("audio/hurt.mp3");
+    hurtSound = null;
 
     lastHitAt = 0;
     attackDamage = 25;
@@ -46,8 +46,6 @@ class Character extends MovableObject {
             this.footstepSound.volume = 0.5;
             this.footstepSound.loop = true;
         }
-        if (this.hurtSound) this.hurtSound.volume = 0.5;
-
         this.applyGravity();
         this.animate();
     }

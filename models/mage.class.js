@@ -76,7 +76,8 @@ class Mage extends Character {
 
     attackSound = new Audio('audio/attack_mage.mp3');
     jumpSound = new Audio('audio/classic-jump.mp3');
-    footstepSound = new Audio('audio/footstep.mp3');    
+    footstepSound = new Audio('audio/footstep.mp3');
+    hurtSound = new Audio("audio/hurt.mp3");
     projectiles = [];
     projectileCooldownMs = 350;
     lastProjectileAt = 0;
@@ -96,6 +97,7 @@ class Mage extends Character {
 
     constructor() {
         super();
+        this.hurtSound.volume = 0.5;
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
