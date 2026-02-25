@@ -49,11 +49,11 @@ class Endboss extends MovableObject {
         this.othersDirection = true;
         this.isAttacking = false;
         this.attackFrame = 0;
-        this.attackDamage = 20;
+        this.attackDamage = 30;
         this.lastAttackAt = 0;
         this.deadFrame = 0;
         this.deathAnimationDone = false;
-        this.energy = 250;
+        this.energy = 350;
         this.attackSound = new Audio('audio/boss-attack.mp3');
         this.attackSound.volume = 0.5;
 

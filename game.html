@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,12 +8,27 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body onload="init()" >
-    <h1>Moonberry Tales</h1>
+    <img id="game-title-logo" src="./img/lgog_game.png" alt="Moonberry Tales">
     <div class="canvas-wrapper">
+        <button id="info-toggle" type="button" aria-label="Steuerung anzeigen">
+            <img src="img/info_button.png" alt="Info">
+        </button>
+        <button id="fullscreen-toggle" type="button" aria-label="Vollbild aktivieren">
+            <img src="img/vollbild.png" alt="Vollbild">
+        </button>
         <button id="music-toggle" type="button" aria-label="Musik stummschalten">
             <img src="img/mute.png" alt="Mute">
         </button>
         <canvas id="canvas" width="720" height="480"></canvas>
+        <div id="controls-popup" class="hidden" role="dialog" aria-modal="true" aria-label="Steuerung">
+            <div class="controls-popup-card">
+                <h2>Steuerung</h2>
+                <p><strong>Bewegen:</strong> Pfeiltasten links/rechts</p>
+                <p><strong>Springen:</strong> Pfeiltaste hoch</p>
+                <p><strong>Angriff:</strong> Leertaste</p>
+                <button id="controls-close" type="button" aria-label="Steuerung schliessen">Schliessen</button>
+            </div>
+        </div>
     </div>
 
     <script src="./models/movable-object.class.js"></script>
@@ -36,3 +51,4 @@
     <script src="./game.js"></script>
 </body>
 </html>
+

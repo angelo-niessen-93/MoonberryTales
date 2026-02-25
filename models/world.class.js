@@ -109,9 +109,11 @@ class World {
 
   getCanvasPoint(event) {
     const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
     return {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
+      x: (event.clientX - rect.left) * scaleX,
+      y: (event.clientY - rect.top) * scaleY,
     };
   }
 
@@ -264,6 +266,9 @@ class World {
     const feetLeft = character.x + 20;
     const feetRight = character.x + character.width - 20;
     const feetY = character.y + character.height;
+    const gravityStep = character.acceleration ?? 0;
+    const estimatedFallDistance = Math.max(0, -character.speedY) + gravityStep;
+    const previousFeetY = feetY - estimatedFallDistance;
 
     this.tiles.forEach((tile) => {
       const hitbox =
@@ -273,11 +278,14 @@ class World {
 
       const overlapsX =
         feetRight > hitbox.x && feetLeft < hitbox.x + hitbox.width;
+      const isFallingOrStanding = character.speedY <= 0;
       const isNearTop =
         feetY >= hitbox.y - 12 && feetY <= hitbox.y + hitbox.height;
-      const isFallingOrStanding = character.speedY <= 0;
+      const crossedTopBetweenFrames =
+        previousFeetY <= hitbox.y && feetY >= hitbox.y;
+      const canLandOnTile = isNearTop || crossedTopBetweenFrames;
 
-      if (!overlapsX || !isNearTop || !isFallingOrStanding) {
+      if (!overlapsX || !canLandOnTile || !isFallingOrStanding) {
         return;
       }
 

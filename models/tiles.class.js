@@ -11,17 +11,11 @@ class Tiles extends MovableObject {
         height: 10,
     };
 
-    
-    static LAYOUT = [
-        { image: 'img/dark_tiles/dark_tile26.png', x: 120, y: 350 },
-        { image: 'img/dark_tiles/dark_tile27.png', x: 184, y: 350 },
-        { image: 'img/dark_tiles/dark_tile28.png', x: 248, y: 350 },
-
-        
-    ];
+    static LAYOUT = [];
 
     constructor(imagePath, x = 0, y = 350, width = Tiles.DEFAULT_SIZE.width, height = Tiles.DEFAULT_SIZE.height, hitbox = Tiles.DEFAULT_HITBOX) {
-        super().loadImage(imagePath);
+        super();
+        this.loadImage(imagePath);
         this.imagePath = imagePath;
         this.x = x;
         this.y = y;
@@ -88,12 +82,9 @@ class Tiles extends MovableObject {
     }
 
     static createPlatformsForArea(minX, maxX, gapX = 320, heights = [170, 230, 290, 350]) {
-        
         if (Array.isArray(Tiles.LAYOUT) && Tiles.LAYOUT.length) {
             return Tiles.createFromLayout(Tiles.LAYOUT, minX, maxX);
         }
-
-       
         const platforms = [];
         for (let x = minX; x <= maxX; x += gapX) {
             const y = heights[Math.floor((x - minX) / gapX) % heights.length];
