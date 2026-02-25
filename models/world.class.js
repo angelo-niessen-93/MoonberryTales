@@ -9,15 +9,7 @@ class World {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.keyboard = keyboard;
-
-    const selectedCharacter = localStorage.getItem("selectedCharacter");
-    if (selectedCharacter === "Mage") {
-      this.character = new Mage();
-    } else if (selectedCharacter === "Rogue") {
-      this.character = new Rogue();
-    } else {
-      this.character = new Knight();
-    }
+    this.character = this.createCharacter();
 
     this.level = this.createLevel();
 
@@ -84,7 +76,7 @@ class World {
       const buttons = this.getEndScreenButtons();
       const point = this.getCanvasPoint(event);
       if (this.isPointInButton(point, buttons.restart)) {
-        window.location.reload();
+        this.restartGame();
         return;
       }
 
@@ -115,6 +107,34 @@ class World {
       x: (event.clientX - rect.left) * scaleX,
       y: (event.clientY - rect.top) * scaleY,
     };
+  }
+
+  createCharacter() {
+    const selectedCharacter = localStorage.getItem("selectedCharacter");
+    if (selectedCharacter === "Mage") {
+      return new Mage();
+    }
+    if (selectedCharacter === "Rogue") {
+      return new Rogue();
+    }
+    return new Knight();
+  }
+
+  restartGame() {
+    this.isGameOver = false;
+    this.isVictory = false;
+    this.projectiles = [];
+    this.hud = new HUD();
+    this.character = this.createCharacter();
+    this.level = this.createLevel();
+    this.enemies = this.level.enemies;
+    this.chain = this.level.chain;
+    this.tiles = this.level.tiles;
+    this.items = this.level.items;
+    this.backgroundObjects = this.level.backgroundObjects;
+    this.hasEndboss = this.enemies.some((enemy) => this.isEndboss(enemy));
+    this.canvas.style.cursor = "default";
+    this.setWorld();
   }
 
   isPointInButton(point, button) {
