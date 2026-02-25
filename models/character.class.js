@@ -123,6 +123,15 @@ class Character extends MovableObject {
         return this.y < this.groundY;
     }
 
+    getHitbox() {
+        return {
+            x: this.x + 20,
+            y: this.y + 88,
+            width: this.width - 40,
+            height: this.height - 96,
+        };
+    }
+
     jump() {
         this.speedY = 20;
         this.stopFootsteps();

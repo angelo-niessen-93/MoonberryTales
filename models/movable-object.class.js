@@ -67,12 +67,20 @@ class MovableObject {
   }
 
   isColliding(other) {
-    const inset = 80;
+    const thisHitbox =
+      typeof this.getHitbox === "function"
+        ? this.getHitbox()
+        : { x: this.x, y: this.y, width: this.width, height: this.height };
+    const otherHitbox =
+      typeof other.getHitbox === "function"
+        ? other.getHitbox()
+        : { x: other.x, y: other.y, width: other.width, height: other.height };
+
     return (
-      this.x + this.width > other.x + inset &&
-      this.y + this.height > other.y + inset &&
-      this.x < other.x + other.width - inset &&
-      this.y < other.y + other.height - inset
+      thisHitbox.x + thisHitbox.width > otherHitbox.x &&
+      thisHitbox.y + thisHitbox.height > otherHitbox.y &&
+      thisHitbox.x < otherHitbox.x + otherHitbox.width &&
+      thisHitbox.y < otherHitbox.y + otherHitbox.height
     );
   }
 }

@@ -172,6 +172,15 @@ class Monster extends MovableObject {
         }
     }
 
+    getHitbox() {
+        return {
+            x: this.x + 18,
+            y: this.y + 52,
+            width: this.width - 36,
+            height: this.height - 62,
+        };
+    }
+
     movePatrol() {
         setInterval(() => {
             if (this.isDead()) {
