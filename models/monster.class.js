@@ -77,6 +77,7 @@ class Monster extends MovableObject {
         dragon: { width: 160, height: 220, y: 300 },
         ghost: { width: 120, height: 170, y: 300 },
     };
+    intervalIds = [];
 
 
     constructor(type = null, x = null, patrolMinX = null, patrolMaxX = null) {
@@ -182,7 +183,7 @@ class Monster extends MovableObject {
     }
 
     movePatrol() {
-        setInterval(() => {
+        const patrolInterval = setInterval(() => {
             if (this.isDead()) {
                 return;
             }
@@ -209,6 +210,7 @@ class Monster extends MovableObject {
                 }
             }
         }, 1000 / 60);
+        this.intervalIds.push(patrolInterval);
     }
 
     triggerAttack(target = null) {
@@ -272,7 +274,7 @@ class Monster extends MovableObject {
     animate() {
         this.movePatrol();
 
-        setInterval(() => {
+        const animationInterval = setInterval(() => {
             if (this.isDead()) {
                 if (!this.IMAGES_DEAD.length) {
                     this.deathAnimationDone = true;
@@ -309,5 +311,11 @@ class Monster extends MovableObject {
             this.img = this.imageCache[path];
             this.currentImage++;
         }, 100);
+        this.intervalIds.push(animationInterval);
+    }
+
+    dispose() {
+        this.intervalIds.forEach((id) => clearInterval(id));
+        this.intervalIds = [];
     }
 }

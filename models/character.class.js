@@ -28,6 +28,7 @@ class Character extends MovableObject {
     deathAnimationDone = false;
     lastSpacePressed = false;
     othersDirection = false;
+    intervalIds = [];
 
     constructor() {
         super();
@@ -57,9 +58,12 @@ class Character extends MovableObject {
     }
 
     animate() {
-       
-        setInterval(() => {
+        const movementInterval = setInterval(() => {
             if (!this.world || !this.world.keyboard) return;
+            if (this.world.isVictory || this.world.isGameOver) {
+                this.stopFootsteps();
+                return;
+            }
 
             if (this.isDead()) {
                 this.stopFootsteps();
@@ -89,9 +93,9 @@ class Character extends MovableObject {
 
             this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
+        this.intervalIds.push(movementInterval);
 
-        
-        setInterval(() => {
+        const animationInterval = setInterval(() => {
             if (!this.world || !this.world.keyboard) return;
 
             if (this.isDead()) {
@@ -117,6 +121,7 @@ class Character extends MovableObject {
                 if (fallbackPath) this.img = this.imageCache[fallbackPath] || this.img;
             }
         }, 100);
+        this.intervalIds.push(animationInterval);
     }
 
     isAboveGround() {
@@ -214,5 +219,11 @@ class Character extends MovableObject {
         }
 
         return true;
+    }
+
+    dispose() {
+        this.intervalIds.forEach((id) => clearInterval(id));
+        this.intervalIds = [];
+        this.stopFootsteps();
     }
 }

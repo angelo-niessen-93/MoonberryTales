@@ -7,6 +7,7 @@ class Endboss extends MovableObject {
     width = 250;
     y = 110;
     speed = 1.2;
+    intervalIds = [];
     IMAGES_WALKING = [
         'img/Boss2/Walk1.png',
         'img/Boss2/Walk2.png',
@@ -121,8 +122,17 @@ class Endboss extends MovableObject {
         return this.isDead() && this.deathAnimationDone;
     }
 
+    getHitbox() {
+        return {
+            x: this.x + 70,
+            y: this.y + 118,
+            width: this.width - 140,
+            height: this.height - 132,
+        };
+    }
+
     animate() {
-        setInterval(() => {
+        const movementInterval = setInterval(() => {
             if (this.isDead()) {
                 return;
             }
@@ -147,8 +157,9 @@ class Endboss extends MovableObject {
                 }
             }
         }, 1000 / 60);
+        this.intervalIds.push(movementInterval);
 
-        setInterval(() => {
+        const animationInterval = setInterval(() => {
             if (this.isDead()) {
                 const deadIndex = Math.min(this.deadFrame, this.IMAGES_DEAD.length - 1);
                 const deadPath = this.IMAGES_DEAD[deadIndex];
@@ -180,5 +191,11 @@ class Endboss extends MovableObject {
             this.img = this.imageCache[path];
             this.currentImage++;
         }, 120);
+        this.intervalIds.push(animationInterval);
+    }
+
+    dispose() {
+        this.intervalIds.forEach((id) => clearInterval(id));
+        this.intervalIds = [];
     }
 }

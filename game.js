@@ -12,8 +12,23 @@ function init() {
     setupMusicToggle();
     setupFullscreenToggle();
     setupControlsPopup();
+    setupButtonKeyboardGuard();
 
     console.log('My Character is', world.character);
+}
+
+function setupButtonKeyboardGuard() {
+    const blockedKeys = new Set([" ", "Enter"]);
+    document.addEventListener("keydown", (event) => {
+        if (!blockedKeys.has(event.key)) {
+            return;
+        }
+        const active = document.activeElement;
+        if (active instanceof HTMLButtonElement) {
+            event.preventDefault();
+            active.blur();
+        }
+    });
 }
 
 function setupControlsPopup() {

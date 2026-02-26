@@ -4,6 +4,8 @@ class World {
   projectiles = [];
   isGameOver = false;
   isVictory = false;
+  isVictoryPending = false;
+  victoryReadyAt = 0;
 
   constructor(canvas) {
     this.canvas = canvas;
@@ -43,6 +45,9 @@ class World {
   }
 
   createLevel() {
+    if (typeof createLevel1 === "function") {
+      return createLevel1();
+    }
     if (typeof level1 !== "undefined") return level1;
 
     const tiles = Tiles.createPlatformsForArea(
@@ -121,10 +126,15 @@ class World {
   }
 
   restartGame() {
+    this.disposeEntity(this.character);
+    this.enemies.forEach((enemy) => this.disposeEntity(enemy));
     this.isGameOver = false;
     this.isVictory = false;
+    this.isVictoryPending = false;
+    this.victoryReadyAt = 0;
     this.projectiles = [];
     this.hud = new HUD();
+    this.resetKeyboardState();
     this.character = this.createCharacter();
     this.level = this.createLevel();
     this.enemies = this.level.enemies;
@@ -135,6 +145,24 @@ class World {
     this.hasEndboss = this.enemies.some((enemy) => this.isEndboss(enemy));
     this.canvas.style.cursor = "default";
     this.setWorld();
+  }
+
+  disposeEntity(entity) {
+    if (entity && typeof entity.dispose === "function") {
+      entity.dispose();
+    }
+  }
+
+  resetKeyboardState() {
+    if (!this.keyboard) {
+      return;
+    }
+    this.keyboard.LEFT = false;
+    this.keyboard.RIGHT = false;
+    this.keyboard.UP = false;
+    this.keyboard.DOWN = false;
+    this.keyboard.SPACE = false;
+    this.keyboard.SHIFT = false;
   }
 
   isPointInButton(point, button) {
@@ -154,7 +182,14 @@ class World {
       this.checkItemCollections();
 
       if (this.isBossDefeated()) {
-        this.isVictory = true;
+        if (!this.isVictoryPending) {
+          this.isVictoryPending = true;
+          this.victoryReadyAt = Date.now() + 2000;
+        }
+        if (Date.now() >= this.victoryReadyAt) {
+          this.isVictory = true;
+          this.isVictoryPending = false;
+        }
       } else if (typeof this.character.isDead === "function" && this.character.isDead()) {
         this.isGameOver = true;
         this.playGameOverSound();
@@ -279,13 +314,20 @@ class World {
   }
 
   resolveCharacterGround() {
-    const baseGroundY = 260;
     const character = this.character;
+    const characterHitbox =
+      typeof character.getHitbox === "function"
+        ? character.getHitbox()
+        : { x: character.x, y: character.y, width: character.width, height: character.height };
+    const hitboxBottomOffset =
+      characterHitbox.y - character.y + characterHitbox.height;
+    const levelFloorY = 460;
+    const baseGroundY = levelFloorY - hitboxBottomOffset;
 
     let groundedPlatformY = null;
-    const feetLeft = character.x + 20;
-    const feetRight = character.x + character.width - 20;
-    const feetY = character.y + character.height;
+    const feetLeft = characterHitbox.x;
+    const feetRight = characterHitbox.x + characterHitbox.width;
+    const feetY = characterHitbox.y + characterHitbox.height;
     const gravityStep = character.acceleration ?? 0;
     const estimatedFallDistance = Math.max(0, -character.speedY) + gravityStep;
     const previousFeetY = feetY - estimatedFallDistance;
@@ -316,7 +358,7 @@ class World {
 
     character.groundY =
       groundedPlatformY !== null
-        ? groundedPlatformY - character.height
+        ? groundedPlatformY - hitboxBottomOffset
         : baseGroundY;
 
     if (character.y > character.groundY) {
@@ -422,12 +464,15 @@ class World {
   }
 
   isItemCollected(character, item) {
-    const charHitbox = {
-      x: character.x + 20,
-      y: character.y + 20,
-      width: character.width - 40,
-      height: character.height - 40,
-    };
+    const charHitbox =
+      typeof character.getHitbox === "function"
+        ? character.getHitbox()
+        : {
+            x: character.x + 20,
+            y: character.y + 20,
+            width: character.width - 40,
+            height: character.height - 40,
+          };
 
     const itemHitbox = {
       x: item.x,
