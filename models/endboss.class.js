@@ -29,7 +29,7 @@ class Endboss extends MovableObject {
 
     IMAGES_HURT = [
         'img/Boss2/Hurt1.png',
-        'img/Boss2/Hurt2.png',          
+        'img/Boss2/Hurt2.png',
     ];
 
     IMAGES_DEAD = [
@@ -41,22 +41,35 @@ class Endboss extends MovableObject {
         'img/Boss2/Death4.png'
     ];
 
-    constructor(x = null) {
+    constructor(x = null, config = {}) {
         super();
-        this.x = x ?? this.getSpawnX();
-        this.patrolMinX = Math.max(Endboss.SPAWN_MIN_X, this.x - 160);
-        this.patrolMaxX = Math.min(Endboss.SPAWN_MAX_X, this.x + 160);
+        const spawnMinX = config.spawnMinX ?? Endboss.SPAWN_MIN_X;
+        const spawnMaxX = config.spawnMaxX ?? Endboss.SPAWN_MAX_X;
+
+        this.x = x ?? this.getSpawnX(spawnMinX, spawnMaxX);
+        this.patrolMinX = Math.max(spawnMinX, this.x - (config.patrolRange ?? 160));
+        this.patrolMaxX = Math.min(spawnMaxX, this.x + (config.patrolRange ?? 160));
         this.movingLeft = true;
         this.othersDirection = true;
         this.isAttacking = false;
         this.attackFrame = 0;
-        this.attackDamage = 30;
+        this.attackDamage = config.attackDamage ?? 30;
         this.lastAttackAt = 0;
         this.deadFrame = 0;
         this.deathAnimationDone = false;
-        this.energy = 350;
-        this.attackSound = new Audio('audio/boss-attack.mp3');
-        this.attackSound.volume = 0.5;
+        this.energy = config.energy ?? 350;
+        this.speed = config.speed ?? this.speed;
+        this.width = config.width ?? this.width;
+        this.height = config.height ?? this.height;
+        this.y = config.y ?? this.y;
+
+        this.IMAGES_WALKING = config.walkingImages ?? this.IMAGES_WALKING;
+        this.IMAGES_ATTACKING = config.attackImages ?? this.IMAGES_ATTACKING;
+        this.IMAGES_HURT = config.hurtImages ?? this.IMAGES_HURT;
+        this.IMAGES_DEAD = config.deadImages ?? this.IMAGES_DEAD;
+
+        this.attackSound = config.attackSoundPath ? new Audio(config.attackSoundPath) : new Audio('audio/boss-attack.mp3');
+        this.attackSound.volume = config.attackSoundVolume ?? 0.5;
 
         this.loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
@@ -66,8 +79,8 @@ class Endboss extends MovableObject {
         this.animate();
     }
 
-    getSpawnX() {
-        return Endboss.SPAWN_MIN_X + Math.random() * (Endboss.SPAWN_MAX_X - Endboss.SPAWN_MIN_X);
+    getSpawnX(spawnMinX = Endboss.SPAWN_MIN_X, spawnMaxX = Endboss.SPAWN_MAX_X) {
+        return spawnMinX + Math.random() * (spawnMaxX - spawnMinX);
     }
 
     triggerAttack(target = null) {

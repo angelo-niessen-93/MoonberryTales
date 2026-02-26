@@ -130,6 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     char.addEventListener("click", () => {
       const selected = char.dataset.character;
       localStorage.setItem("selectedCharacter", selected);
+      sessionStorage.setItem("showLoadingScreen", "1");
       window.location.href = "./game.html";
     });
   });
@@ -140,4 +141,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setFirstFrame();
 });
-

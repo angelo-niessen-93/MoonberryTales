@@ -2,19 +2,64 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 let gameMusic;
+let levelPassingSound;
 let isMusicMuted = false;
+let hasBossDefeatAudioPlayed = false;
 const SOUND_VOLUME = 0.5;
+const LOADING_SCREEN_DURATION_MS = 3500;
 
 function init() {
+    const shouldShowLoadingScreen = sessionStorage.getItem("showLoadingScreen") === "1";
     canvas = document.getElementById('canvas');
     world = new World(canvas, keyboard);
-    setupGameMusic();
+    setupGameMusic(shouldShowLoadingScreen);
     setupMusicToggle();
     setupFullscreenToggle();
     setupControlsPopup();
     setupButtonKeyboardGuard();
+    setupMobileTouchControls();
+    setupBossDefeatAudioFlow();
+    hidePageLoadingScreen();
 
     console.log('My Character is', world.character);
+}
+
+function hidePageLoadingScreen() {
+    const loadingScreen = document.getElementById("page-loading-screen");
+    const progressFill = document.getElementById("loading-progress-fill");
+    if (!loadingScreen) {
+        sessionStorage.removeItem("showLoadingScreen");
+        startGameMusic();
+        return;
+    }
+
+    if (sessionStorage.getItem("showLoadingScreen") !== "1") {
+        loadingScreen.remove();
+        sessionStorage.removeItem("showLoadingScreen");
+        startGameMusic();
+        return;
+    }
+
+    const startedAt = performance.now();
+    const tickProgress = (now) => {
+        const progress = Math.min((now - startedAt) / LOADING_SCREEN_DURATION_MS, 1);
+        if (progressFill) {
+            progressFill.style.width = `${progress * 100}%`;
+        }
+        if (progress < 1) {
+            window.requestAnimationFrame(tickProgress);
+        }
+    };
+    window.requestAnimationFrame(tickProgress);
+
+    window.setTimeout(() => {
+        loadingScreen.classList.add("is-hidden");
+        window.setTimeout(() => {
+            loadingScreen.remove();
+            startGameMusic();
+        }, 260);
+        sessionStorage.removeItem("showLoadingScreen");
+    }, LOADING_SCREEN_DURATION_MS);
 }
 
 function setupButtonKeyboardGuard() {
@@ -103,21 +148,67 @@ function setupFullscreenToggle() {
     updateButtonState();
 }
 
-function setupGameMusic() {
+function setupGameMusic(shouldDelayStart = false) {
     gameMusic = new Audio("audio/music%20moonberrytales.mp3");
     gameMusic.loop = true;
     gameMusic.volume = SOUND_VOLUME;
+    levelPassingSound = new Audio("audio/level-passing-sound.mp3");
+    levelPassingSound.volume = SOUND_VOLUME;
 
+    if (!shouldDelayStart) {
+        startGameMusic();
+    }
+
+    window.addEventListener("keydown", startGameMusic, { once: true });
+    window.addEventListener("click", startGameMusic, { once: true });
+}
+
+function startGameMusic() {
+    if (!gameMusic || isMusicMuted || hasBossDefeatAudioPlayed) {
+        return;
+    }
     gameMusic.play().catch(() => {});
+}
 
-    const resumeMusic = () => {
-        if (!isMusicMuted) {
-            gameMusic.play().catch(() => {});
+function stopGameMusic() {
+    if (!gameMusic) {
+        return;
+    }
+    gameMusic.pause();
+    gameMusic.currentTime = 0;
+}
+
+function playLevelPassingSound() {
+    if (!levelPassingSound) {
+        return;
+    }
+    levelPassingSound.currentTime = 0;
+    levelPassingSound.play().catch(() => {});
+}
+
+function stopLevelPassingSound() {
+    if (!levelPassingSound) {
+        return;
+    }
+    levelPassingSound.pause();
+    levelPassingSound.currentTime = 0;
+}
+
+function setupBossDefeatAudioFlow() {
+    window.addEventListener("boss-defeated", () => {
+        if (hasBossDefeatAudioPlayed) {
+            return;
         }
-    };
+        hasBossDefeatAudioPlayed = true;
+        stopGameMusic();
+        playLevelPassingSound();
+    });
 
-    window.addEventListener("keydown", resumeMusic, { once: true });
-    window.addEventListener("click", resumeMusic, { once: true });
+    window.addEventListener("game-restarted", () => {
+        hasBossDefeatAudioPlayed = false;
+        stopLevelPassingSound();
+        startGameMusic();
+    });
 }
 
 function setupMusicToggle() {
@@ -135,10 +226,118 @@ function setupMusicToggle() {
     button.addEventListener("click", () => {
         isMusicMuted = !isMusicMuted;
         gameMusic.muted = isMusicMuted;
+        if (!isMusicMuted) {
+            startGameMusic();
+        }
         updateButtonState();
     });
 
     updateButtonState();
+}
+
+function setupMobileTouchControls() {
+    const touchControl = document.getElementById("mobile-arrows-control");
+    const attackControl = document.getElementById("mobile-attack-control");
+    if (!touchControl || !attackControl) {
+        return;
+    }
+
+    const activeTouchZones = new Map();
+
+    const detectZone = (touch) => {
+        const rect = touchControl.getBoundingClientRect();
+        if (!rect.width || !rect.height) {
+            return null;
+        }
+
+        const ratioX = (touch.clientX - rect.left) / rect.width;
+        if (ratioX < 0 || ratioX > 1) {
+            return null;
+        }
+
+        if (ratioX < 0.34) {
+            return "left";
+        }
+        if (ratioX > 0.66) {
+            return "right";
+        }
+        return "up";
+    };
+
+    const applyKeyboardState = () => {
+        const zones = Array.from(activeTouchZones.values());
+        keyboard.LEFT = zones.includes("left");
+        keyboard.RIGHT = zones.includes("right");
+        keyboard.UP = zones.includes("up");
+    };
+
+    const onTouchStart = (event) => {
+        event.preventDefault();
+        for (const touch of event.changedTouches) {
+            const zone = detectZone(touch);
+            if (zone) {
+                activeTouchZones.set(touch.identifier, zone);
+            }
+        }
+        applyKeyboardState();
+    };
+
+    const onTouchMove = (event) => {
+        event.preventDefault();
+        for (const touch of event.changedTouches) {
+            const zone = detectZone(touch);
+            if (zone) {
+                activeTouchZones.set(touch.identifier, zone);
+            } else {
+                activeTouchZones.delete(touch.identifier);
+            }
+        }
+        applyKeyboardState();
+    };
+
+    const onTouchEnd = (event) => {
+        event.preventDefault();
+        for (const touch of event.changedTouches) {
+            activeTouchZones.delete(touch.identifier);
+        }
+        applyKeyboardState();
+    };
+
+    touchControl.addEventListener("touchstart", onTouchStart, { passive: false });
+    touchControl.addEventListener("touchmove", onTouchMove, { passive: false });
+    touchControl.addEventListener("touchend", onTouchEnd, { passive: false });
+    touchControl.addEventListener("touchcancel", onTouchEnd, { passive: false });
+
+    const setAttackPressed = (pressed, event) => {
+        if (event) {
+            event.preventDefault();
+        }
+        keyboard.SPACE = pressed;
+    };
+
+    attackControl.addEventListener("touchstart", (event) => setAttackPressed(true, event), {
+        passive: false,
+    });
+    attackControl.addEventListener("touchend", (event) => setAttackPressed(false, event), {
+        passive: false,
+    });
+    attackControl.addEventListener("touchcancel", (event) => setAttackPressed(false, event), {
+        passive: false,
+    });
+
+    attackControl.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        setAttackPressed(true);
+    });
+    attackControl.addEventListener("pointerup", () => setAttackPressed(false));
+    attackControl.addEventListener("pointerleave", () => setAttackPressed(false));
+    attackControl.addEventListener("pointercancel", () => setAttackPressed(false));
+
+    window.addEventListener("blur", () => {
+        activeTouchZones.clear();
+        keyboard.SPACE = false;
+        applyKeyboardState();
+    });
 }
 
 window.addEventListener('keydown', (e) => {

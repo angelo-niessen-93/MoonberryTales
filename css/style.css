@@ -24,9 +24,29 @@ body.home-page {
   background-repeat: no-repeat;
 }
 
+#rotate-device-overlay-home {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 24px;
+}
+
+#rotate-device-overlay-home img {
+  width: min(82vw, 420px);
+  max-height: 72vh;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
 .home-layout {
   position: relative;
   min-height: 100vh;
+  padding: clamp(12px, 2.5vw, 28px);
   display: grid;
   place-items: center;
 }
@@ -34,17 +54,17 @@ body.home-page {
 #main-title-logo {
   position: absolute;
   left: 50%;
-  top: calc(50% - 450px);
+  top: clamp(20px, 7vh, 72px);
   transform: translateX(-50%);
   width: min(60vw, 640px);
   max-width: 88vw;
+  max-height: 36vh;
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.6));
 }
 
 #start-button {
   position: absolute;
   left: 50%;
-  top: calc(50% + 150px);
   transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
@@ -176,8 +196,13 @@ body.home-page {
 
 @media (max-width: 720px) {
   #main-title-logo {
-    top: calc(50% - 200px);
     width: min(78vw, 420px);
+    max-height: 24vh;
+  }
+
+  #start-button {
+    bottom: clamp(16px, 6vh, 44px);
+    padding: 8px 14px;
   }
 
   #characters-container {
@@ -188,5 +213,68 @@ body.home-page {
     height: 180px;
     background-size: 34%;
     background-position: center 12px;
+  }
+
+  #settings-button {
+    right: 12px;
+    top: 12px;
+    width: 46px;
+    height: 46px;
+  }
+
+  #settings-panel {
+    right: 12px;
+    top: 66px;
+    width: min(240px, calc(100vw - 24px));
+  }
+}
+
+@media (max-height: 620px) {
+  #main-title-logo {
+    max-height: 18vh;
+  }
+
+  #start-button {
+    bottom: 14px;
+  }
+
+  .popup-card {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 1024px) and (orientation: portrait) {
+  #rotate-device-overlay-home {
+    display: flex;
+  }
+}
+
+@media (max-width: 1024px) and (orientation: landscape) {
+  .home-layout {
+    min-height: 100vh;
+    padding: 8px;
+  }
+
+  #main-title-logo {
+    width: min(52vw, 340px);
+    max-height: 63vh;
+    top: 8px;
+  }
+
+  #start-button {
+    bottom: 125px;
+  }
+
+  #settings-button {
+    right: 8px;
+    top: 8px;
+    width: 42px;
+    height: 42px;
+  }
+
+  #settings-panel {
+    right: 8px;
+    top: 56px;
+    width: min(220px, calc(100vw - 16px));
   }
 }

@@ -5,9 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moonberry Tales</title>
     <link rel="icon" href="data:,">
+    <script>
+        if (sessionStorage.getItem("showLoadingScreen") !== "1") {
+            document.documentElement.classList.add("skip-loading-screen");
+        }
+    </script>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body onload="init()" >
+    <div id="page-loading-screen" aria-hidden="true">
+        <img src="./img/loadingscreen.png" alt="Loading Screen">
+        <div id="loading-progress" aria-hidden="true">
+            <div id="loading-progress-fill"></div>
+        </div>
+    </div>
     <img id="game-title-logo" src="./img/lgog_game.png" alt="Moonberry Tales">
     <div class="canvas-wrapper">
         <button id="info-toggle" type="button" aria-label="Steuerung anzeigen">
@@ -20,6 +31,12 @@
             <img src="img/mute.png" alt="Mute">
         </button>
         <canvas id="canvas" width="720" height="480"></canvas>
+        <div id="mobile-arrows-control" aria-hidden="true">
+            <img src="img/16Inner_Interface/arrows.png" alt="Mobile Steuerung">
+        </div>
+        <button id="mobile-attack-control" type="button" aria-label="Angreifen">
+            <img src="img/16Inner_Interface/sword_button.png" alt="Angriff">
+        </button>
         <div id="controls-popup" class="hidden" role="dialog" aria-modal="true" aria-label="Steuerung">
             <div class="controls-popup-card">
                 <h2>Steuerung</h2>
@@ -35,13 +52,15 @@
     <script src="./models/monster.class.js"></script>
     <script src="./models/endboss.class.js"></script>
     <script src="./models/character.class.js"></script>
-    <script src="./models/chain.class.js"></script>
+    <script src="./models/myst.class.js"></script>
     <script src="./models/tiles.class.js"></script>
     <script src="./models/items.class.js"></script>
     <script src="./models/background-object.class.js"></script>
     <script src="./models/level.class.js"></script>
     <script src="./levels/level1.js"></script>
     <script src="./models/hud.class.js"></script>
+    <script src="./models/world-collision.class.js"></script>
+    <script src="./models/world-renderer.class.js"></script>
     <script src="./models/world.class.js"></script>
     <script src="./models/keyboard.class.js"></script>
     <script src="./models/knight.class.js"></script>
@@ -51,4 +70,3 @@
     <script src="./game.js"></script>
 </body>
 </html>
-

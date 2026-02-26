@@ -2,11 +2,13 @@ class BackgroundObject extends MovableObject {
 
     width = 720;
     height = 480;
-    constructor(imagePath, x, y) {
-        super().loadImage(imagePath); 
+    constructor(imagePath, x, y, config = {}) {
+        super().loadImage(imagePath);
         this.y = y;
         this.x = x;
- }
+        this.width = config.width ?? this.width;
+        this.height = config.height ?? this.height;
+    }
 
     static LAYER_PATHS = [
         'img/Background/back_ruin_spots.png',
@@ -17,15 +19,16 @@ class BackgroundObject extends MovableObject {
         'img/Background/floor_ruins.png',
     ];
 
-    static createForArea(minX = -720, maxX = 720 * 5, step = 720, y = 0) {
+    static createForArea(minX = -720, maxX = 720 * 5, step = 720, y = 0, options = {}) {
         const objects = [];
+        const layerPaths = options.layerPaths ?? BackgroundObject.LAYER_PATHS;
 
         for (let x = minX; x <= maxX; x += step) {
-            BackgroundObject.LAYER_PATHS.forEach((path) => {
-                objects.push(new BackgroundObject(path, x, y));
+            layerPaths.forEach((path) => {
+                objects.push(new BackgroundObject(path, x, y, options));
             });
         }
 
         return objects;
     }
-} 
+}

@@ -69,26 +69,34 @@ class Tiles extends MovableObject {
         return tiles;
     }
 
-    static createPlatform(startX = 600, y = 350) {
-        const platformImages = [
+    static createPlatform(startX = 600, y = 350, options = {}) {
+        const platformImages = options.platformImages ?? [
             'img/dark_tiles/dark_tile26.png',
             'img/dark_tiles/dark_tile27.png',
             'img/dark_tiles/dark_tile28.png',
         ];
 
         return platformImages.map((imagePath, index) => {
-            return new Tiles(imagePath, startX + index * Tiles.DEFAULT_SIZE.width, y);
+            return new Tiles(
+                imagePath,
+                startX + index * Tiles.DEFAULT_SIZE.width,
+                y,
+                options.tileWidth ?? Tiles.DEFAULT_SIZE.width,
+                options.tileHeight ?? Tiles.DEFAULT_SIZE.height,
+                options.tileHitbox ?? Tiles.DEFAULT_HITBOX,
+            );
         });
     }
 
-    static createPlatformsForArea(minX, maxX, gapX = 320, heights = [170, 230, 290, 350]) {
-        if (Array.isArray(Tiles.LAYOUT) && Tiles.LAYOUT.length) {
-            return Tiles.createFromLayout(Tiles.LAYOUT, minX, maxX);
+    static createPlatformsForArea(minX, maxX, gapX = 320, heights = [170, 230, 290, 350], options = {}) {
+        const layout = options.layout ?? Tiles.LAYOUT;
+        if (Array.isArray(layout) && layout.length) {
+            return Tiles.createFromLayout(layout, minX, maxX);
         }
         const platforms = [];
         for (let x = minX; x <= maxX; x += gapX) {
             const y = heights[Math.floor((x - minX) / gapX) % heights.length];
-            platforms.push(...Tiles.createPlatform(x, y));
+            platforms.push(...Tiles.createPlatform(x, y, options));
         }
         return platforms;
     }

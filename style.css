@@ -1,19 +1,88 @@
+html,
 body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    --edge-space: clamp(8px, 2vw, 18px);
+    --icon-size: clamp(40px, 6.2vw, 54px);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     min-height: 100vh;
+    padding: var(--edge-space);
+    gap: clamp(6px, 1.2vh, 12px);
     background-image: url("../img_mainpage/01main/bg.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#page-loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 220ms ease, visibility 220ms ease;
     overflow: hidden;
 }
 
+#page-loading-screen img {
+    position: absolute;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+#loading-progress {
+    position: absolute;
+    left: 50%;
+    bottom: 8vh;
+    transform: translateX(-50%);
+    width: min(560px, 82vw);
+    height: 16px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    background: rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+    z-index: 1;
+}
+
+#loading-progress-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #f6d365 0%, #fda085 100%);
+}
+
+#page-loading-screen.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.skip-loading-screen #page-loading-screen {
+    display: none;
+}
+
+
 .canvas-wrapper {
     position: relative;
-    width: 720px;
+    width: min(720px, calc(100vw - var(--edge-space) * 2));
+    max-height: calc(100vh - 180px);
 }
 
 .canvas-wrapper:fullscreen {
@@ -32,9 +101,12 @@ body {
 }
 
 #game-title-logo {
+    display: block;
     width: min(46vw, 420px);
+    height: auto;
     max-width: 90vw;
-    margin: 2px 0 2px;
+    max-height: min(26vh, 220px);
+    margin: 0;
     filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.55));
 }
 
@@ -42,8 +114,8 @@ body {
     position: absolute;
     top: 10px;
     right: 10px;
-    width: 54px;
-    height: 54px;
+    width: var(--icon-size);
+    height: var(--icon-size);
     padding: 0;
     border: none;
     background: transparent;
@@ -54,9 +126,9 @@ body {
 #info-toggle {
     position: absolute;
     top: 10px;
-    right: 138px;
-    width: 54px;
-    height: 54px;
+    right: calc(10px + var(--icon-size) * 2 + 10px);
+    width: var(--icon-size);
+    height: var(--icon-size);
     padding: 0;
     border: none;
     background: transparent;
@@ -67,9 +139,9 @@ body {
 #fullscreen-toggle {
     position: absolute;
     top: 10px;
-    right: 74px;
-    width: 54px;
-    height: 54px;
+    right: calc(10px + var(--icon-size) + 5px);
+    width: var(--icon-size);
+    height: var(--icon-size);
     padding: 0;
     border: none;
     background: transparent;
@@ -85,13 +157,13 @@ body {
 
 .canvas-wrapper:fullscreen #fullscreen-toggle {
     top: 14px;
-    right: 78px;
+    right: calc(14px + var(--icon-size) + 6px);
     z-index: 4;
 }
 
 .canvas-wrapper:fullscreen #info-toggle {
     top: 14px;
-    right: 142px;
+    right: calc(14px + var(--icon-size) * 2 + 12px);
     z-index: 4;
 }
 
@@ -111,6 +183,51 @@ body {
     width: 100%;
     height: 100%;
     display: block;
+}
+
+#mobile-arrows-control {
+    position: absolute;
+    left: 30px;
+    bottom: 180px;
+    z-index: 5;
+    display: none;
+    width: clamp(92px, 16vw, 132px);
+    opacity: 0.82;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#mobile-arrows-control img {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+}
+
+#mobile-attack-control {
+    position: absolute;
+    right: 50px;
+    bottom: 180px;
+    z-index: 5;
+    display: none;
+    width: clamp(54px, 9vw, 74px);
+    padding: 0;
+    border: none;
+    background: transparent;
+    opacity: 0.88;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#mobile-attack-control img {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
 }
 
 .hidden {
@@ -159,5 +276,120 @@ body {
 
 canvas {
     display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    max-height: 100%;
     background-color: black;
+}
+
+@media only screen and (max-width: 900px) {
+    #game-title-logo {
+        width: min(62vw, 380px);
+        max-height: min(22vh, 180px);
+    }
+
+    .controls-popup-card h2 {
+        font-size: clamp(20px, 4vw, 24px);
+    }
+
+    .controls-popup-card p {
+        font-size: clamp(14px, 2.8vw, 17px);
+    }
+}
+
+@media only screen and (max-width: 640px) {
+    body {
+        --edge-space: 8px;
+        --icon-size: 42px;
+    }
+
+    #loading-progress {
+        bottom: 4vh;
+        height: 12px;
+    }
+
+    #game-title-logo {
+        width: min(72vw, 320px);
+        max-height: min(18vh, 120px);
+    }
+}
+
+@media only screen and (max-height: 480px) {
+    body {
+        --edge-space: 6px;
+        --icon-size: 38px;
+        gap: 4px;
+    }
+
+    #game-title-logo {
+        max-height: 56px;
+    }
+
+    .canvas-wrapper {
+        width: min(720px, calc(100vw - 12px));
+        max-height: calc(100vh - 74px);
+    }
+
+    .controls-popup-card {
+        padding: 12px;
+    }
+
+    .controls-popup-card p {
+        margin: 4px 0;
+    }
+}
+
+@media only screen and (max-width: 1024px) and (orientation: portrait) {
+    #game-title-logo {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 1024px) and (orientation: landscape) {
+    html,
+    body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    body {
+        padding: 0;
+        gap: 0;
+    }
+
+    .canvas-wrapper {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        max-height: none;
+        margin: 0;
+    }
+
+    canvas {
+        width: 100vw;
+        height: 100vh;
+        max-height: none;
+        aspect-ratio: auto;
+    }
+
+    #music-toggle,
+    #fullscreen-toggle,
+    #info-toggle {
+        top: 8px;
+    }
+
+    #mobile-arrows-control {
+        display: block;
+    }
+
+    #mobile-attack-control {
+        display: block;
+    }
+
+    #game-title-logo {
+        display: none;
+    }
 }

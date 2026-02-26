@@ -25,38 +25,43 @@ class Items extends MovableObject {
         'img/Items/coin10.png',
     ];
 
-    constructor(type = 'heart', x = 0, y = 0) {
-        const imageSet = type === 'coin' ? Items.COIN_IMAGES : Items.HEART_IMAGES;
+    constructor(type = 'heart', x = 0, y = 0, options = {}) {
+        const heartImages = options.heartImages ?? Items.HEART_IMAGES;
+        const coinImages = options.coinImages ?? Items.COIN_IMAGES;
+        const imageSet = type === 'coin' ? coinImages : heartImages;
         super().loadImage(imageSet[0]);
         this.loadImages(imageSet);
         this.imageSet = imageSet;
         this.type = type;
         this.x = x;
         this.y = y;
-        this.width = 36;
-        this.height = 36;
+        this.width = options.width ?? 36;
+        this.height = options.height ?? 36;
 
-        this.animate();
+        this.animate(options.animationSpeedMs ?? 120);
     }
 
-    animate() {
+    animate(speedMs = 120) {
         setInterval(() => {
             this.playAnimation(this.imageSet);
-        }, 120);
+        }, speedMs);
     }
 
-    static createHeartsForPlatforms(tiles = []) {
+    static createHeartsForPlatforms(tiles = [], options = {}) {
         const hearts = [];
+        const placeEveryNthTile = options.placeEveryNthTile ?? 3;
 
-        for (let i = 0; i < tiles.length; i += 3) {
+        for (let i = 0; i < tiles.length; i += placeEveryNthTile) {
             const middleTile = tiles[i + 1] || tiles[i];
             if (!middleTile) {
                 continue;
             }
 
-            const x = middleTile.x + (middleTile.width - 36) / 2;
-            const y = middleTile.y - 36;
-            hearts.push(new Items('heart', x, y));
+            const itemWidth = options.width ?? 36;
+            const itemHeight = options.height ?? 36;
+            const x = middleTile.x + (middleTile.width - itemWidth) / 2;
+            const y = middleTile.y - itemHeight;
+            hearts.push(new Items('heart', x, y, options));
         }
 
         return hearts;
@@ -70,30 +75,33 @@ class Items extends MovableObject {
         });
     }
 
-    static createCoinsForArea(minX, maxX, hearts = [], count = 28) {
+    static createCoinsForArea(minX, maxX, hearts = [], count = 28, options = {}) {
         const coins = [];
         let attempts = 0;
         const maxAttempts = count * 20;
+        const coinMinY = options.coinMinY ?? 70;
+        const coinMaxY = options.coinMaxY ?? 390;
+        const heartZoneDistance = options.heartZoneDistance ?? 90;
 
         while (coins.length < count && attempts < maxAttempts) {
             attempts++;
 
             const x = minX + Math.random() * (maxX - minX);
-            const y = 70 + Math.random() * 320;
+            const y = coinMinY + Math.random() * (coinMaxY - coinMinY);
 
-            if (Items.isInHeartZone(x, y, hearts)) {
+            if (Items.isInHeartZone(x, y, hearts, heartZoneDistance)) {
                 continue;
             }
 
-            coins.push(new Items('coin', x, y));
+            coins.push(new Items('coin', x, y, options));
         }
 
         return coins;
     }
 
-    static createForLevel(tiles = [], minX = -720, maxX = 720 * 5, coinCount = 28) {
-        const hearts = Items.createHeartsForPlatforms(tiles);
-        const coins = Items.createCoinsForArea(minX, maxX, hearts, coinCount);
+    static createForLevel(tiles = [], minX = -720, maxX = 720 * 5, coinCount = 28, options = {}) {
+        const hearts = Items.createHeartsForPlatforms(tiles, options);
+        const coins = Items.createCoinsForArea(minX, maxX, hearts, coinCount, options);
         return [...hearts, ...coins];
     }
 }

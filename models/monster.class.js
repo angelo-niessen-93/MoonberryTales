@@ -68,7 +68,7 @@ class Monster extends MovableObject {
             'img/Ghost/ghost16_death2.png',
             'img/Ghost/ghost17_death3.png',
             'img/Ghost/ghost18_death4.png',
-    ],
+        ],
     };
 
 
@@ -77,22 +77,31 @@ class Monster extends MovableObject {
         dragon: { width: 160, height: 220, y: 300 },
         ghost: { width: 120, height: 170, y: 300 },
     };
+    static ATTACK_SOUND_BY_TYPE = {
+        ghost: 'audio/ghost-attack.mp3',
+        skeleton: 'audio/skleton-attck.mp3',
+    };
     intervalIds = [];
 
 
-    constructor(type = null, x = null, patrolMinX = null, patrolMaxX = null) {
+    constructor(type = null, x = null, patrolMinX = null, patrolMaxX = null, config = {}) {
         super();
 
-        const availableTypes = Object.keys(Monster.WALKING_SETS);
+        const walkingSets = config.walkingSets ?? Monster.WALKING_SETS;
+        const attackSets = config.attackSets ?? Monster.ATTACK_SETS;
+        const deadSets = config.deadSets ?? Monster.DEAD_SETS;
+        const typeSizes = config.typeSizes ?? Monster.TYPE_SIZES;
+
+        const availableTypes = Object.keys(walkingSets);
         this.type = availableTypes.includes(type)
             ? type
             : availableTypes[Math.floor(Math.random() * availableTypes.length)];
 
-        this.IMAGES_WALKING = Monster.WALKING_SETS[this.type];
-        this.IMAGES_ATTACKING = Monster.ATTACK_SETS[this.type] || [];
-        this.IMAGES_DEAD = Monster.DEAD_SETS[this.type] || [];
+        this.IMAGES_WALKING = walkingSets[this.type] ?? [];
+        this.IMAGES_ATTACKING = attackSets[this.type] || [];
+        this.IMAGES_DEAD = deadSets[this.type] || [];
 
-        const size = Monster.TYPE_SIZES[this.type];
+        const size = typeSizes[this.type];
         if (size) {
             this.width = size.width;
             this.height = size.height;
@@ -110,17 +119,14 @@ class Monster extends MovableObject {
         this.deadFrame = 0;
         this.deathAnimationDone = false;
         this.energy = 50;
-        this.attackDamage = 10;
+        this.attackDamage = config.attackDamage ?? 10;
         this.lastHitAt = 0;
         this.lastAttackAt = 0;
-        const attackSoundByType = {
-            ghost: "audio/ghost-attack.mp3",
-            skeleton: "audio/skleton-attck.mp3",
-        };
+        const attackSoundByType = config.attackSoundByType ?? Monster.ATTACK_SOUND_BY_TYPE;
         const attackSoundPath = attackSoundByType[this.type];
         this.attackSound = attackSoundPath ? new Audio(attackSoundPath) : null;
         if (this.attackSound) {
-            this.attackSound.volume = 0.5;
+            this.attackSound.volume = config.attackSoundVolume ?? 0.5;
         }
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_ATTACKING);
@@ -128,21 +134,26 @@ class Monster extends MovableObject {
         this.animate();
     }
 
-    static createForLevel(characterStartX = 120, count = 10) {
-        const minX = Math.max(
-            Monster.MIN_SPAWN_X,
-            characterStartX + Monster.SPAWN_AHEAD_DISTANCE
-        );
-        const maxX = Monster.LEVEL_END_X - Monster.NO_SPAWN_END_BUFFER;
+    static createForLevel(characterStartX = 120, count = 10, options = {}) {
+        const minSpawnX = options.minSpawnX ?? Monster.MIN_SPAWN_X;
+        const spawnAheadDistance = options.spawnAheadDistance ?? Monster.SPAWN_AHEAD_DISTANCE;
+        const levelEndX = options.levelEndX ?? Monster.LEVEL_END_X;
+        const noSpawnEndBuffer = options.noSpawnEndBuffer ?? Monster.NO_SPAWN_END_BUFFER;
+
+        const minX = Math.max(minSpawnX, characterStartX + spawnAheadDistance);
+        const maxX = levelEndX - noSpawnEndBuffer;
         const step = (maxX - minX) / Math.max(1, count - 1);
         const monsters = [];
+        const forceType = options.forceType ?? null;
 
         for (let i = 0; i < count; i++) {
-            const jitter = (Math.random() - 0.5) * 140;
+            const jitterRange = options.jitterRange ?? 140;
+            const jitter = (Math.random() - 0.5) * jitterRange;
             const x = Math.min(maxX, Math.max(minX, minX + step * i + jitter));
-            const patrolMinX = Math.max(minX, x - 220);
-            const patrolMaxX = Math.min(maxX, x + 220);
-            monsters.push(new Monster(null, x, patrolMinX, patrolMaxX));
+            const patrolHalfRange = options.patrolHalfRange ?? 220;
+            const patrolMinX = Math.max(minX, x - patrolHalfRange);
+            const patrolMaxX = Math.min(maxX, x + patrolHalfRange);
+            monsters.push(new Monster(forceType, x, patrolMinX, patrolMaxX, options));
         }
 
         return monsters;
