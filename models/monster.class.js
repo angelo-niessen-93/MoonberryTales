@@ -195,6 +195,9 @@ class Monster extends MovableObject {
 
     movePatrol() {
         const patrolInterval = setInterval(() => {
+            if (window.__moonberryPaused || this.world?.isPaused) {
+                return;
+            }
             if (this.isDead()) {
                 return;
             }
@@ -286,6 +289,9 @@ class Monster extends MovableObject {
         this.movePatrol();
 
         const animationInterval = setInterval(() => {
+            if (window.__moonberryPaused || this.world?.isPaused) {
+                return;
+            }
             if (this.isDead()) {
                 if (!this.IMAGES_DEAD.length) {
                     this.deathAnimationDone = true;

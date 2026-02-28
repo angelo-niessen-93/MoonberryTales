@@ -60,6 +60,10 @@ class Character extends MovableObject {
     animate() {
         const movementInterval = setInterval(() => {
             if (!this.world || !this.world.keyboard) return;
+            if (window.__moonberryPaused || this.world.isPaused) {
+                this.stopFootsteps();
+                return;
+            }
             if (this.world.isVictory || this.world.isGameOver) {
                 this.stopFootsteps();
                 return;
@@ -97,6 +101,9 @@ class Character extends MovableObject {
 
         const animationInterval = setInterval(() => {
             if (!this.world || !this.world.keyboard) return;
+            if (window.__moonberryPaused || this.world.isPaused) {
+                return;
+            }
 
             if (this.isDead()) {
                 this.playDeathAnimation();

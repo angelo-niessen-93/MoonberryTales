@@ -33,6 +33,9 @@ class Myst extends MovableObject {
 
     moveLeft() {
         setInterval(() => {
+            if (window.__moonberryPaused) {
+                return;
+            }
             this.x -= this.speed;
 
             if (this.x <= this.minLoopX - this.width) {

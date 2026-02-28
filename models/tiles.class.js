@@ -5,9 +5,9 @@ class Tiles extends MovableObject {
     };
 
     static DEFAULT_HITBOX = {
-        x: 2,
+        x: 1,
         y: 50,
-        width: 60,
+        width: 10,
         height: 10,
     };
 

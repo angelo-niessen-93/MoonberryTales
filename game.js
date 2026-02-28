@@ -4,6 +4,7 @@ let keyboard = new Keyboard();
 let gameMusic;
 let levelPassingSound;
 let isMusicMuted = false;
+let isGamePaused = false;
 let hasBossDefeatAudioPlayed = false;
 const SOUND_VOLUME = 0.5;
 const LOADING_SCREEN_DURATION_MS = 3500;
@@ -16,6 +17,7 @@ function init() {
     setupMusicToggle();
     setupFullscreenToggle();
     setupControlsPopup();
+    setupPausePopup();
     setupButtonKeyboardGuard();
     setupMobileTouchControls();
     setupBossDefeatAudioFlow();
@@ -76,6 +78,27 @@ function setupButtonKeyboardGuard() {
     });
 }
 
+function setGamePaused(paused) {
+    isGamePaused = paused;
+    window.__moonberryPaused = paused;
+
+    if (world) {
+        world.isPaused = paused;
+        if (paused && typeof world.resetKeyboardState === "function") {
+            world.resetKeyboardState();
+        }
+    }
+
+    if (paused) {
+        keyboard.LEFT = false;
+        keyboard.RIGHT = false;
+        keyboard.UP = false;
+        keyboard.DOWN = false;
+        keyboard.SPACE = false;
+        keyboard.SHIFT = false;
+    }
+}
+
 function setupControlsPopup() {
     const infoButton = document.getElementById("info-toggle");
     const popup = document.getElementById("controls-popup");
@@ -103,6 +126,57 @@ function setupControlsPopup() {
     window.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
             closePopup();
+        }
+    });
+}
+
+function setupPausePopup() {
+    const pauseButton = document.getElementById("pause-toggle");
+    const popup = document.getElementById("pause-popup");
+    const continueButton = document.getElementById("pause-continue");
+    const homeButton = document.getElementById("pause-home");
+
+    if (!pauseButton || !popup || !continueButton || !homeButton) {
+        return;
+    }
+
+    const openPopup = () => {
+        if (world?.isGameOver || world?.isVictory) {
+            return;
+        }
+        setGamePaused(true);
+        popup.classList.remove("hidden");
+    };
+
+    const closePopup = () => {
+        popup.classList.add("hidden");
+        setGamePaused(false);
+    };
+
+    pauseButton.addEventListener("click", openPopup);
+    continueButton.addEventListener("click", closePopup);
+    homeButton.addEventListener("click", () => {
+        window.location.href = "./index.html";
+    });
+
+    popup.addEventListener("click", (event) => {
+        if (event.target === popup) {
+            closePopup();
+        }
+    });
+
+    window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            const controlsPopup = document.getElementById("controls-popup");
+            if (controlsPopup && !controlsPopup.classList.contains("hidden")) {
+                return;
+            }
+
+            if (!popup.classList.contains("hidden")) {
+                closePopup();
+            } else {
+                openPopup();
+            }
         }
     });
 }
@@ -341,6 +415,9 @@ function setupMobileTouchControls() {
 }
 
 window.addEventListener('keydown', (e) => {
+    if (isGamePaused) {
+        return;
+    }
     if (e.key === 'ArrowLeft') {
         keyboard.LEFT = true;
     }
@@ -362,6 +439,9 @@ window.addEventListener('keydown', (e) => {
 });
 
 window.addEventListener('keyup', (e) => {
+    if (isGamePaused) {
+        return;
+    }
     if (e.key === 'ArrowLeft') {
         keyboard.LEFT = false;
     }

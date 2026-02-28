@@ -21,6 +21,9 @@
     </div>
     <img id="game-title-logo" src="./img/lgog_game.png" alt="Moonberry Tales">
     <div class="canvas-wrapper">
+        <button id="pause-toggle" type="button" aria-label="Spiel pausieren">
+            <img src="img/Pause.png" alt="Pause">
+        </button>
         <button id="info-toggle" type="button" aria-label="Steuerung anzeigen">
             <img src="img/info_button.png" alt="Info">
         </button>
@@ -44,6 +47,19 @@
                 <p><strong>Springen:</strong> Pfeiltaste hoch</p>
                 <p><strong>Angriff:</strong> Leertaste</p>
                 <button id="controls-close" type="button" aria-label="Steuerung schliessen">Schliessen</button>
+            </div>
+        </div>
+        <div id="pause-popup" class="hidden" role="dialog" aria-modal="true" aria-label="Pause-Menue">
+            <div class="pause-popup-card">
+                <img class="pause-popup-title" src="img/14Pause/Pause.png" alt="Pause">
+                <button id="pause-continue" class="pause-popup-button" type="button" aria-label="Spiel fortsetzen">
+                    <img src="img/14Pause/button_yellow.png" alt="">
+                    <span>Weiter</span>
+                </button>
+                <button id="pause-home" class="pause-popup-button" type="button" aria-label="Zur Startseite">
+                    <img src="img/14Pause/button_yellow.png" alt="">
+                    <span>Home</span>
+                </button>
             </div>
         </div>
     </div>

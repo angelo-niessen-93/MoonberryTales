@@ -7,6 +7,7 @@ class World {
   isVictoryPending = false;
   victoryReadyAt = 0;
   bossDefeatEventDispatched = false;
+  isPaused = false;
 
   constructor(canvas) {
     this.canvas = canvas;
@@ -34,8 +35,8 @@ class World {
     this.coinCollectSound.volume = 0.5;
 
     this.gameOverButtons = {
-      restart: { width: 130, height: 42, label: "Restart" },
-      home: { width: 190, height: 42, label: "Home" },
+      restart: { width: 250, height: 56, label: "Neustart" },
+      home: { width: 250, height: 56, label: "Home" },
     };
     this.hasEndboss = this.enemies.some((enemy) => this.isEndboss(enemy));
     this.hud = new HUD();
@@ -180,7 +181,7 @@ class World {
   }
 
   draw = () => {
-    if (!this.isGameOver && !this.isVictory) {
+    if (!this.isPaused && !this.isGameOver && !this.isVictory) {
       this.collisionSystem.updateProjectiles();
       this.collisionSystem.resolveCharacterGround();
       this.collisionSystem.checkCharacterCollisions();

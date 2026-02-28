@@ -24,6 +24,10 @@ class MovableObject {
 
   applyGravity() {
     setInterval(() => {
+      if (window.__moonberryPaused) {
+        return;
+      }
+
       if (this.isAboveGround() || this.speedY > 0) {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;

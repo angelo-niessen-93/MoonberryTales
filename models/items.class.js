@@ -43,6 +43,9 @@ class Items extends MovableObject {
 
     animate(speedMs = 120) {
         setInterval(() => {
+            if (window.__moonberryPaused) {
+                return;
+            }
             this.playAnimation(this.imageSet);
         }, speedMs);
     }

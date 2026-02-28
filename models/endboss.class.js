@@ -146,6 +146,9 @@ class Endboss extends MovableObject {
 
     animate() {
         const movementInterval = setInterval(() => {
+            if (window.__moonberryPaused || this.world?.isPaused) {
+                return;
+            }
             if (this.isDead()) {
                 return;
             }
@@ -173,6 +176,9 @@ class Endboss extends MovableObject {
         this.intervalIds.push(movementInterval);
 
         const animationInterval = setInterval(() => {
+            if (window.__moonberryPaused || this.world?.isPaused) {
+                return;
+            }
             if (this.isDead()) {
                 const deadIndex = Math.min(this.deadFrame, this.IMAGES_DEAD.length - 1);
                 const deadPath = this.IMAGES_DEAD[deadIndex];
