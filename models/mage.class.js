@@ -107,7 +107,10 @@ class Mage extends Character {
  }
 
     startAttack() {
-        super.startAttack();
+        const didStartAttack = super.startAttack();
+        if (!didStartAttack) {
+            return;
+        }
         this.hasShotInCurrentAttack = false;
     }
 

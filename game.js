@@ -29,6 +29,7 @@ function init() {
 function hidePageLoadingScreen() {
     const loadingScreen = document.getElementById("page-loading-screen");
     const progressFill = document.getElementById("loading-progress-fill");
+    const progressText = document.getElementById("loading-progress-text");
     if (!loadingScreen) {
         sessionStorage.removeItem("showLoadingScreen");
         startGameMusic();
@@ -45,8 +46,12 @@ function hidePageLoadingScreen() {
     const startedAt = performance.now();
     const tickProgress = (now) => {
         const progress = Math.min((now - startedAt) / LOADING_SCREEN_DURATION_MS, 1);
+        const progressPercent = Math.round(progress * 100);
         if (progressFill) {
             progressFill.style.width = `${progress * 100}%`;
+        }
+        if (progressText) {
+            progressText.textContent = `Lade Spielwelt... ${progressPercent}%`;
         }
         if (progress < 1) {
             window.requestAnimationFrame(tickProgress);

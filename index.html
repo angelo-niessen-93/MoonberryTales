@@ -18,14 +18,27 @@
       <img src="./img_mainpage\03potions\forward_button.png" alt="Start">
       <span>Start</span>
     </button>
+    <button id="leaderboard-button" type="button" aria-label="Leaderboard anzeigen">
+      Bestenliste
+    </button>
 
     <button id="settings-button" type="button" aria-label="Einstellungen">
       <img src="./img_mainpage/03potions/settings_button.png" alt="Einstellungen" onerror="this.parentElement.textContent='⚙'; this.parentElement.classList.add('fallback');">
+    </button>
+    <button id="mute-button" type="button" aria-label="Ton stummschalten">
+      <img src="./img/mute.png" alt="Mute">
     </button>
 
     <section id="settings-panel" class="hidden" aria-label="Audio Einstellungen">
       <label for="volume-control">Lautstärke</label>
       <input type="range" id="volume-control" min="0" max="1" step="0.01" value="0.5">
+    </section>
+
+    <section id="leaderboard-panel" class="hidden" aria-label="Bestenliste">
+      <h2>Leaderboard</h2>
+      <button id="leaderboard-close" type="button" aria-label="Leaderboard schließen">Schließen</button>
+      <ol id="leaderboard-list"></ol>
+      <p id="leaderboard-empty" class="hidden">Noch keine Einträge vorhanden.</p>
     </section>
   </main>
 
@@ -46,6 +59,7 @@
     </div>
   </div>
   <audio id="main-menu-music" src="./audio/mainpage.mp3" autoplay loop></audio>
+  <a class="impressum-button" href="./Impressum.html" aria-label="Zum Impressum">Impressum</a>
   <script src="./home.js"></script>
 </body>
 </html>

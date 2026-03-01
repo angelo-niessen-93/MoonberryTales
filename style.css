@@ -49,6 +49,43 @@ body {
     display: block;
 }
 
+#loading-controls-info {
+    position: absolute;
+    left: 50%;
+    bottom: 14vh;
+    transform: translateX(-50%);
+    width: min(620px, 88vw);
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    background: rgba(0, 0, 0, 0.58);
+    color: #f8f1df;
+    text-align: center;
+    z-index: 1;
+}
+
+#loading-controls-info p {
+    margin: 4px 0;
+    font-size: clamp(13px, 2.2vw, 18px);
+    line-height: 1.35;
+}
+
+#loading-progress-text {
+    position: absolute;
+    left: 50%;
+    bottom: 9.6vh;
+    transform: translateX(-50%);
+    margin: 0;
+    width: min(560px, 82vw);
+    text-align: center;
+    color: #f8f1df;
+    font-size: clamp(14px, 2.1vw, 18px);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+    z-index: 1;
+}
+
 #loading-progress {
     position: absolute;
     left: 50%;
@@ -255,6 +292,31 @@ body {
     display: none !important;
 }
 
+.impressum-button {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 6;
+    min-width: 108px;
+    height: 38px;
+    border: none;
+    background: url("img/14Pause/button_yellow.png") center / 100% 100% no-repeat;
+    color: #1b1204;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 0 14px;
+}
+
+.impressum-button:hover {
+    filter: brightness(1.06);
+}
+
 #controls-popup {
     position: absolute;
     inset: 0;
@@ -390,6 +452,23 @@ canvas {
     #loading-progress {
         bottom: 4vh;
         height: 12px;
+    }
+
+    #loading-controls-info {
+        bottom: 11vh;
+        padding: 10px 12px;
+    }
+
+    #loading-progress-text {
+        bottom: 7.7vh;
+    }
+
+    .impressum-button {
+        right: 10px;
+        bottom: 10px;
+        min-width: 96px;
+        height: 34px;
+        font-size: 13px;
     }
 
     #game-title-logo {

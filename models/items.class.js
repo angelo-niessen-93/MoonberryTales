@@ -53,6 +53,9 @@ class Items extends MovableObject {
     static createHeartsForPlatforms(tiles = [], options = {}) {
         const hearts = [];
         const placeEveryNthTile = options.placeEveryNthTile ?? 3;
+        const heartYOffset = options.heartYOffset ?? 0;
+        const lowPlatformYThreshold = options.lowPlatformYThreshold ?? 320;
+        const lowPlatformHeartLift = options.lowPlatformHeartLift ?? 0;
 
         for (let i = 0; i < tiles.length; i += placeEveryNthTile) {
             const middleTile = tiles[i + 1] || tiles[i];
@@ -63,7 +66,9 @@ class Items extends MovableObject {
             const itemWidth = options.width ?? 36;
             const itemHeight = options.height ?? 36;
             const x = middleTile.x + (middleTile.width - itemWidth) / 2;
-            const y = middleTile.y - itemHeight;
+            const isLowPlatform = middleTile.y >= lowPlatformYThreshold;
+            const extraLift = isLowPlatform ? lowPlatformHeartLift : 0;
+            const y = middleTile.y - itemHeight - heartYOffset - extraLift;
             hearts.push(new Items('heart', x, y, options));
         }
 

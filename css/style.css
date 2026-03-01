@@ -22,6 +22,7 @@ body.home-page {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  overflow: hidden;
 }
 
 #rotate-device-overlay-home {
@@ -44,49 +45,85 @@ body.home-page {
 }
 
 .home-layout {
+  --start-top: calc(clamp(20px, 13vh, 72px) + min(48vh, 320px) + 16px);
+  --start-height: 42px;
+  --leaderboard-button-height: 42px;
+  --buttons-gap: 10px;
+  --panel-gap: 10px;
   position: relative;
+  height: 100vh;
   min-height: 100vh;
   padding: clamp(12px, 2.5vw, 28px);
   display: grid;
   place-items: center;
+  overflow: hidden;
 }
 
 #main-title-logo {
   position: absolute;
   left: 50%;
-  top: clamp(20px, 7vh, 72px);
+  top: clamp(20px, 13vh, 72px);
   transform: translateX(-50%);
-  width: min(60vw, 640px);
+  width: min(60vw, 719px);
   max-width: 88vw;
-  max-height: 36vh;
+  max-height: 48vh;
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.6));
 }
 
 #start-button {
   position: absolute;
   left: 50%;
+  top: var(--start-top);
   transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid var(--panel-stroke);
-  background: var(--panel-bg);
-  color: var(--text);
-  border-radius: 999px;
-  padding: 10px 16px;
+  justify-content: center;
+  min-width: 180px;
+  height: var(--start-height);
+  border: none;
+  background: url("../img/14Pause/button_yellow.png") center / 100% 100% no-repeat;
+  color: #1b1204;
+  text-transform: uppercase;
   cursor: pointer;
-  backdrop-filter: blur(4px);
+  padding: 0 16px;
 }
 
 #start-button img {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
 }
 
 #start-button span {
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  font-size: 18px;
+}
+
+#start-button:hover {
+  filter: brightness(1.06);
+}
+
+#leaderboard-button {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--start-top) + var(--start-height) + var(--buttons-gap));
+  transform: translateX(-50%);
+  min-width: 180px;
+  height: var(--leaderboard-button-height);
+  border: none;
+  background: url("../img/14Pause/button_yellow.png") center / 100% 100% no-repeat;
+  color: #1b1204;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+#leaderboard-button:hover {
+  filter: brightness(1.06);
 }
 
 #settings-button {
@@ -106,10 +143,39 @@ body.home-page {
   backdrop-filter: blur(4px);
 }
 
+#mute-button {
+  position: fixed;
+  right: 84px;
+  top: 24px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid var(--panel-stroke);
+  background: var(--panel-bg);
+  color: var(--text);
+  font-size: 24px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
 #settings-button img {
   width: 28px;
   height: 28px;
   object-fit: contain;
+}
+
+#mute-button img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transform: scale(2);
+  transform-origin: center;
+}
+
+#mute-button.is-muted {
+  opacity: 0.7;
 }
 
 #settings-button.fallback {
@@ -133,6 +199,102 @@ body.home-page {
 #settings-panel label {
   font-size: 14px;
   font-weight: 600;
+}
+
+#leaderboard-panel {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--start-top) + var(--start-height) + var(--buttons-gap) + var(--leaderboard-button-height) + var(--panel-gap));
+  transform: translateX(-50%);
+  width: min(420px, 86vw);
+  min-height: 260px;
+  max-height: min(44vh, 420px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-image: url("../img/10Defeat/begie_border2.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  padding: 28px 24px 22px;
+  color: #1b1204;
+  z-index: 5;
+}
+
+#leaderboard-panel h2 {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: clamp(24px, 2.6vw, 30px);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+#leaderboard-close {
+  display: block;
+  margin: 0 auto 10px;
+  min-width: 140px;
+  height: 36px;
+  border: none;
+  background: url("../img/14Pause/button_yellow.png") center / 100% 100% no-repeat;
+  color: #1b1204;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#leaderboard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  max-height: 116px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.leaderboard-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  min-height: 54px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 15px;
+}
+
+.leaderboard-rank {
+  font-weight: 800;
+  width: 28px;
+  text-align: center;
+}
+
+.leaderboard-main {
+  display: grid;
+  gap: 2px;
+}
+
+.leaderboard-name {
+  font-weight: 700;
+}
+
+.leaderboard-meta {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.leaderboard-score {
+  font-weight: 800;
+  font-size: 16px;
+}
+
+#leaderboard-empty {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 14px;
 }
 
 #volume-control {
@@ -211,15 +373,58 @@ body.home-page {
   display: none !important;
 }
 
+.impressum-button {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--panel-stroke);
+  border-radius: 999px;
+  background: var(--panel-bg);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(4px);
+}
+
+.impressum-button:hover {
+  filter: brightness(1.08);
+}
+
 @media (max-width: 720px) {
+  .home-layout {
+    --start-height: 38px;
+    --leaderboard-button-height: 38px;
+    --buttons-gap: 8px;
+    --panel-gap: 8px;
+  }
+
   #main-title-logo {
     width: min(78vw, 420px);
     max-height: 24vh;
   }
 
   #start-button {
-    bottom: clamp(16px, 6vh, 44px);
-    padding: 8px 14px;
+    min-width: 160px;
+    height: 38px;
+    padding: 0 14px;
+  }
+
+  #start-button span {
+    font-size: 16px;
+  }
+
+  #leaderboard-button {
+    min-width: 160px;
+    font-size: 16px;
   }
 
   #characters-container {
@@ -239,20 +444,58 @@ body.home-page {
     height: 46px;
   }
 
+  #mute-button {
+    right: 66px;
+    top: 12px;
+    width: 46px;
+    height: 46px;
+  }
+
   #settings-panel {
     right: 12px;
     top: 66px;
     width: min(240px, calc(100vw - 24px));
   }
+
+  #leaderboard-panel {
+    width: min(380px, 92vw);
+    max-height: min(42vh, 360px);
+    padding: 24px 18px 18px;
+  }
+
+  .impressum-button {
+    right: 12px;
+    bottom: 12px;
+    height: 32px;
+    font-size: 13px;
+    min-width: 86px;
+  }
 }
 
 @media (max-height: 620px) {
+  .home-layout {
+    --start-top: calc(clamp(20px, 13vh, 72px) + min(48vh, 260px) + 10px);
+    --start-height: 36px;
+    --leaderboard-button-height: 36px;
+    --buttons-gap: 6px;
+    --panel-gap: 8px;
+  }
+
   #main-title-logo {
     max-height: 18vh;
   }
 
   #start-button {
-    bottom: 14px;
+    min-width: 150px;
+  }
+
+  #start-button span {
+    font-size: 15px;
+  }
+
+  #leaderboard-button {
+    min-width: 150px;
+    font-size: 15px;
   }
 
   .popup-card {
@@ -268,6 +511,11 @@ body.home-page {
 
 @media (max-width: 1024px) and (orientation: landscape) {
   .home-layout {
+    --start-top: calc(clamp(20px, 13vh, 72px) + min(48vh, 220px) + 8px);
+    --start-height: 34px;
+    --leaderboard-button-height: 34px;
+    --buttons-gap: 4px;
+    --panel-gap: 8px;
     min-height: 100vh;
     padding: 8px;
   }
@@ -279,7 +527,16 @@ body.home-page {
   }
 
   #start-button {
-    bottom: 125px;
+    min-width: 140px;
+  }
+
+  #start-button span {
+    font-size: 14px;
+  }
+
+  #leaderboard-button {
+    min-width: 140px;
+    font-size: 14px;
   }
 
   #settings-button {
@@ -289,9 +546,22 @@ body.home-page {
     height: 42px;
   }
 
+  #mute-button {
+    right: 58px;
+    top: 8px;
+    width: 42px;
+    height: 42px;
+  }
+
   #settings-panel {
     right: 8px;
     top: 56px;
     width: min(220px, calc(100vw - 16px));
+  }
+
+  #leaderboard-panel {
+    width: min(340px, 94vw);
+    max-height: min(38vh, 320px);
+    padding: 18px 14px 14px;
   }
 }

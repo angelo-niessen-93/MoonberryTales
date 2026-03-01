@@ -167,6 +167,10 @@ class Character extends MovableObject {
     }
 
     startAttack() {
+        if (this.isAttacking || this.isDead() || !this.IMAGES_ATTACKING.length) {
+            return false;
+        }
+
         this.isAttacking = true;
         this.attackFrame = 0;
         this.stopFootsteps();
@@ -174,6 +178,7 @@ class Character extends MovableObject {
             this.attackSound.currentTime = 0;
             this.attackSound.play().catch(() => {});
         }
+        return true;
     }
 
     playAttackAnimation() {

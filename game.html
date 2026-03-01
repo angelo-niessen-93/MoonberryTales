@@ -15,6 +15,13 @@
 <body onload="init()" >
     <div id="page-loading-screen" aria-hidden="true">
         <img src="./img/loadingscreen.png" alt="Loading Screen">
+        <div id="loading-controls-info" aria-hidden="true">
+            <p><strong>Steuerung</strong></p>
+            <p>Bewegen: Pfeiltasten links/rechts</p>
+            <p>Springen: Pfeiltaste hoch</p>
+            <p>Angriff: Leertaste</p>
+        </div>
+        <p id="loading-progress-text" aria-live="polite">Lade Spielwelt... 0%</p>
         <div id="loading-progress" aria-hidden="true">
             <div id="loading-progress-fill"></div>
         </div>
@@ -83,6 +90,7 @@
     <script src="./models/fire-projectile.class.js"></script>
     <script src="./models/mage.class.js"></script>
     <script src="./models/rogue.class.js"></script>
+    <a class="impressum-button" href="./Impressum.html" aria-label="Zum Impressum">Impressum</a>
     <script src="./game.js"></script>
 </body>
 </html>

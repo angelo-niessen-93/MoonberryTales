@@ -8,6 +8,8 @@ class World {
   victoryReadyAt = 0;
   bossDefeatEventDispatched = false;
   isPaused = false;
+  runStartedAt = Date.now();
+  resultSavedForRun = false;
 
   constructor(canvas) {
     this.canvas = canvas;
@@ -58,7 +60,7 @@ class World {
       -720,
       720 * 5,
       320,
-      [170, 230, 290, 350],
+      [170, 230, 290, 300],
     );
     const items = Items.createForLevel(tiles, -720, 720 * 5, 28);
 
@@ -138,6 +140,8 @@ class World {
     this.victoryReadyAt = 0;
     this.bossDefeatEventDispatched = false;
     this.projectiles = [];
+    this.runStartedAt = Date.now();
+    this.resultSavedForRun = false;
     this.hud = new HUD();
     this.resetKeyboardState();
     this.character = this.createCharacter();
@@ -196,10 +200,12 @@ class World {
         if (Date.now() >= this.victoryReadyAt) {
           this.isVictory = true;
           this.isVictoryPending = false;
+          this.saveRunResult("victory");
         }
       } else if (typeof this.character.isDead === "function" && this.character.isDead()) {
         this.isGameOver = true;
         this.playGameOverSound();
+        this.saveRunResult("defeat");
       }
     }
 
@@ -270,6 +276,43 @@ class World {
 
     this.gameOverSound.currentTime = 0;
     this.gameOverSound.play().catch(() => {});
+  }
+
+  saveRunResult(resultType) {
+    if (this.resultSavedForRun) {
+      return;
+    }
+    this.resultSavedForRun = true;
+
+    const coins = Number.isFinite(this.hud?.coinsCollected) ? this.hud.coinsCollected : 0;
+    const durationSeconds = Math.max(1, Math.round((Date.now() - this.runStartedAt) / 1000));
+    const characterName = this.character?.constructor?.name || "Abenteurer";
+    const victoryBonus = resultType === "victory" ? 5000 : 0;
+    const score = Math.max(0, coins * 100 + victoryBonus - durationSeconds * 2);
+
+    const newEntry = {
+      name: characterName,
+      result: resultType === "victory" ? "Sieg" : "Niederlage",
+      coins,
+      duration: durationSeconds,
+      score,
+      playedAt: new Date().toISOString(),
+    };
+
+    try {
+      const raw = localStorage.getItem("moonberryLeaderboard");
+      const list = raw ? JSON.parse(raw) : [];
+      const safeList = Array.isArray(list) ? list : [];
+      safeList.push(newEntry);
+      safeList.sort((a, b) => {
+        const scoreDiff = (Number(b.score) || 0) - (Number(a.score) || 0);
+        if (scoreDiff !== 0) {
+          return scoreDiff;
+        }
+        return (Number(a.duration) || 0) - (Number(b.duration) || 0);
+      });
+      localStorage.setItem("moonberryLeaderboard", JSON.stringify(safeList.slice(0, 10)));
+    } catch (_) {}
   }
 
 }

@@ -13,7 +13,7 @@ const LEVEL1_CONFIG = {
     boss: {
         enabled: true,
         attackDamage: 30,
-        energy: 350,
+        energy: 300,
         attackSoundPath: 'audio/boss-attack.mp3',
     },
     chain: {
@@ -36,7 +36,7 @@ const LEVEL1_CONFIG = {
     },
     tiles: {
         gapX: 320,
-        heights: [170, 230, 290, 350],
+        heights: [170, 230, 290, 300],
         platformImages: [
             'img/dark_tiles/dark_tile26.png',
             'img/dark_tiles/dark_tile27.png',
@@ -45,6 +45,9 @@ const LEVEL1_CONFIG = {
     },
     items: {
         coinCount: 28,
+        heartYOffset: 0,
+        lowPlatformYThreshold: 290,
+        lowPlatformHeartLift: 18,
         heartImages: [
             'img/Items/heart1.png',
             'img/Items/heart2.png',

@@ -55,6 +55,8 @@ class Endboss extends MovableObject {
         this.attackFrame = 0;
         this.attackDamage = config.attackDamage ?? 30;
         this.lastAttackAt = 0;
+        this.lastHitAt = 0;
+        this.hitCooldownMs = config.hitCooldownMs ?? 350;
         this.deadFrame = 0;
         this.deathAnimationDone = false;
         this.energy = config.energy ?? 350;
@@ -114,6 +116,12 @@ class Endboss extends MovableObject {
         if (this.isDead()) {
             return false;
         }
+
+        const now = Date.now();
+        if (now - this.lastHitAt < this.hitCooldownMs) {
+            return false;
+        }
+        this.lastHitAt = now;
 
         this.takeDamage(damage);
 
