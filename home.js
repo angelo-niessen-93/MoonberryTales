@@ -1,3 +1,6 @@
+﻿/**
+ * @file home.js
+ */
 document.addEventListener("DOMContentLoaded", () => {
   const LEADERBOARD_KEY = "moonberryLeaderboard";
   const FIXED_PLAYER_ENTRY = {
@@ -332,3 +335,6 @@ document.addEventListener("DOMContentLoaded", () => {
   ensureFixedPlayerEntry();
   renderLeaderboard();
 });
+
+
+

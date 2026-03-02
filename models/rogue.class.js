@@ -1,3 +1,10 @@
+﻿/**
+ * @file models/rogue.class.js
+ */
+
+/**
+ * Repräsentiert Rogue im Spiel.
+ */
 class Rogue extends Character {
   height = 200;
   width = 100;
@@ -83,6 +90,9 @@ class Rogue extends Character {
   footstepSound = new Audio("audio/footstep.mp3");
   hurtSound = new Audio("audio/hurt.mp3");
 
+  /**
+   * Führt constructor aus.
+   */
   constructor() {
     super();
     this.hurtSound.volume = 0.5;
@@ -95,3 +105,6 @@ class Rogue extends Character {
   
   }
 }
+
+
+

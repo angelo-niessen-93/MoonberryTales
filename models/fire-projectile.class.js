@@ -1,3 +1,9 @@
+﻿/**
+ * @file models/fire-projectile.class.js
+ */
+/**
+ * Projektil mit begrenzter Lebensdauer und Frame-Animation.
+ */
 class FireProjectile extends MovableObject {
   othersDirection = false;
   currentFrame = 0;
@@ -10,6 +16,21 @@ class FireProjectile extends MovableObject {
   loopAnimation = false;
   lastFrameAt = Date.now();
 
+  /**
+   * @param {{
+   *   x: number,
+   *   y: number,
+   *   movingLeft?: boolean,
+   *   images?: string[],
+   *   width?: number,
+   *   height?: number,
+   *   speed?: number,
+   *   lifetimeMs?: number,
+   *   hitboxInset?: number,
+   *   frameIntervalMs?: number,
+   *   loopAnimation?: boolean
+   * }} options Projektil-Initialisierung.
+   */
   constructor({
     x,
     y,
@@ -44,6 +65,12 @@ class FireProjectile extends MovableObject {
     }
   }
 
+  /**
+   * Aktualisiert Position, Animation und Lebensdauer.
+   *
+   * @param {number} levelEndX Rechte Levelgrenze.
+   * @returns {void}
+   */
   update(levelEndX) {
     if (!this.isActive) {
       return;
@@ -59,26 +86,37 @@ class FireProjectile extends MovableObject {
     }
   }
 
+  /**
+   * Schaltet die Projektile-Animation auf das nÃ¤chste Frame.
+   *
+   * @returns {void}
+   */
   updateAnimationFrame() {
-    if (!this.IMAGES_FLYING.length) {
-      return;
-    }
-
+    if (!this.IMAGES_FLYING.length) return;
     const now = Date.now();
-    if (now - this.lastFrameAt < this.frameIntervalMs) {
-      return;
-    }
-
+    if (now - this.lastFrameAt < this.frameIntervalMs) return;
     this.lastFrameAt = now;
-    if (this.loopAnimation) {
-      this.currentFrame = (this.currentFrame + 1) % this.IMAGES_FLYING.length;
-    } else if (this.currentFrame < this.IMAGES_FLYING.length - 1) {
-      this.currentFrame++;
-    }
-
+    this.advanceAnimationFrame();
     this.img = this.imageCache[this.IMAGES_FLYING[this.currentFrame]];
   }
 
+  /**
+   * Führt advanceAnimationFrame aus.
+   */
+  advanceAnimationFrame() {
+    if (this.loopAnimation) {
+      this.currentFrame = (this.currentFrame + 1) % this.IMAGES_FLYING.length;
+      return;
+    }
+    if (this.currentFrame < this.IMAGES_FLYING.length - 1) this.currentFrame++;
+  }
+
+  /**
+   * PrÃ¼ft eine Kollision gegen ein anderes Objekt.
+   *
+   * @param {{x: number, y: number, width: number, height: number}} other Vergleichsobjekt.
+   * @returns {boolean}
+   */
   isColliding(other) {
     const inset = this.hitboxInset;
     return (
@@ -89,3 +127,6 @@ class FireProjectile extends MovableObject {
     );
   }
 }
+
+
+

@@ -3,6 +3,14 @@ body {
     margin: 0;
     width: 100%;
     min-height: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
 }
 
 body {
@@ -23,6 +31,11 @@ body {
     background-repeat: no-repeat;
     overflow-x: hidden;
     overflow-y: auto;
+}
+
+body.game-page {
+    height: 100vh;
+    overflow: hidden;
 }
 
 #page-loading-screen {

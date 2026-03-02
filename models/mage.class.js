@@ -1,3 +1,10 @@
+﻿/**
+ * @file models/mage.class.js
+ */
+
+/**
+ * Repräsentiert Mage im Spiel.
+ */
 class Mage extends Character {
     height = 200;
     width = 100;
@@ -95,6 +102,9 @@ class Mage extends Character {
         "img/Mage/Fire/fire9.png"
     ];
 
+    /**
+     * Führt constructor aus.
+     */
     constructor() {
         super();
         this.hurtSound.volume = 0.5;
@@ -106,6 +116,9 @@ class Mage extends Character {
         this.loadImages(this.IMAGES_DEAD);
  }
 
+    /**
+     * Führt startAttack aus.
+     */
     startAttack() {
         const didStartAttack = super.startAttack();
         if (!didStartAttack) {
@@ -114,51 +127,80 @@ class Mage extends Character {
         this.hasShotInCurrentAttack = false;
     }
 
+    /**
+     * Führt playAttackAnimation aus.
+     */
     playAttackAnimation() {
         const path = this.IMAGES_ATTACKING[this.attackFrame];
         this.img = this.imageCache[path];
-
-        if (this.attackFrame === this.projectileStartFrame && !this.hasShotInCurrentAttack) {
-            this.spawnFireProjectile();
-            this.hasShotInCurrentAttack = true;
-        }
-
+        this.tryShootProjectile();
         this.attackFrame++;
-        if (this.attackFrame >= this.IMAGES_ATTACKING.length) {
-            this.isAttacking = false;
-            this.attackFrame = 0;
-            this.hasShotInCurrentAttack = false;
-        }
+        this.finishAttackIfNeeded();
     }
 
+    /**
+     * Führt tryShootProjectile aus.
+     */
+    tryShootProjectile() {
+        const shouldShoot = this.attackFrame === this.projectileStartFrame && !this.hasShotInCurrentAttack;
+        if (!shouldShoot) return;
+        this.spawnFireProjectile();
+        this.hasShotInCurrentAttack = true;
+    }
+
+    /**
+     * Führt finishAttackIfNeeded aus.
+     */
+    finishAttackIfNeeded() {
+        if (this.attackFrame < this.IMAGES_ATTACKING.length) return;
+        this.isAttacking = false;
+        this.attackFrame = 0;
+        this.hasShotInCurrentAttack = false;
+    }
+
+    /**
+     * Führt spawnFireProjectile aus.
+     */
     spawnFireProjectile() {
         const now = Date.now();
-        if (now - this.lastProjectileAt < this.projectileCooldownMs) {
-            return;
-        }
-
-        const projectileWidth = 80;
-        const projectileHeight = 80;    
-        const spawnPadding = 8;
-        const spawnX = this.othersDirection
-            ? this.x + spawnPadding
-            : this.x + this.width - projectileWidth - spawnPadding;
-        const spawnY = this.y + this.height / 2 - projectileHeight / 2;
-        const projectile = new FireProjectile({
-            x: spawnX,
-            y: spawnY,
-            movingLeft: this.othersDirection,
-            images: this.FIRE_PROJECTILE_IMAGES,
-            width: projectileWidth,
-            height: projectileHeight,
-            speed: 5 ,
-            lifetimeMs: 2000,
-            hitboxInset: 24,
-            frameIntervalMs: 60,
-            loopAnimation: false,
-        });
+        if (now - this.lastProjectileAt < this.projectileCooldownMs) return;
+        const projectile = this.createFireProjectile();
         this.projectiles.push(projectile);
         this.lastProjectileAt = now;
     }
 
+    /**
+     * Führt createFireProjectile aus.
+     */
+    createFireProjectile() {
+        const size = { width: 80, height: 80 };
+        const padding = 8;
+        const spawnX = this.getProjectileSpawnX(size.width, padding);
+        const spawnY = this.y + this.height / 2 - size.height / 2;
+        return new FireProjectile(this.getProjectileOptions(spawnX, spawnY, size));
+    }
+
+    /**
+     * Führt getProjectileSpawnX aus.
+     * @param {*} projectileWidth
+     * @param {*} spawnPadding
+     */
+    getProjectileSpawnX(projectileWidth, spawnPadding) {
+        if (this.othersDirection) return this.x + spawnPadding;
+        return this.x + this.width - projectileWidth - spawnPadding;
+    }
+
+    /**
+     * Führt getProjectileOptions aus.
+     * @param {*} x
+     * @param {*} y
+     * @param {*} size
+     */
+    getProjectileOptions(x, y, size) {
+        return { x, y, movingLeft: this.othersDirection, images: this.FIRE_PROJECTILE_IMAGES, width: size.width, height: size.height, speed: 5, lifetimeMs: 2000, hitboxInset: 24, frameIntervalMs: 60, loopAnimation: false };
+    }
+
 }
+
+
+

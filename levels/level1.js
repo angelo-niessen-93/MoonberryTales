@@ -1,3 +1,6 @@
+﻿/**
+ * @file levels/level1.js
+ */
 const LEVEL1_CONFIG = {
     world: {
         minX: -720,
@@ -12,7 +15,7 @@ const LEVEL1_CONFIG = {
     },
     boss: {
         enabled: true,
-        attackDamage: 30,
+        attackDamage: 18,
         energy: 300,
         attackSoundPath: 'audio/boss-attack.mp3',
     },
@@ -75,10 +78,19 @@ const LEVEL1_CONFIG = {
     },
 };
 
+/**
+ * Führt createLevelFromConfig aus.
+ * @param {*} config
+ */
 function createLevelFromConfig(config) {
     const minX = config.world.minX;
     const maxX = config.world.maxX;
     const step = config.world.step;
+    const bossSpawnMinX = config.boss?.spawnMinX ?? (maxX - 900);
+    const blockedAreaPadding = config.boss?.blockedAreaPadding ?? 180;
+    const accessibleMaxX = config.boss?.enabled
+        ? Math.max(minX, Math.min(maxX, bossSpawnMinX - blockedAreaPadding))
+        : maxX;
 
     const enemies = Monster.createForLevel(
         config.monsters.characterStartX,
@@ -106,7 +118,7 @@ function createLevelFromConfig(config) {
 
     const tiles = Tiles.createPlatformsForArea(
         minX,
-        maxX,
+        accessibleMaxX,
         config.tiles.gapX,
         config.tiles.heights,
         config.tiles,
@@ -115,16 +127,26 @@ function createLevelFromConfig(config) {
     const items = Items.createForLevel(
         tiles,
         minX,
-        maxX,
+        accessibleMaxX,
         config.items.coinCount,
-        config.items,
+        {
+            ...config.items,
+            characterStartX: config.monsters.characterStartX,
+            itemMaxX: accessibleMaxX,
+        },
     );
 
     return new Level(enemies, chain, backgroundObjects, tiles, items);
 }
 
+/**
+ * Führt createLevel1 aus.
+ */
 function createLevel1() {
     return createLevelFromConfig(LEVEL1_CONFIG);
 }
 
 const level1 = createLevel1();
+
+
+

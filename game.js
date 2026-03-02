@@ -1,3 +1,6 @@
+﻿/**
+ * @file game.js
+ */
 let canvas;
 let world;
 let keyboard = new Keyboard();
@@ -9,6 +12,9 @@ let hasBossDefeatAudioPlayed = false;
 const SOUND_VOLUME = 0.5;
 const LOADING_SCREEN_DURATION_MS = 3500;
 
+/**
+ * Führt init aus.
+ */
 function init() {
     const shouldShowLoadingScreen = sessionStorage.getItem("showLoadingScreen") === "1";
     canvas = document.getElementById('canvas');
@@ -26,6 +32,9 @@ function init() {
     console.log('My Character is', world.character);
 }
 
+/**
+ * Führt hidePageLoadingScreen aus.
+ */
 function hidePageLoadingScreen() {
     const loadingScreen = document.getElementById("page-loading-screen");
     const progressFill = document.getElementById("loading-progress-fill");
@@ -69,6 +78,9 @@ function hidePageLoadingScreen() {
     }, LOADING_SCREEN_DURATION_MS);
 }
 
+/**
+ * Führt setupButtonKeyboardGuard aus.
+ */
 function setupButtonKeyboardGuard() {
     const blockedKeys = new Set([" ", "Enter"]);
     document.addEventListener("keydown", (event) => {
@@ -83,6 +95,10 @@ function setupButtonKeyboardGuard() {
     });
 }
 
+/**
+ * Führt setGamePaused aus.
+ * @param {*} paused
+ */
 function setGamePaused(paused) {
     isGamePaused = paused;
     window.__moonberryPaused = paused;
@@ -104,6 +120,9 @@ function setGamePaused(paused) {
     }
 }
 
+/**
+ * Führt setupControlsPopup aus.
+ */
 function setupControlsPopup() {
     const infoButton = document.getElementById("info-toggle");
     const popup = document.getElementById("controls-popup");
@@ -135,6 +154,9 @@ function setupControlsPopup() {
     });
 }
 
+/**
+ * Führt setupPausePopup aus.
+ */
 function setupPausePopup() {
     const pauseButton = document.getElementById("pause-toggle");
     const popup = document.getElementById("pause-popup");
@@ -186,6 +208,9 @@ function setupPausePopup() {
     });
 }
 
+/**
+ * Führt setupFullscreenToggle aus.
+ */
 function setupFullscreenToggle() {
     const button = document.getElementById("fullscreen-toggle");
     const wrapper = document.querySelector(".canvas-wrapper");
@@ -227,6 +252,10 @@ function setupFullscreenToggle() {
     updateButtonState();
 }
 
+/**
+ * Führt setupGameMusic aus.
+ * @param {*} shouldDelayStart
+ */
 function setupGameMusic(shouldDelayStart = false) {
     gameMusic = new Audio("audio/music%20moonberrytales.mp3");
     gameMusic.loop = true;
@@ -242,6 +271,9 @@ function setupGameMusic(shouldDelayStart = false) {
     window.addEventListener("click", startGameMusic, { once: true });
 }
 
+/**
+ * Führt startGameMusic aus.
+ */
 function startGameMusic() {
     if (!gameMusic || isMusicMuted || hasBossDefeatAudioPlayed) {
         return;
@@ -249,6 +281,9 @@ function startGameMusic() {
     gameMusic.play().catch(() => {});
 }
 
+/**
+ * Führt stopGameMusic aus.
+ */
 function stopGameMusic() {
     if (!gameMusic) {
         return;
@@ -257,6 +292,9 @@ function stopGameMusic() {
     gameMusic.currentTime = 0;
 }
 
+/**
+ * Führt playLevelPassingSound aus.
+ */
 function playLevelPassingSound() {
     if (!levelPassingSound) {
         return;
@@ -265,6 +303,9 @@ function playLevelPassingSound() {
     levelPassingSound.play().catch(() => {});
 }
 
+/**
+ * Führt stopLevelPassingSound aus.
+ */
 function stopLevelPassingSound() {
     if (!levelPassingSound) {
         return;
@@ -273,6 +314,9 @@ function stopLevelPassingSound() {
     levelPassingSound.currentTime = 0;
 }
 
+/**
+ * Führt setupBossDefeatAudioFlow aus.
+ */
 function setupBossDefeatAudioFlow() {
     window.addEventListener("boss-defeated", () => {
         if (hasBossDefeatAudioPlayed) {
@@ -290,6 +334,9 @@ function setupBossDefeatAudioFlow() {
     });
 }
 
+/**
+ * Führt setupMusicToggle aus.
+ */
 function setupMusicToggle() {
     const button = document.getElementById("music-toggle");
     if (!button) return;
@@ -314,6 +361,9 @@ function setupMusicToggle() {
     updateButtonState();
 }
 
+/**
+ * Führt setupMobileTouchControls aus.
+ */
 function setupMobileTouchControls() {
     const touchControl = document.getElementById("mobile-arrows-control");
     const attackControl = document.getElementById("mobile-attack-control");
@@ -466,3 +516,6 @@ window.addEventListener('keyup', (e) => {
         keyboard.SHIFT = false;
     }
 });
+
+
+

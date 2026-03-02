@@ -15,6 +15,14 @@ body {
   min-height: 100%;
   font-family: "Segoe UI", Tahoma, sans-serif;
   color: var(--text);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 body.home-page {
@@ -252,6 +260,18 @@ body.home-page {
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 4px;
+}
+
+#leaderboard-panel,
+#leaderboard-list {
+  scrollbar-width: auto;
+  -ms-overflow-style: auto;
+}
+
+#leaderboard-panel::-webkit-scrollbar,
+#leaderboard-list::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
 .leaderboard-item {

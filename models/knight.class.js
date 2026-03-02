@@ -1,9 +1,17 @@
+﻿/**
+ * @file models/knight.class.js
+ */
+
+/**
+ * Repräsentiert Knight im Spiel.
+ */
 class Knight extends Character {
     
     height = 200;
     width = 100;
     y = 230;
     speed = 4;
+    attackDamage = 40;
 
    IMAGES_IDLE = [
         'img/Knight/Idle/knight_idle1.png',
@@ -75,6 +83,9 @@ class Knight extends Character {
     footstepSound = new Audio('audio/footstep.mp3');
     hurtSound = new Audio("audio/hurt.mp3");
 
+    /**
+     * Führt constructor aus.
+     */
     constructor() {
         super();  
         this.hurtSound.volume = 0.5;
@@ -86,3 +97,6 @@ class Knight extends Character {
         this.loadImages(this.IMAGES_DEAD);
     }
 }
+
+
+

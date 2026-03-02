@@ -1,3 +1,9 @@
+﻿/**
+ * @file models/keyboard.class.js
+ */
+/**
+ * Speichert den Zustand der gedrÃ¼ckten Eingabetasten.
+ */
 class Keyboard {
     LEFT = false;
     RIGHT = false;
@@ -6,3 +12,6 @@ class Keyboard {
     SPACE = false;
     SHIFT = false;
 }
+
+
+
