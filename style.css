@@ -17,7 +17,7 @@ body {
     min-height: 100vh;
     padding: var(--edge-space);
     gap: clamp(6px, 1.2vh, 12px);
-    background-image: url("../img_mainpage/01main/bg.png");
+    background-image: url("./img_mainpage/01main/bg.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -557,3 +557,4 @@ canvas {
         display: none;
     }
 }
+

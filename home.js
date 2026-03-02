@@ -22,6 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const leaderboardPanel = document.getElementById("leaderboard-panel");
   const leaderboardButton = document.getElementById("leaderboard-button");
   const leaderboardClose = document.getElementById("leaderboard-close");
+  const homeLayout = document.querySelector(".home-layout");
+  const mainTitleLogo = document.getElementById("main-title-logo");
 
   const frameDelay = 160;
   const characterSprites = {
@@ -89,6 +91,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!Number.isNaN(volume) && mainMenuMusic) {
       mainMenuMusic.volume = isMuted ? 0 : volume;
     }
+  }
+
+  function tryStartMainMenuMusic() {
+    if (!mainMenuMusic || isMuted) {
+      return;
+    }
+    mainMenuMusic.play().catch(() => {});
+  }
+
+  function setupMusicUnlockOnFirstInteraction() {
+    const unlockAudio = () => {
+      tryStartMainMenuMusic();
+      document.removeEventListener("click", unlockAudio);
+      document.removeEventListener("touchstart", unlockAudio);
+      document.removeEventListener("keydown", unlockAudio);
+    };
+
+    document.addEventListener("click", unlockAudio, { once: true, passive: true });
+    document.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
   }
 
   function updateMuteButtonState() {
@@ -191,6 +213,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyVolume(volumeControl.value);
   updateMuteButtonState();
+  tryStartMainMenuMusic();
+  setupMusicUnlockOnFirstInteraction();
 
   const timers = [];
 
@@ -222,6 +246,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function positionButtonsBelowTitle() {
+    if (!homeLayout || !mainTitleLogo) {
+      return;
+    }
+
+    const layoutRect = homeLayout.getBoundingClientRect();
+    const logoRect = mainTitleLogo.getBoundingClientRect();
+    const startTop = Math.max(logoRect.bottom - layoutRect.top + 12, 0);
+    homeLayout.style.setProperty("--start-top", `${Math.round(startTop)}px`);
+  }
+
   settingsButton.addEventListener("click", () => {
     settingsPanel.classList.toggle("hidden");
   });
@@ -232,6 +267,9 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("gameMuted", isMuted ? "1" : "0");
       updateMuteButtonState();
       applyVolume(volumeControl.value);
+      if (!isMuted) {
+        tryStartMainMenuMusic();
+      }
     });
   }
 
@@ -278,7 +316,19 @@ document.addEventListener("DOMContentLoaded", () => {
     timers.forEach((timer) => window.clearInterval(timer));
   });
 
+  window.addEventListener("resize", positionButtonsBelowTitle);
+  window.addEventListener("orientationchange", positionButtonsBelowTitle);
+
+  if (mainTitleLogo) {
+    if (mainTitleLogo.complete) {
+      positionButtonsBelowTitle();
+    } else {
+      mainTitleLogo.addEventListener("load", positionButtonsBelowTitle, { once: true });
+    }
+  }
+
   setFirstFrame();
+  positionButtonsBelowTitle();
   ensureFixedPlayerEntry();
   renderLeaderboard();
 });
