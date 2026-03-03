@@ -108,12 +108,27 @@ class World {
    * Runs createLevel.
    */
   createLevel() {
-    const selectedLevel = this.getSelectedLevelId();
     const creators = this.getLevelCreators();
-    if (typeof creators[selectedLevel] === "function") {
-      const selected = creators[selectedLevel]();
-      if (selected) return selected;
-    }
+    const selected = this.createSelectedLevel(creators);
+    if (selected) return selected;
+    return this.createLevel1Fallback(creators);
+  }
+
+  /**
+   * Runs createSelectedLevel.
+   * @param {*} creators
+   */
+  createSelectedLevel(creators) {
+    const selectedLevel = this.getSelectedLevelId();
+    if (typeof creators[selectedLevel] !== "function") return null;
+    return creators[selectedLevel]();
+  }
+
+  /**
+   * Runs createLevel1Fallback.
+   * @param {*} creators
+   */
+  createLevel1Fallback(creators) {
     if (typeof creators.level1 === "function") {
       const level = creators.level1();
       if (level) return level;

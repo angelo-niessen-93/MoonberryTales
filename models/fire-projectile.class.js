@@ -118,22 +118,36 @@ class FireProjectile extends MovableObject {
    * @returns {boolean}
    */
   isColliding(other) {
-    const inset = Math.max(0, this.hitboxInset);
-    const projectile = {
-      x: this.x + inset,
-      y: this.y + inset,
-      width: Math.max(2, this.width - inset * 2),
-      height: Math.max(2, this.height - inset * 2),
-    };
-    const target = typeof other.getHitbox === "function"
-      ? other.getHitbox()
-      : { x: other.x, y: other.y, width: other.width, height: other.height };
+    const projectile = this.getProjectileHitbox();
+    const target = this.getTargetHitbox(other);
     return (
       projectile.x + projectile.width > target.x &&
       projectile.y + projectile.height > target.y &&
       projectile.x < target.x + target.width &&
       projectile.y < target.y + target.height
     );
+  }
+
+  /**
+   * Runs getProjectileHitbox.
+   */
+  getProjectileHitbox() {
+    const inset = Math.max(0, this.hitboxInset);
+    return {
+      x: this.x + inset,
+      y: this.y + inset,
+      width: Math.max(2, this.width - inset * 2),
+      height: Math.max(2, this.height - inset * 2),
+    };
+  }
+
+  /**
+   * Runs getTargetHitbox.
+   * @param {*} other
+   */
+  getTargetHitbox(other) {
+    if (typeof other.getHitbox === "function") return other.getHitbox();
+    return { x: other.x, y: other.y, width: other.width, height: other.height };
   }
 }
 
