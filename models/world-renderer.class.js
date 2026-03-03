@@ -40,6 +40,7 @@ class WorldRenderer {
       this.world.tiles,
       this.world.items,
       this.world.projectiles,
+      this.world.enemyProjectiles,
       [this.world.character],
       this.world.enemies,
     ];
@@ -62,8 +63,7 @@ class WorldRenderer {
     this.drawEndScreenOverlay();
     const layout = this.getEndScreenLayout(endImage);
     this.drawEndScreenTitle(layout.title);
-    this.drawGameOverButton(layout.restart);
-    this.drawGameOverButton(layout.home);
+    layout.buttons.forEach((button) => this.drawGameOverButton(button));
     this.world.ctx.restore();
   }
 
@@ -91,25 +91,33 @@ class WorldRenderer {
   getEndScreenLayout(endImage) {
     const cfg = this.getEndLayoutConfig();
     const title = this.getTitleLayout(endImage, cfg);
-    const restart = this.getRestartLayout(title, cfg);
-    const home = this.getHomeLayout(restart, title, cfg);
-    return { title, restart, home };
+    const buttons = this.getButtonsLayout(title, cfg);
+    return { title, buttons };
   }
 
   /**
    * Runs getEndLayoutConfig.
    */
   getEndLayoutConfig() {
-    const restart = this.world.gameOverButtons.restart;
+    const buttons = this.getVisibleButtonTemplates();
     return {
       titleToButtonsGap: 14,
       buttonsGap: 14,
       centerX: this.world.canvas.width / 2,
       maxTitleWidth: Math.round(this.world.canvas.width * 0.9),
       targetTitleHeight: Math.round(this.world.canvas.height * 0.5),
-      restart,
-      home: this.world.gameOverButtons.home,
+      buttons,
     };
+  }
+
+  /**
+   * Runs getVisibleButtonTemplates.
+   */
+  getVisibleButtonTemplates() {
+    const buttons = [];
+    if (this.world.shouldShowContinueButton()) buttons.push(this.world.gameOverButtons.continue);
+    buttons.push(this.world.gameOverButtons.restart, this.world.gameOverButtons.home);
+    return buttons;
   }
 
   /**
@@ -119,7 +127,7 @@ class WorldRenderer {
    */
   getTitleLayout(endImage, cfg) {
     const size = this.getTitleSize(endImage, cfg.maxTitleWidth, cfg.targetTitleHeight);
-    const y = this.getContentStartY(size.height, cfg.restart.height, cfg.home.height, cfg);
+    const y = this.getContentStartY(size.height, cfg);
     return { image: endImage, width: size.width, height: size.height, x: Math.round(cfg.centerX - size.width / 2), y };
   }
 
@@ -163,32 +171,27 @@ class WorldRenderer {
    * @param {*} homeHeight
    * @param {*} cfg
    */
-  getContentStartY(titleHeight, restartHeight, homeHeight, cfg) {
-    const contentHeight = titleHeight + cfg.titleToButtonsGap + restartHeight + cfg.buttonsGap + homeHeight;
+  getContentStartY(titleHeight, cfg) {
+    const buttonsHeight = cfg.buttons.reduce((sum, button, index) => {
+      const gap = index < cfg.buttons.length - 1 ? cfg.buttonsGap : 0;
+      return sum + button.height + gap;
+    }, 0);
+    const contentHeight = titleHeight + cfg.titleToButtonsGap + buttonsHeight;
     return Math.round((this.world.canvas.height - contentHeight) / 2);
   }
 
   /**
-   * Runs getRestartLayout.
+   * Runs getButtonsLayout.
    * @param {*} title
    * @param {*} cfg
    */
-  getRestartLayout(title, cfg) {
-    const x = Math.round(cfg.centerX - cfg.restart.width / 2);
-    const y = title.y + title.height + cfg.titleToButtonsGap;
-    return { ...cfg.restart, x, y };
-  }
-
-  /**
-   * Runs getHomeLayout.
-   * @param {*} restart
-   * @param {*} title
-   * @param {*} cfg
-   */
-  getHomeLayout(restart, title, cfg) {
-    const x = restart.x;
-    const y = title.y + title.height + cfg.titleToButtonsGap + restart.height + cfg.buttonsGap;
-    return { ...cfg.home, x, y };
+  getButtonsLayout(title, cfg) {
+    let nextY = title.y + title.height + cfg.titleToButtonsGap;
+    return cfg.buttons.map((button) => {
+      const layout = { ...button, x: Math.round(cfg.centerX - button.width / 2), y: nextY };
+      nextY += button.height + cfg.buttonsGap;
+      return layout;
+    });
   }
 
   /**
@@ -197,7 +200,7 @@ class WorldRenderer {
   getEndScreenButtons() {
     const endImage = this.world.isVictory ? this.world.victoryImage : this.world.gameOverImage;
     const layout = this.getEndScreenLayout(endImage);
-    return { restart: layout.restart, home: layout.home };
+    return layout.buttons;
   }
 
   /**
@@ -290,9 +293,10 @@ class WorldRenderer {
    * @param {*} obj
    */
   drawMirroredObject(obj) {
+    const image = this.getRenderableImage(obj);
     this.world.ctx.translate(obj.x + obj.width, 0);
     this.world.ctx.scale(-1, 1);
-    this.world.ctx.drawImage(obj.img, 0, obj.y, obj.width, obj.height);
+    this.world.ctx.drawImage(image, 0, obj.y, obj.width, obj.height);
     this.drawObjectFrame({ x: 0, y: obj.y, width: obj.width, height: obj.height }, obj);
   }
 
@@ -301,8 +305,22 @@ class WorldRenderer {
    * @param {*} obj
    */
   drawNormalObject(obj) {
-    this.world.ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
+    const image = this.getRenderableImage(obj);
+    this.world.ctx.drawImage(image, obj.x, obj.y, obj.width, obj.height);
     this.drawObjectFrame(obj, obj);
+  }
+
+  /**
+   * Runs getRenderableImage.
+   * @param {*} obj
+   */
+  getRenderableImage(obj) {
+    if (!Array.isArray(obj.animationFrames) || !obj.animationFrames.length) return obj.img;
+    const interval = Math.max(40, obj.animationIntervalMs ?? 120);
+    const offset = obj.animationStartMs ?? 0;
+    const index = Math.floor((Date.now() + offset) / interval) % obj.animationFrames.length;
+    const path = obj.animationFrames[index];
+    return obj.imageCache?.[path] ?? obj.img;
   }
 
   /**

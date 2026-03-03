@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const leaderboardPanel = document.getElementById("leaderboard-panel");
   const leaderboardButton = document.getElementById("leaderboard-button");
   const leaderboardClose = document.getElementById("leaderboard-close");
+  const promoBanner = document.querySelector(".promo-banner");
+  const promoCloseButton = document.getElementById("promo-close");
   const homeLayout = document.querySelector(".home-layout");
   const mainTitleLogo = document.getElementById("main-title-logo");
 
@@ -113,6 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const MUSIC_VOLUME_KEY = "gameMusicVolume";
   const SFX_VOLUME_KEY = "gameSfxVolume";
   const MOBILE_CONTROLS_KEY = "mobileControlsEnabled";
+  const LEVEL_STORAGE_KEY = "selectedLevel";
   const LEGACY_MUTE_KEY = "gameMuted";
   const legacyMuted = localStorage.getItem(LEGACY_MUTE_KEY) === "1";
   const storedMusicMuted = localStorage.getItem(MUSIC_MUTE_KEY);
@@ -397,6 +400,39 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(MOBILE_CONTROLS_KEY, enabled ? "1" : "0");
   }
 
+  /**
+   * Runs applyLevelSelectionFromQuery.
+   */
+  function applyLevelSelectionFromQuery() {
+    const level = new URLSearchParams(window.location.search).get("level");
+    if (level === "2" || String(level).toLowerCase() === "level2") localStorage.setItem(LEVEL_STORAGE_KEY, "level2");
+    if (level === "1" || String(level).toLowerCase() === "level1") localStorage.setItem(LEVEL_STORAGE_KEY, "level1");
+  }
+
+  /**
+   * Runs hasLevelSelectionInQuery.
+   */
+  function hasLevelSelectionInQuery() {
+    const level = new URLSearchParams(window.location.search).get("level");
+    return level === "2" || String(level).toLowerCase() === "level2" || level === "1" || String(level).toLowerCase() === "level1";
+  }
+
+  /**
+   * Runs ensureDefaultLevelSelection.
+   */
+  function ensureDefaultLevelSelection() {
+    if (hasLevelSelectionInQuery()) return;
+    localStorage.setItem(LEVEL_STORAGE_KEY, "level1");
+  }
+
+  /**
+   * Runs dismissPromoBanner.
+   */
+  function dismissPromoBanner() {
+    if (!promoBanner) return;
+    promoBanner.classList.add("hidden");
+  }
+
   applyVolume(musicVolume);
   persistAudioSettings();
   updateAudioButtonState();
@@ -404,6 +440,8 @@ document.addEventListener("DOMContentLoaded", () => {
   setupMusicUnlockOnFirstInteraction();
   syncAudioSettingsControls();
   syncMobileControlsToggle();
+  applyLevelSelectionFromQuery();
+  ensureDefaultLevelSelection();
 
   const timers = [];
 
@@ -483,6 +521,7 @@ document.addEventListener("DOMContentLoaded", () => {
       leaderboardPanel.classList.add("hidden");
     });
   }
+  if (promoCloseButton) promoCloseButton.addEventListener("click", dismissPromoBanner);
 
   popup.addEventListener("click", (event) => {
     if (event.target === popup) {

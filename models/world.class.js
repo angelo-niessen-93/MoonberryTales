@@ -6,9 +6,11 @@
  * Represents World in the game.
  */
 class World {
+  static LEVEL_STORAGE_KEY = "selectedLevel";
   camera_x = 0;
   levelEndX = 720 * 5;
   projectiles = [];
+  enemyProjectiles = [];
   isGameOver = false;
   isVictory = false;
   isVictoryPending = false;
@@ -45,6 +47,7 @@ class World {
     this.tiles = this.level.tiles;
     this.items = this.level.items;
     this.backgroundObjects = this.level.backgroundObjects;
+    this.levelEndX = this.level.levelEndX ?? (720 * 5);
     this.hasEndboss = this.enemies.some((enemy) => this.isEndboss(enemy));
   }
 
@@ -86,8 +89,9 @@ class World {
    */
   createGameOverButtons() {
     return {
-      restart: { width: 250, height: 56, label: "Neustart" },
-      home: { width: 250, height: 56, label: "Home" },
+      continue: { id: "continue", width: 250, height: 56, label: "Weiter" },
+      restart: { id: "restart", width: 250, height: 56, label: "Neustart" },
+      home: { id: "home", width: 250, height: 56, label: "Home" },
     };
   }
 
@@ -104,11 +108,38 @@ class World {
    * Runs createLevel.
    */
   createLevel() {
-    if (typeof createLevel1 === "function") return createLevel1();
-    if (typeof level1 !== "undefined") return level1;
+    const selectedLevel = this.getSelectedLevelId();
+    const creators = this.getLevelCreators();
+    if (typeof creators[selectedLevel] === "function") {
+      const selected = creators[selectedLevel]();
+      if (selected) return selected;
+    }
+    if (typeof creators.level1 === "function") {
+      const level = creators.level1();
+      if (level) return level;
+    }
     const tiles = Tiles.createPlatformsForArea(-720, 720 * 5, 320, [170, 230, 290, 300]);
     const items = Items.createForLevel(tiles, -720, 720 * 5, 28, { characterStartX: 120 });
     return this.createFallbackLevel(tiles, items);
+  }
+
+  /**
+   * Runs getSelectedLevelId.
+   */
+  getSelectedLevelId() {
+    const queryLevel = new URLSearchParams(window.location.search).get("level");
+    if (String(queryLevel).toLowerCase() === "level2" || queryLevel === "2") return "level2";
+    return "level1";
+  }
+
+  /**
+   * Runs getLevelCreators.
+   */
+  getLevelCreators() {
+    return {
+      level1: typeof createLevel1 === "function" ? createLevel1 : (() => (typeof level1 !== "undefined" ? level1 : null)),
+      level2: typeof createLevel2 === "function" ? createLevel2 : (() => (typeof level2 !== "undefined" ? level2 : null)),
+    };
   }
 
   /**
@@ -150,8 +181,11 @@ class World {
     if (!this.isEndStateActive()) return;
     const buttons = this.renderer.getEndScreenButtons();
     const point = this.getCanvasPoint(event);
-    if (this.isPointInButton(point, buttons.restart)) return this.restartGame();
-    if (this.isPointInButton(point, buttons.home)) window.location.href = "./index.html";
+    const hit = buttons.find((button) => this.isPointInButton(point, button));
+    if (!hit) return;
+    if (hit.id === "continue") return this.startNextLevel();
+    if (hit.id === "restart") return this.restartGame();
+    if (hit.id === "home") window.location.href = "./index.html";
   }
 
   /**
@@ -162,9 +196,23 @@ class World {
     if (!this.isEndStateActive()) return this.setCanvasCursor("default");
     const buttons = this.renderer.getEndScreenButtons();
     const point = this.getCanvasPoint(event);
-    const onRestart = this.isPointInButton(point, buttons.restart);
-    const onHome = this.isPointInButton(point, buttons.home);
-    this.setCanvasCursor(onRestart || onHome ? "pointer" : "default");
+    const onButton = buttons.some((button) => this.isPointInButton(point, button));
+    this.setCanvasCursor(onButton ? "pointer" : "default");
+  }
+
+  /**
+   * Runs shouldShowContinueButton.
+   */
+  shouldShowContinueButton() {
+    return this.isVictory && this.getSelectedLevelId() === "level1";
+  }
+
+  /**
+   * Runs startNextLevel.
+   */
+  startNextLevel() {
+    sessionStorage.setItem("showLoadingScreen", "1");
+    window.location.href = "./game.html?level=2";
   }
 
   /**
@@ -201,13 +249,18 @@ class World {
    */
   createCharacter() {
     const selectedCharacter = localStorage.getItem("selectedCharacter");
-    if (selectedCharacter === "Mage") {
-      return new Mage();
-    }
-    if (selectedCharacter === "Rogue") {
-      return new Rogue();
-    }
-    return new Knight();
+    const character = selectedCharacter === "Mage" ? new Mage() : selectedCharacter === "Rogue" ? new Rogue() : new Knight();
+    this.applyLevelCharacterSpawnOffset(character);
+    return character;
+  }
+
+  /**
+   * Runs applyLevelCharacterSpawnOffset.
+   * @param {*} character
+   */
+  applyLevelCharacterSpawnOffset(character) {
+    if (this.getSelectedLevelId() !== "level2") return;
+    character.y = Math.max(0, character.y - 44);
   }
 
   /**
@@ -234,6 +287,7 @@ class World {
     this.victoryReadyAt = 0;
     this.bossDefeatEventDispatched = false;
     this.projectiles = [];
+    this.enemyProjectiles = [];
     this.runStartedAt = Date.now();
     this.resultSavedForRun = false;
   }

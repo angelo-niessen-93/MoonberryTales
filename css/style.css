@@ -584,6 +584,74 @@ body.home-page {
   filter: brightness(1.08);
 }
 
+.promo-banner {
+  position: fixed;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  pointer-events: auto;
+  width: min(190px, 24vw);
+  aspect-ratio: 1 / 1;
+  padding: 8px;
+  border-radius: 0;
+  border: 2px solid rgba(255, 223, 132, 0.78);
+  background: linear-gradient(135deg, rgba(22, 10, 2, 0.94) 0%, rgba(64, 28, 3, 0.94) 52%, rgba(31, 12, 2, 0.94) 100%);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.promo-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(255, 223, 132, 0.68);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffe8bb;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.promo-close:hover {
+  filter: brightness(1.1);
+}
+
+.promo-badge {
+  flex: 0 0 auto;
+  min-width: 44px;
+  height: 20px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffd074 0%, #f2a933 100%);
+  color: #271200;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.promo-text {
+  margin: 0;
+  color: #ffe8bb;
+  font-size: 10px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
 @media (max-width: 720px) {
   .home-layout {
     --start-height: 38px;
@@ -635,6 +703,24 @@ body.home-page {
     min-width: 96px;
     height: 34px;
     font-size: 13px;
+  }
+
+  .promo-banner {
+    width: min(150px, 24vw);
+    aspect-ratio: 1 / 1;
+    padding: 6px;
+    border-radius: 0;
+    gap: 4px;
+  }
+
+  .promo-badge {
+    min-width: 36px;
+    height: 18px;
+    font-size: 9px;
+  }
+
+  .promo-text {
+    font-size: 9px;
   }
 
   #main-mute-toggle {
@@ -761,5 +847,14 @@ body.is-touch-device.is-portrait #rotate-device-overlay-home {
     width: min(360px, 92vw);
     max-height: min(56vh, 360px);
     z-index: 20;
+  }
+}
+
+@media (max-width: 560px) {
+  .promo-banner {
+    left: 8px;
+    width: min(132px, 36vw);
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
