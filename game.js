@@ -20,6 +20,8 @@ const SFX_MUTE_STORAGE_KEY = "gameSfxMuted";
 const MUSIC_VOLUME_STORAGE_KEY = "gameMusicVolume";
 const SFX_VOLUME_STORAGE_KEY = "gameSfxVolume";
 const MOBILE_CONTROLS_STORAGE_KEY = "mobileControlsEnabled";
+const DEFAULT_LOADING_IMAGE = "./img/loadingscreen.png";
+const LEVEL2_LOADING_IMAGE = "./img/loadingscreenlevel2.png";
 
 /**
  * Runs hasTouchScreen.
@@ -153,9 +155,28 @@ function init() {
     const shouldShowLoadingScreen = sessionStorage.getItem("showLoadingScreen") === "1";
     initMuteSettings();
     setupDeviceClassSync();
+    updateLoadingScreenImage();
     buildWorld();
     setupUiSystems(shouldShowLoadingScreen);
     console.log('My Character is', world.character);
+}
+
+/**
+ * Runs updateLoadingScreenImage.
+ */
+function updateLoadingScreenImage() {
+    const image = document.querySelector("#page-loading-screen img");
+    if (!image) return;
+    image.src = resolveCurrentLevelId() === "level2" ? LEVEL2_LOADING_IMAGE : DEFAULT_LOADING_IMAGE;
+}
+
+/**
+ * Runs resolveCurrentLevelId.
+ */
+function resolveCurrentLevelId() {
+    const queryLevel = new URLSearchParams(window.location.search).get("level");
+    if (queryLevel === "2" || String(queryLevel).toLowerCase() === "level2") return "level2";
+    return "level1";
 }
 
 /**

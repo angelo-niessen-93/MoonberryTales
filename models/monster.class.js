@@ -410,15 +410,50 @@ class Monster extends MovableObject {
      * Runs getHitbox.
      */
     getHitbox() {
-        const insetX = Math.round(this.width * 0.22);
-        const insetTop = Math.round(this.height * 0.34);
-        const insetBottom = Math.round(this.height * 0.18);
+        const inset = this.getHitboxInsets();
         return {
-            x: this.x + insetX,
-            y: this.y + insetTop,
-            width: Math.max(26, this.width - insetX * 2),
-            height: Math.max(30, this.height - insetTop - insetBottom),
+            x: this.x + inset.x,
+            y: this.y + inset.top,
+            width: Math.max(26, this.width - inset.x * 2),
+            height: Math.max(30, this.height - inset.top - inset.bottom),
         };
+    }
+
+    /**
+     * Runs getHitboxInsets.
+     */
+    getHitboxInsets() {
+        if (this.type === "ent") return this.getEntHitboxInsets();
+        if (this.isLevel2MonsterType()) return this.getLevel2HitboxInsets();
+        return this.getDefaultHitboxInsets();
+    }
+
+    /**
+     * Runs isLevel2MonsterType.
+     */
+    isLevel2MonsterType() {
+        return this.type === "spider" || this.type === "dino" || this.type === "ent";
+    }
+
+    /**
+     * Runs getLevel2HitboxInsets.
+     */
+    getLevel2HitboxInsets() {
+        return { x: Math.round(this.width * 0.14), top: Math.round(this.height * 0.2), bottom: Math.round(this.height * 0.12) };
+    }
+
+    /**
+     * Runs getEntHitboxInsets.
+     */
+    getEntHitboxInsets() {
+        return { x: Math.round(this.width * 0.24), top: Math.round(this.height * 0.26), bottom: Math.round(this.height * 0.18) };
+    }
+
+    /**
+     * Runs getDefaultHitboxInsets.
+     */
+    getDefaultHitboxInsets() {
+        return { x: Math.round(this.width * 0.22), top: Math.round(this.height * 0.34), bottom: Math.round(this.height * 0.18) };
     }
 
     /**
