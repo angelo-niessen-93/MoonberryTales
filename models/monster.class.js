@@ -11,6 +11,7 @@ class Monster extends MovableObject {
     static NO_SPAWN_END_BUFFER = 720;
     static MIN_SPAWN_X = 300;
     static SPAWN_AHEAD_DISTANCE = 350;
+    static DEFAULT_RANDOM_TYPES = ["skeleton", "dragon", "ghost"];
 
     static WALKING_SETS = {
         skeleton: [
@@ -34,6 +35,28 @@ class Monster extends MovableObject {
             'img/Ghost/ghost07_walk3.png',
             'img/Ghost/ghost08_walk4.png',
         ],
+        dino: [
+            'img/level2img/level2monster/dino/walk1.png',
+            'img/level2img/level2monster/dino/walk2.png',
+            'img/level2img/level2monster/dino/walk3.png',
+            'img/level2img/level2monster/dino/walk4.png',
+        ],
+        ent: [
+            'img/level2img/level2monster/ent/walk1.png',
+            'img/level2img/level2monster/ent/walk2.png',
+            'img/level2img/level2monster/ent/walk3.png',
+            'img/level2img/level2monster/ent/walk4.png',
+            'img/level2img/level2monster/ent/walk5.png',
+            'img/level2img/level2monster/ent/walk6.png',
+        ],
+        spider: [
+            'img/level2img/level2monster/spider/walk1.png',
+            'img/level2img/level2monster/spider/walk2.png',
+            'img/level2img/level2monster/spider/walk3.png',
+            'img/level2img/level2monster/spider/walk4.png',
+            'img/level2img/level2monster/spider/walk5.png',
+            'img/level2img/level2monster/spider/walk6.png',
+        ],
     };
 
     static ATTACK_SETS = {
@@ -53,6 +76,25 @@ class Monster extends MovableObject {
             'img/Ghost/ghost10_attack2.png',
             'img/Ghost/ghost11_attack3.png',
             'img/Ghost/ghost12_attack4.png',
+        ],
+        spider: [
+            'img/level2img/level2monster/spider/attack1.png',
+            'img/level2img/level2monster/spider/attack2.png',
+            'img/level2img/level2monster/spider/attack3.png',
+        ],
+        dino: [
+            'img/level2img/level2monster/dino/attack1.png',
+            'img/level2img/level2monster/dino/attack2.png',
+            'img/level2img/level2monster/dino/attack3.png',
+            'img/level2img/level2monster/dino/attack4.png',
+            'img/level2img/level2monster/dino/attack5.png',
+        ],
+        ent: [
+            'img/level2img/level2monster/ent/attack1.png',
+            'img/level2img/level2monster/ent/attack2.png',
+            'img/level2img/level2monster/ent/attack3.png',
+            'img/level2img/level2monster/ent/attack4.png',
+            'img/level2img/level2monster/ent/attack5.png',
         ],
     };
 
@@ -76,6 +118,43 @@ class Monster extends MovableObject {
             'img/Ghost/ghost17_death3.png',
             'img/Ghost/ghost18_death4.png',
         ],
+        spider: [
+            'img/level2img/level2monster/spider/death1.png',
+            'img/level2img/level2monster/spider/death2.png',
+            'img/level2img/level2monster/spider/death3.png',
+            'img/level2img/level2monster/spider/death4.png',
+        ],
+        dino: [
+            'img/level2img/level2monster/dino/death1.png',
+            'img/level2img/level2monster/dino/death2.png',
+            'img/level2img/level2monster/dino/death3.png',
+            'img/level2img/level2monster/dino/death4.png',
+            'img/level2img/level2monster/dino/death5.png',
+            'img/level2img/level2monster/dino/death6.png',
+        ],
+        ent: [
+            'img/level2img/level2monster/ent/death1.png',
+            'img/level2img/level2monster/ent/death2.png',
+            'img/level2img/level2monster/ent/death3.png',
+            'img/level2img/level2monster/ent/death4.png',
+            'img/level2img/level2monster/ent/death5.png',
+            'img/level2img/level2monster/ent/death6.png',
+            'img/level2img/level2monster/ent/death7.png',
+        ],
+    };
+
+    static HURT_SETS = {
+        dino: [
+            'img/level2img/level2monster/dino/hurt1.png',
+            'img/level2img/level2monster/dino/hurt2.png',
+            'img/level2img/level2monster/dino/hurt3.png',
+            'img/level2img/level2monster/dino/hurt4.png',
+        ],
+        ent: [
+            'img/level2img/level2monster/ent/hurt1.png',
+            'img/level2img/level2monster/ent/hurt2.png',
+            'img/level2img/level2monster/ent/hurt3.png',
+        ],
     };
 
 
@@ -83,11 +162,19 @@ class Monster extends MovableObject {
         skeleton: { width: 100, height: 150, y: 320 },
         dragon: { width: 160, height: 220, y: 300 },
         ghost: { width: 120, height: 170, y: 300 },
+        ent: { width: 220, height: 320, y: 200 },
     };
     static ATTACK_SOUND_BY_TYPE = {
         ghost: 'audio/ghost-attack.mp3',
         skeleton: 'audio/skleton-attck.mp3',
     };
+    static SPIDER_WEB_IMAGES = [
+        'img/level2img/level2monster/spider/web1.png',
+        'img/level2img/level2monster/spider/web2.png',
+        'img/level2img/level2monster/spider/web3.png',
+        'img/level2img/level2monster/spider/web4.png',
+        'img/level2img/level2monster/spider/web5.png',
+    ];
     intervalIds = [];
 
 
@@ -120,6 +207,7 @@ class Monster extends MovableObject {
             walkingSets: config.walkingSets ?? Monster.WALKING_SETS,
             attackSets: config.attackSets ?? Monster.ATTACK_SETS,
             deadSets: config.deadSets ?? Monster.DEAD_SETS,
+            hurtSets: config.hurtSets ?? Monster.HURT_SETS,
             typeSizes: config.typeSizes ?? Monster.TYPE_SIZES,
         };
     }
@@ -147,6 +235,7 @@ class Monster extends MovableObject {
         this.IMAGES_WALKING = sets.walkingSets[this.type] ?? [];
         this.IMAGES_ATTACKING = sets.attackSets[this.type] || [];
         this.IMAGES_DEAD = sets.deadSets[this.type] || [];
+        this.IMAGES_HURT = sets.hurtSets[this.type] || [];
     }
 
     /**
@@ -169,6 +258,8 @@ class Monster extends MovableObject {
      * @param {*} config
      */
     initializeMonsterState(x, patrolMinX, patrolMaxX, config) {
+        this.levelEndXLimit = config.levelEndX ?? Monster.LEVEL_END_X;
+        this.noSpawnEndBuffer = config.noSpawnEndBuffer ?? Monster.NO_SPAWN_END_BUFFER;
         this.loadImage(this.IMAGES_WALKING[0]);
         this.speed = 0.45 + Math.random() * 0.25;
         this.x = x ?? this.getRandomSpawnX();
@@ -185,10 +276,12 @@ class Monster extends MovableObject {
     initializeCombatState(config) {
         this.isAttacking = false;
         this.attackFrame = 0;
+        this.attackProjectileFired = false;
         this.deadFrame = 0;
         this.deathAnimationDone = false;
         this.energy = 50;
         this.attackDamage = config.attackDamage ?? 10;
+        this.attackCooldownMs = config.attackCooldownMs ?? 500;
         this.lastHitAt = 0;
         this.lastAttackAt = 0;
     }
@@ -211,6 +304,7 @@ class Monster extends MovableObject {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_ATTACKING);
         this.loadImages(this.IMAGES_DEAD);
+        this.loadImages(this.IMAGES_HURT);
     }
 
     /**
@@ -223,12 +317,25 @@ class Monster extends MovableObject {
         const range = Monster.getLevelSpawnRange(characterStartX, options);
         const step = (range.maxX - range.minX) / Math.max(1, count - 1);
         const monsters = [];
-        const forceType = options.forceType ?? null;
         for (let i = 0; i < count; i++) {
             const spawn = Monster.createSpawnPoint(i, step, range, options);
-            monsters.push(new Monster(forceType, spawn.x, spawn.patrolMinX, spawn.patrolMaxX, options));
+            const type = Monster.getSpawnType(options);
+            monsters.push(new Monster(type, spawn.x, spawn.patrolMinX, spawn.patrolMaxX, options));
         }
         return monsters;
+    }
+
+    /**
+     * Runs getSpawnType.
+     * @param {*} options
+     */
+    static getSpawnType(options = {}) {
+        if (options.forceType) return options.forceType;
+        const allowed = Array.isArray(options.allowedTypes) ? options.allowedTypes : Monster.DEFAULT_RANDOM_TYPES;
+        const types = allowed.filter((type) => Array.isArray(Monster.WALKING_SETS[type]));
+        if (!types.length) return "skeleton";
+        const index = Math.floor(Math.random() * types.length);
+        return types[index];
     }
 
     /**
@@ -272,7 +379,7 @@ class Monster extends MovableObject {
     getRandomSpawnX() {
         const playerX = this.world?.character?.x ?? 120;
         const minX = Math.max(Monster.MIN_SPAWN_X, playerX + Monster.SPAWN_AHEAD_DISTANCE);
-        const maxX = Monster.LEVEL_END_X - Monster.NO_SPAWN_END_BUFFER;
+        const maxX = this.levelEndXLimit - this.noSpawnEndBuffer;
 
         if (minX >= maxX) {
             return maxX;
@@ -288,7 +395,7 @@ class Monster extends MovableObject {
      */
     setPatrolRange(minX = null, maxX = null) {
         const levelMin = Monster.MIN_SPAWN_X;
-        const levelMax = Monster.LEVEL_END_X - Monster.NO_SPAWN_END_BUFFER;
+        const levelMax = this.levelEndXLimit - this.noSpawnEndBuffer;
         const defaultHalfRange = 260;
 
         this.patrolMinX = Math.max(levelMin, minX ?? this.x - defaultHalfRange);
@@ -328,8 +435,22 @@ class Monster extends MovableObject {
     handlePatrolTick() {
         if (window.__moonberryPaused || this.world?.isPaused) return;
         if (this.isDead() || this.isAttacking) return;
+        if (this.tryTriggerRangedAttack()) return;
         if (this.movingLeft) return this.movePatrolLeft();
         this.movePatrolRight();
+    }
+
+    /**
+     * Runs tryTriggerRangedAttack.
+     */
+    tryTriggerRangedAttack() {
+        if (this.type !== "spider" || !this.world?.character) return false;
+        const char = this.world.character;
+        const distX = Math.abs((char.x + char.width / 2) - (this.x + this.width / 2));
+        const distY = Math.abs((char.y + char.height / 2) - (this.y + this.height / 2));
+        if (distX > 250 || distY > 130) return false;
+        this.triggerAttack(char);
+        return this.isAttacking;
     }
 
     /**
@@ -364,6 +485,7 @@ class Monster extends MovableObject {
         this.lastAttackAt = Date.now();
         this.isAttacking = true;
         this.attackFrame = 0;
+        this.attackProjectileFired = false;
         this.playAttackSound();
     }
 
@@ -373,7 +495,7 @@ class Monster extends MovableObject {
     canStartAttack() {
         if (this.isDead()) return false;
         if (!this.IMAGES_ATTACKING.length) return false;
-        return Date.now() - this.lastAttackAt >= 500;
+        return Date.now() - this.lastAttackAt >= this.attackCooldownMs;
     }
 
     /**
@@ -453,7 +575,15 @@ class Monster extends MovableObject {
         if (window.__moonberryPaused || this.world?.isPaused) return;
         if (this.isDead()) return this.playDeathTick();
         if (this.isAttacking && this.IMAGES_ATTACKING.length) return this.playAttackTick();
+        if (this.isHurt() && this.IMAGES_HURT.length) return this.playHurtTick();
         this.playWalkTick();
+    }
+
+    /**
+     * Runs isHurt.
+     */
+    isHurt() {
+        return !this.isDead() && Date.now() - this.lastHitAt < 220;
     }
 
     /**
@@ -480,10 +610,61 @@ class Monster extends MovableObject {
     playAttackTick() {
         const path = this.IMAGES_ATTACKING[this.attackFrame];
         this.img = this.imageCache[path];
+        this.tryShootSpiderWeb();
         this.attackFrame++;
         if (this.attackFrame < this.IMAGES_ATTACKING.length) return;
         this.isAttacking = false;
         this.attackFrame = 0;
+    }
+
+    /**
+     * Runs playHurtTick.
+     */
+    playHurtTick() {
+        const i = this.currentImage % this.IMAGES_HURT.length;
+        this.img = this.imageCache[this.IMAGES_HURT[i]];
+        this.currentImage++;
+    }
+
+    /**
+     * Runs tryShootSpiderWeb.
+     */
+    tryShootSpiderWeb() {
+        if (this.type !== "spider" || this.attackProjectileFired) return;
+        if (!this.world || typeof FireProjectile === "undefined") return;
+        if (this.attackFrame !== 1) return;
+        const projectile = this.createSpiderWebProjectile();
+        if (!projectile) return;
+        if (!Array.isArray(this.world.enemyProjectiles)) this.world.enemyProjectiles = [];
+        this.world.enemyProjectiles.push(projectile);
+        this.attackProjectileFired = true;
+    }
+
+    /**
+     * Runs createSpiderWebProjectile.
+     */
+    createSpiderWebProjectile() {
+        const x = this.getSpiderWebSpawnX();
+        const y = this.getSpiderWebSpawnY();
+        return new FireProjectile({
+            x, y, movingLeft: this.othersDirection, images: Monster.SPIDER_WEB_IMAGES,
+            width: 74, height: 48, speed: 6, lifetimeMs: 1800, hitboxInset: 14, frameIntervalMs: 70, loopAnimation: true,
+        });
+    }
+
+    /**
+     * Runs getSpiderWebSpawnX.
+     */
+    getSpiderWebSpawnX() {
+        if (this.othersDirection) return this.x + 4;
+        return this.x + this.width - 34;
+    }
+
+    /**
+     * Runs getSpiderWebSpawnY.
+     */
+    getSpiderWebSpawnY() {
+        return this.y + Math.round(this.height * 0.34);
     }
 
     /**

@@ -89,7 +89,9 @@ function createLevelFromConfig(config) {
     const backgroundObjects = createLevelBackground(config, bounds);
     const tiles = createLevelTiles(config, bounds);
     const items = createLevelItems(config, bounds, tiles);
-    return new Level(enemies, chain, backgroundObjects, tiles, items);
+    const level = new Level(enemies, chain, backgroundObjects, tiles, items);
+    level.levelEndX = config.world.maxX;
+    return level;
 }
 
 /**

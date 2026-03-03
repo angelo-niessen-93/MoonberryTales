@@ -53,7 +53,7 @@ class WorldCollisionSystem {
    * @param {*} hitboxBottomOffset
    */
   getBaseGroundY(character, hitboxBottomOffset) {
-    const levelFloorY = 445;
+    const levelFloorY = this.world.level?.floorY ?? 445;
     return levelFloorY - hitboxBottomOffset;
   }
 
@@ -383,6 +383,7 @@ class WorldCollisionSystem {
     const activeProjectiles = this.getCharacterProjectiles();
     activeProjectiles.forEach((projectile) => this.updateProjectile(projectile));
     this.syncProjectiles(activeProjectiles);
+    this.updateEnemyProjectiles();
   }
 
   /**
@@ -425,6 +426,27 @@ class WorldCollisionSystem {
     this.world.projectiles = activeProjectiles.filter((projectile) => projectile.isActive);
     if (!Array.isArray(this.world.character.projectiles)) return;
     this.world.character.projectiles = this.world.projectiles;
+  }
+
+  /**
+   * Runs updateEnemyProjectiles.
+   */
+  updateEnemyProjectiles() {
+    if (!Array.isArray(this.world.enemyProjectiles)) return;
+    this.world.enemyProjectiles.forEach((projectile) => this.updateEnemyProjectile(projectile));
+    this.world.enemyProjectiles = this.world.enemyProjectiles.filter((projectile) => projectile.isActive);
+  }
+
+  /**
+   * Runs updateEnemyProjectile.
+   * @param {*} projectile
+   */
+  updateEnemyProjectile(projectile) {
+    projectile.update(this.world.levelEndX);
+    if (!projectile.isActive || this.isCharacterDead()) return;
+    if (!projectile.isColliding(this.world.character)) return;
+    this.world.character.takeHit(projectile.x, 12);
+    projectile.isActive = false;
   }
 }
 
