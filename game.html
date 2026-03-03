@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moonberry Tales</title>
-    <link rel="icon" href="data:,">
+    <link rel="icon" type="image/png" href="./img/favicon.ico.png">
     <script>
         if (sessionStorage.getItem("showLoadingScreen") !== "1") {
             document.documentElement.classList.add("skip-loading-screen");
         }
     </script>
     <link rel="stylesheet" href="./style.css">
-    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
 </head>
 <body class="game-page" onload="init()" >
     <div id="page-loading-screen" aria-hidden="true">
@@ -38,9 +37,15 @@
         <button id="fullscreen-toggle" type="button" aria-label="Vollbild aktivieren">
             <img src="img/vollbild.png" alt="Vollbild">
         </button>
-        <button id="music-toggle" type="button" aria-label="Musik stummschalten">
-            <img src="img/mute.png" alt="Mute">
-        </button>
+        <div id="audio-control-game" class="audio-control-game">
+            <button id="music-toggle" type="button" aria-label="Audio-Menü öffnen" aria-expanded="false">
+                <img src="img/mute.png" alt="Mute">
+            </button>
+            <div class="audio-hover-panel-game" role="menu" aria-label="Audio-Steuerung">
+                <button id="music-mute-toggle-game" class="audio-toggle-row-game" type="button" role="menuitem">Musik: An</button>
+                <button id="sfx-mute-toggle-game" class="audio-toggle-row-game" type="button" role="menuitem">Soundeffekte: An</button>
+            </div>
+        </div>
         <canvas id="canvas" width="720" height="480"></canvas>
         <div id="mobile-arrows-control" aria-hidden="true">
             <img src="img/16Inner_Interface/arrows.png" alt="Mobile Steuerung">
@@ -64,9 +69,30 @@
                     <img src="img/14Pause/button_yellow.png" alt="">
                     <span>Weiter</span>
                 </button>
+                <button id="pause-settings" class="pause-popup-button" type="button" aria-label="Einstellungen öffnen">
+                    <img src="img/14Pause/button_yellow.png" alt="">
+                    <span>Sounds</span>
+                </button>
                 <button id="pause-home" class="pause-popup-button" type="button" aria-label="Zur Startseite">
                     <img src="img/14Pause/button_yellow.png" alt="">
                     <span>Home</span>
+                </button>
+            </div>
+        </div>
+        <div id="pause-settings-popup" class="hidden" role="dialog" aria-modal="true" aria-label="Audio-Einstellungen">
+            <div class="pause-settings-card">
+                <img class="pause-popup-title" src="img/14Pause/Pause.png" alt="Einstellungen">
+                <div class="pause-settings-row">
+                    <label for="pause-music-volume">Musik</label>
+                    <input id="pause-music-volume" type="range" min="0" max="1" step="0.01" value="0.5">
+                </div>
+                <div class="pause-settings-row">
+                    <label for="pause-sfx-volume">Soundeffekte</label>
+                    <input id="pause-sfx-volume" type="range" min="0" max="1" step="0.01" value="0.5">
+                </div>
+                <button id="pause-settings-close" class="pause-popup-button" type="button" aria-label="Einstellungen schliessen">
+                    <img src="img/14Pause/button_yellow.png" alt="">
+                    <span>Schliessen</span>
                 </button>
             </div>
         </div>
@@ -91,7 +117,6 @@
     <script src="./models/fire-projectile.class.js"></script>
     <script src="./models/mage.class.js"></script>
     <script src="./models/rogue.class.js"></script>
-    <a class="impressum-button" href="./Impressum.html" aria-label="Zum Impressum">Impressum</a>
     <script src="./game.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
  */
 
 /**
- * Repräsentiert Rogue im Spiel.
+ * Represents Rogue in the game.
  */
 class Rogue extends Character {
   height = 200;
@@ -91,7 +91,7 @@ class Rogue extends Character {
   hurtSound = new Audio("audio/hurt.mp3");
 
   /**
-   * Führt constructor aus.
+   * Runs constructor.
    */
   constructor() {
     super();
@@ -105,6 +105,7 @@ class Rogue extends Character {
   
   }
 }
+
 
 
 

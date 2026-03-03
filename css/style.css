@@ -30,7 +30,102 @@ body.home-page {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  height: 100vh;
   overflow: hidden;
+}
+
+#main-mute-toggle {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+#main-mute-toggle img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+#main-mute-toggle.is-muted {
+  opacity: 0.5;
+}
+
+#main-mute-toggle:hover {
+  filter: brightness(1.08);
+}
+
+#mobile-controls-toggle-wrap {
+  position: fixed;
+  top: 94px;
+  right: 14px;
+  z-index: 10;
+  width: 170px;
+  height: 44px;
+  border-radius: 12px;
+  padding: 0 10px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #f8f1df;
+}
+
+#mobile-controls-toggle-wrap span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  display: inline-block;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  transition: 180ms ease;
+}
+
+.switch-slider::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: 180ms ease;
+}
+
+.switch input:checked + .switch-slider {
+  background: #66d98f;
+}
+
+.switch input:checked + .switch-slider::before {
+  transform: translateX(20px);
 }
 
 #rotate-device-overlay-home {
@@ -55,6 +150,7 @@ body.home-page {
 .home-layout {
   --start-top: calc(clamp(20px, 13vh, 72px) + min(48vh, 320px) + 16px);
   --start-height: 42px;
+  --audio-button-height: 42px;
   --leaderboard-button-height: 42px;
   --buttons-gap: 10px;
   --panel-gap: 10px;
@@ -116,7 +212,7 @@ body.home-page {
 #leaderboard-button {
   position: absolute;
   left: 50%;
-  top: calc(var(--start-top) + var(--start-height) + var(--buttons-gap));
+  top: calc(var(--start-top) + var(--start-height) + var(--buttons-gap) + var(--audio-button-height) + var(--buttons-gap));
   transform: translateX(-50%);
   min-width: 180px;
   height: var(--leaderboard-button-height);
@@ -134,79 +230,126 @@ body.home-page {
   filter: brightness(1.06);
 }
 
-#settings-button {
-  position: fixed;
-  right: 24px;
-  top: 24px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 1px solid var(--panel-stroke);
-  background: var(--panel-bg);
-  color: var(--text);
-  font-size: 24px;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  backdrop-filter: blur(4px);
+#audio-control-game {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--start-top) + var(--start-height) + var(--buttons-gap));
+  transform: translateX(-50%);
+  z-index: 8;
 }
 
-#mute-button {
-  position: fixed;
-  right: 84px;
-  top: 24px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 1px solid var(--panel-stroke);
-  background: var(--panel-bg);
-  color: var(--text);
-  font-size: 24px;
-  display: grid;
-  place-items: center;
+#music-toggle {
+  position: relative;
+  min-width: 180px;
+  height: var(--audio-button-height);
+  padding: 0 16px;
+  border: none;
+  background: url("../img/14Pause/button_yellow.png") center / 100% 100% no-repeat;
+  color: #1b1204;
+  text-transform: uppercase;
   cursor: pointer;
-  backdrop-filter: blur(4px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-#settings-button img {
-  width: 28px;
-  height: 28px;
+#music-toggle img {
+  width: 24px;
+  height: 24px;
+  display: block;
   object-fit: contain;
 }
 
-#mute-button img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  transform: scale(2);
-  transform-origin: center;
-}
-
-#mute-button.is-muted {
-  opacity: 0.7;
-}
-
-#settings-button.fallback {
+#music-toggle span {
   font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 18px;
 }
 
-#settings-panel {
+#music-toggle.is-muted {
+  opacity: 0.75;
+}
+
+#music-toggle:hover {
+  filter: brightness(1.06);
+}
+
+#home-audio-settings-popup {
   position: fixed;
-  right: 24px;
-  top: 84px;
-  width: 240px;
-  padding: 14px;
-  border: 1px solid var(--panel-stroke);
-  border-radius: 12px;
-  background: var(--panel-bg);
-  backdrop-filter: blur(4px);
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 5, 12, 0.62);
+  padding: 20px;
+}
+
+.home-audio-settings-card {
+  width: min(420px, 92vw);
+  min-height: 250px;
+  background-image: url("../img/10Defeat/begie_border2.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  padding: 24px 22px 22px;
+  color: #1b1204;
+  display: grid;
+  gap: 14px;
+}
+
+.home-audio-title {
+  display: block;
+  margin: 0 auto;
+  width: min(200px, 60%);
+  height: auto;
+}
+
+.home-audio-row {
   display: grid;
   gap: 8px;
 }
 
-#settings-panel label {
-  font-size: 14px;
-  font-weight: 600;
+.home-audio-row label {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.home-audio-row input[type="range"] {
+  width: 100%;
+}
+
+.home-popup-button {
+  justify-self: center;
+  min-width: 160px;
+  height: 42px;
+  border: none;
+  background: url("../img/14Pause/button_yellow.png") center / 100% 100% no-repeat;
+  color: #1b1204;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.home-popup-button img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.home-popup-button span {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.home-popup-button:hover {
+  filter: brightness(1.06);
 }
 
 #leaderboard-panel {
@@ -317,29 +460,34 @@ body.home-page {
   font-size: 14px;
 }
 
-#volume-control {
-  width: 100%;
-}
-
 #character-popup {
   position: fixed;
   inset: 0;
+  z-index: 30;
   background: rgba(2, 5, 12, 0.62);
   display: grid;
   place-items: center;
   padding: 20px;
+  overflow: hidden;
 }
 
 .popup-card {
-  width: min(920px, 100%);
-  min-height: 420px;
+  width: min(920px, 100%, calc(88vh * 920 / 560));
+  aspect-ratio: 920 / 560;
+  min-height: 0;
+  height: auto;
+  max-height: 88vh;
   border: none;
   border-radius: 0;
   background-image: url("../img/10Defeat/begie_border2.png");
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background-size: contain;
   padding: 24px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+  overflow: hidden;
 }
 
 .popup-card h2 {
@@ -349,28 +497,46 @@ body.home-page {
 
 #characters-container {
   display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: clamp(8px, 1.6vw, 16px);
+  align-items: stretch;
+  min-height: 0;
+  height: 100%;
 }
 
 .character {
   position: relative;
   overflow: hidden;
-  height: 260px;
+  min-height: 0;
+  height: 100%;
   border: none;
   border-radius: 0;
   background-color: transparent;
   background-repeat: no-repeat;
-  background-position: 50% 24px;
-  background-size: 64%;
+  background-position: 50% 50%;
+  background-size: clamp(42%, 56%, 64%);
   cursor: pointer;
   color: #000;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
+  display: block;
   text-align: center;
-  padding-bottom: 16px;
+  padding-bottom: 0;
   font-weight: 700;
+}
+
+.character span {
+  position: absolute;
+  z-index: 1;
+  left: clamp(8px, 1.8vw, 14px);
+  right: clamp(8px, 1.8vw, 14px);
+  top: clamp(8px, 1.8vh, 14px);
+  bottom: auto;
+  text-align: center;
+  font-size: clamp(12px, 1.4vw, 18px);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .character::before {
@@ -380,7 +546,7 @@ body.home-page {
   background-image: url("../img_mainpage/03potions/potions_cell_border.png");
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background-size: contain;
   pointer-events: none;
 }
 
@@ -421,6 +587,7 @@ body.home-page {
 @media (max-width: 720px) {
   .home-layout {
     --start-height: 38px;
+    --audio-button-height: 38px;
     --leaderboard-button-height: 38px;
     --buttons-gap: 8px;
     --panel-gap: 8px;
@@ -446,35 +613,15 @@ body.home-page {
     font-size: 16px;
   }
 
-  #characters-container {
-    grid-template-columns: 1fr;
+  #music-toggle {
+    min-width: 160px;
   }
 
-  .character {
-    height: 180px;
-    background-size: 34%;
-    background-position: center 12px;
+  #music-toggle span {
+    font-size: 16px;
   }
 
-  #settings-button {
-    right: 12px;
-    top: 12px;
-    width: 46px;
-    height: 46px;
-  }
-
-  #mute-button {
-    right: 66px;
-    top: 12px;
-    width: 46px;
-    height: 46px;
-  }
-
-  #settings-panel {
-    right: 12px;
-    top: 66px;
-    width: min(240px, calc(100vw - 24px));
-  }
+  .character { background-size: clamp(36%, 46%, 54%); }
 
   #leaderboard-panel {
     width: min(380px, 92vw);
@@ -489,12 +636,32 @@ body.home-page {
     height: 34px;
     font-size: 13px;
   }
+
+  #main-mute-toggle {
+    top: 10px;
+    right: 10px;
+    width: 58px;
+    height: 58px;
+  }
+
+  #mobile-controls-toggle-wrap {
+    top: 74px;
+    right: 10px;
+    width: 150px;
+    height: 40px;
+    padding: 0 8px;
+  }
+
+  #mobile-controls-toggle-wrap span {
+    font-size: 11px;
+  }
 }
 
 @media (max-height: 620px) {
   .home-layout {
     --start-top: calc(clamp(20px, 13vh, 72px) + min(48vh, 260px) + 10px);
     --start-height: 36px;
+    --audio-button-height: 36px;
     --leaderboard-button-height: 36px;
     --buttons-gap: 6px;
     --panel-gap: 8px;
@@ -517,21 +684,33 @@ body.home-page {
     font-size: 15px;
   }
 
-  .popup-card {
-    padding: 16px;
+  #music-toggle {
+    min-width: 150px;
+  }
+
+  #music-toggle span {
+    font-size: 15px;
+  }
+
+  .popup-card { padding: 14px; }
+
+  #characters-container { gap: 8px; }
+
+  .character {
+    background-position: 50% 50%;
+    padding-bottom: 8px;
   }
 }
 
-@media (max-width: 1024px) and (orientation: portrait) {
-  #rotate-device-overlay-home {
-    display: flex;
-  }
+body.is-touch-device.is-portrait #rotate-device-overlay-home {
+  display: flex;
 }
 
 @media (max-width: 1024px) and (orientation: landscape) {
   .home-layout {
     --start-top: calc(clamp(20px, 13vh, 72px) + min(48vh, 220px) + 8px);
     --start-height: 34px;
+    --audio-button-height: 34px;
     --leaderboard-button-height: 34px;
     --buttons-gap: 4px;
     --panel-gap: 8px;
@@ -558,24 +737,12 @@ body.home-page {
     font-size: 14px;
   }
 
-  #settings-button {
-    right: 8px;
-    top: 8px;
-    width: 42px;
-    height: 42px;
+  #music-toggle {
+    min-width: 140px;
   }
 
-  #mute-button {
-    right: 58px;
-    top: 8px;
-    width: 42px;
-    height: 42px;
-  }
-
-  #settings-panel {
-    right: 8px;
-    top: 56px;
-    width: min(220px, calc(100vw - 16px));
+  #music-toggle span {
+    font-size: 14px;
   }
 
   #leaderboard-panel {

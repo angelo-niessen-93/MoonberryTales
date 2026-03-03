@@ -1,14 +1,14 @@
-/**
+﻿/**
  * @file models/world-collision.class.js
  */
 
 /**
- * Repräsentiert WorldCollisionSystem im Spiel.
+ * Represents WorldCollisionSystem in the game.
  */
 class WorldCollisionSystem {
 
   /**
-   * Führt constructor aus.
+   * Runs constructor.
    * @param {*} world
    */
   constructor(world) {
@@ -16,7 +16,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt resolveCharacterGround aus.
+   * Runs resolveCharacterGround.
    */
   resolveCharacterGround() {
     const character = this.world.character;
@@ -28,7 +28,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getCharacterHitbox aus.
+   * Runs getCharacterHitbox.
    * @param {*} character
    */
   getCharacterHitbox(character) {
@@ -39,7 +39,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getHitboxBottomOffset aus.
+   * Runs getHitboxBottomOffset.
    * @param {*} character
    * @param {*} hitbox
    */
@@ -48,17 +48,17 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getBaseGroundY aus.
+   * Runs getBaseGroundY.
    * @param {*} character
    * @param {*} hitboxBottomOffset
    */
   getBaseGroundY(character, hitboxBottomOffset) {
-    const levelFloorY = 460;
+    const levelFloorY = 445;
     return levelFloorY - hitboxBottomOffset;
   }
 
   /**
-   * Führt findGroundedPlatformY aus.
+   * Runs findGroundedPlatformY.
    * @param {*} character
    * @param {*} characterHitbox
    */
@@ -72,7 +72,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getFeetState aus.
+   * Runs getFeetState.
    * @param {*} character
    * @param {*} hitbox
    */
@@ -89,7 +89,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt resolveTileLanding aus.
+   * Runs resolveTileLanding.
    * @param {*} state
    * @param {*} character
    * @param {*} tile
@@ -104,7 +104,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getTileHitbox aus.
+   * Runs getTileHitbox.
    * @param {*} tile
    */
   getTileHitbox(tile) {
@@ -115,7 +115,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt canCharacterLandOnTile aus.
+   * Runs canCharacterLandOnTile.
    * @param {*} character
    * @param {*} state
    * @param {*} hitbox
@@ -129,7 +129,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt applyGroundToCharacter aus.
+   * Runs applyGroundToCharacter.
    * @param {*} character
    * @param {*} hitboxBottomOffset
    * @param {*} groundedPlatformY
@@ -145,7 +145,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt checkCharacterCollisions aus.
+   * Runs checkCharacterCollisions.
    */
   checkCharacterCollisions() {
     if (this.isCharacterDead()) return;
@@ -158,7 +158,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt isCharacterCollidingEnemy aus.
+   * Runs isCharacterCollidingEnemy.
    * @param {*} enemy
    */
   isCharacterCollidingEnemy(enemy) {
@@ -168,7 +168,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getCharacterCombatHitbox aus.
+   * Runs getCharacterCombatHitbox.
    */
   getCharacterCombatHitbox() {
     const base = this.getEntityHitbox(this.world.character);
@@ -180,14 +180,14 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt isCharacterDead aus.
+   * Runs isCharacterDead.
    */
   isCharacterDead() {
     return typeof this.world.character.isDead === "function" && this.world.character.isDead();
   }
 
   /**
-   * Führt handleDeadEnemy aus.
+   * Runs handleDeadEnemy.
    * @param {*} enemy
    * @param {*} index
    */
@@ -199,7 +199,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt removeEnemyIfRemovable aus.
+   * Runs removeEnemyIfRemovable.
    * @param {*} enemy
    * @param {*} index
    */
@@ -210,7 +210,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt handleCharacterEnemyCollision aus.
+   * Runs handleCharacterEnemyCollision.
    * @param {*} enemy
    * @param {*} index
    */
@@ -222,7 +222,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt tryCharacterAttack aus.
+   * Runs tryCharacterAttack.
    * @param {*} enemy
    * @param {*} index
    */
@@ -236,7 +236,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt characterAttackHitsEnemy aus.
+   * Runs characterAttackHitsEnemy.
    * @param {*} enemy
    */
   characterAttackHitsEnemy(enemy) {
@@ -247,7 +247,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getCharacterAttackHitbox aus.
+   * Runs getCharacterAttackHitbox.
    */
   getCharacterAttackHitbox() {
     if (typeof this.world.character.getAttackHitbox === "function") {
@@ -257,7 +257,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt isEnemyInAttackReach aus.
+   * Runs isEnemyInAttackReach.
    * @param {*} enemyHitbox
    */
   isEnemyInAttackReach(enemyHitbox) {
@@ -271,7 +271,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getVerticalOverlap aus.
+   * Runs getVerticalOverlap.
    * @param {*} a
    * @param {*} b
    */
@@ -282,7 +282,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getEntityHitbox aus.
+   * Runs getEntityHitbox.
    * @param {*} entity
    */
   getEntityHitbox(entity) {
@@ -291,7 +291,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt isAabbOverlap aus.
+   * Runs isAabbOverlap.
    * @param {*} a
    * @param {*} b
    */
@@ -305,7 +305,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt checkItemCollections aus.
+   * Runs checkItemCollections.
    */
   checkItemCollections() {
     for (let i = this.world.items.length - 1; i >= 0; i--) {
@@ -318,7 +318,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt applyItemEffect aus.
+   * Runs applyItemEffect.
    * @param {*} item
    */
   applyItemEffect(item) {
@@ -328,7 +328,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt collectHeart aus.
+   * Runs collectHeart.
    */
   collectHeart() {
     if ((this.world.character.energy ?? 0) >= 100) return false;
@@ -338,7 +338,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt collectCoin aus.
+   * Runs collectCoin.
    */
   collectCoin() {
     this.world.hud.addCoin();
@@ -347,7 +347,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt isItemCollected aus.
+   * Runs isItemCollected.
    * @param {*} character
    * @param {*} item
    */
@@ -363,7 +363,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getCollectHitbox aus.
+   * Runs getCollectHitbox.
    * @param {*} character
    */
   getCollectHitbox(character) {
@@ -377,7 +377,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt updateProjectiles aus.
+   * Runs updateProjectiles.
    */
   updateProjectiles() {
     const activeProjectiles = this.getCharacterProjectiles();
@@ -386,14 +386,14 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt getCharacterProjectiles aus.
+   * Runs getCharacterProjectiles.
    */
   getCharacterProjectiles() {
     return Array.isArray(this.world.character.projectiles) ? this.world.character.projectiles : [];
   }
 
   /**
-   * Führt updateProjectile aus.
+   * Runs updateProjectile.
    * @param {*} projectile
    */
   updateProjectile(projectile) {
@@ -403,7 +403,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt applyProjectileHits aus.
+   * Runs applyProjectileHits.
    * @param {*} projectile
    */
   applyProjectileHits(projectile) {
@@ -418,7 +418,7 @@ class WorldCollisionSystem {
   }
 
   /**
-   * Führt syncProjectiles aus.
+   * Runs syncProjectiles.
    * @param {*} activeProjectiles
    */
   syncProjectiles(activeProjectiles) {
@@ -427,3 +427,4 @@ class WorldCollisionSystem {
     this.world.character.projectiles = this.world.projectiles;
   }
 }
+

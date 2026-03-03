@@ -13,12 +13,15 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const startButton = document.getElementById("start-button");
-  const settingsButton = document.getElementById("settings-button");
-  const muteButton = document.getElementById("mute-button");
-  const settingsPanel = document.getElementById("settings-panel");
+  const muteButton = document.getElementById("music-toggle");
+  const mainMuteButton = document.getElementById("main-mute-toggle");
+  const mobileControlsToggle = document.getElementById("mobile-controls-toggle");
+  const audioSettingsPopup = document.getElementById("home-audio-settings-popup");
+  const musicVolumeControl = document.getElementById("home-music-volume");
+  const sfxVolumeControl = document.getElementById("home-sfx-volume");
+  const audioCloseButton = document.getElementById("home-audio-close");
   const popup = document.getElementById("character-popup");
   const characters = document.querySelectorAll(".character");
-  const volumeControl = document.getElementById("volume-control");
   const mainMenuMusic = document.getElementById("main-menu-music");
   const leaderboardList = document.getElementById("leaderboard-list");
   const leaderboardEmpty = document.getElementById("leaderboard-empty");
@@ -29,6 +32,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const mainTitleLogo = document.getElementById("main-title-logo");
 
   const frameDelay = 160;
+
+  /**
+   * Runs hasTouchScreen.
+   */
+  function hasTouchScreen() {
+    return (
+      window.matchMedia("(pointer: coarse)").matches ||
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0
+    );
+  }
+
+  /**
+   * Runs updateDeviceClasses.
+   */
+  function updateDeviceClasses() {
+    const isTouchDevice = hasTouchScreen();
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    document.documentElement.classList.toggle("is-touch-device", isTouchDevice);
+    document.body.classList.toggle("is-touch-device", isTouchDevice);
+    document.body.classList.toggle("is-portrait", isPortrait);
+    document.body.classList.toggle("is-landscape", !isPortrait);
+  }
   const characterSprites = {
     Knight: [
       "./img/Knight/Idle/knight_idle1.png",
@@ -82,27 +108,46 @@ document.addEventListener("DOMContentLoaded", () => {
     ]
   };
 
-  const savedVolume = localStorage.getItem("gameVolume");
-  const savedMuted = localStorage.getItem("gameMuted") === "1";
-  let isMuted = savedMuted;
-  if (savedVolume !== null) {
-    volumeControl.value = savedVolume;
-  }
+  const MUSIC_MUTE_KEY = "gameMusicMuted";
+  const SFX_MUTE_KEY = "gameSfxMuted";
+  const MUSIC_VOLUME_KEY = "gameMusicVolume";
+  const SFX_VOLUME_KEY = "gameSfxVolume";
+  const MOBILE_CONTROLS_KEY = "mobileControlsEnabled";
+  const LEGACY_MUTE_KEY = "gameMuted";
+  const legacyMuted = localStorage.getItem(LEGACY_MUTE_KEY) === "1";
+  const storedMusicMuted = localStorage.getItem(MUSIC_MUTE_KEY);
+  const storedSfxMuted = localStorage.getItem(SFX_MUTE_KEY);
+  const storedMusicVolume = Number.parseFloat(localStorage.getItem(MUSIC_VOLUME_KEY));
+  const storedSfxVolume = Number.parseFloat(localStorage.getItem(SFX_VOLUME_KEY));
+  let musicVolume = Number.isFinite(storedMusicVolume) ? Math.max(0, Math.min(1, storedMusicVolume)) : 0.5;
+  let sfxVolume = Number.isFinite(storedSfxVolume) ? Math.max(0, Math.min(1, storedSfxVolume)) : 0.5;
+  let isMusicMuted = storedMusicMuted !== null ? storedMusicMuted === "1" : legacyMuted;
+  let isSfxMuted = storedSfxMuted !== null ? storedSfxMuted === "1" : legacyMuted;
 
+  /**
+   * Runs applyVolume.
+   * @param {*} value
+   */
   function applyVolume(value) {
     const volume = Number.parseFloat(value);
     if (!Number.isNaN(volume) && mainMenuMusic) {
-      mainMenuMusic.volume = isMuted ? 0 : volume;
+      mainMenuMusic.volume = isMusicMuted ? 0 : volume;
     }
   }
 
+  /**
+   * Runs tryStartMainMenuMusic.
+   */
   function tryStartMainMenuMusic() {
-    if (!mainMenuMusic || isMuted) {
+    if (!mainMenuMusic || isMusicMuted) {
       return;
     }
     mainMenuMusic.play().catch(() => {});
   }
 
+  /**
+   * Runs setupMusicUnlockOnFirstInteraction.
+   */
   function setupMusicUnlockOnFirstInteraction() {
     const unlockAudio = () => {
       tryStartMainMenuMusic();
@@ -116,20 +161,66 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", unlockAudio, { once: true });
   }
 
-  function updateMuteButtonState() {
-    if (!muteButton) {
-      return;
-    }
-    muteButton.classList.toggle("is-muted", isMuted);
-    muteButton.setAttribute("aria-label", isMuted ? "Ton einschalten" : "Ton stummschalten");
+  /**
+   * Runs persistAudioSettings.
+   */
+  function persistAudioSettings() {
+    localStorage.setItem(MUSIC_MUTE_KEY, isMusicMuted ? "1" : "0");
+    localStorage.setItem(SFX_MUTE_KEY, isSfxMuted ? "1" : "0");
+    localStorage.setItem(LEGACY_MUTE_KEY, isMusicMuted ? "1" : "0");
+    localStorage.setItem(MUSIC_VOLUME_KEY, String(musicVolume));
+    localStorage.setItem(SFX_VOLUME_KEY, String(sfxVolume));
   }
 
+  /**
+   * Runs updateAudioButtonState.
+   */
+  function updateAudioButtonState() {
+    if (!muteButton) return;
+    const allMuted = (isMusicMuted || musicVolume === 0) && (isSfxMuted || sfxVolume === 0);
+    muteButton.classList.toggle("is-muted", allMuted);
+    muteButton.setAttribute("aria-label", allMuted ? "Audio-Menü (alles stumm)" : "Audio-Menü öffnen");
+    updateMainMuteButtonState();
+  }
+
+  /**
+   * Runs updateMainMuteButtonState.
+   */
+  function updateMainMuteButtonState() {
+    if (!mainMuteButton) return;
+    const allMuted = isMusicMuted && isSfxMuted;
+    mainMuteButton.classList.toggle("is-muted", allMuted);
+    mainMuteButton.setAttribute("aria-pressed", allMuted ? "true" : "false");
+    mainMuteButton.setAttribute("aria-label", allMuted ? "Global stumm deaktivieren" : "Global stumm aktivieren");
+  }
+
+  /**
+   * Runs toggleAllAudioMute.
+   */
+  function toggleAllAudioMute() {
+    const nextMuted = !(isMusicMuted && isSfxMuted);
+    isMusicMuted = nextMuted;
+    isSfxMuted = nextMuted;
+    applyVolume(musicVolume);
+    persistAudioSettings();
+    updateAudioButtonState();
+    if (!nextMuted) tryStartMainMenuMusic();
+  }
+
+  /**
+   * Runs formatDuration.
+   * @param {*} totalSeconds
+   */
   function formatDuration(totalSeconds) {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }
 
+  /**
+   * Runs sortLeaderboard.
+   * @param {*} entries
+   */
   function sortLeaderboard(entries) {
     const safeEntries = (Array.isArray(entries) ? entries : []).filter(
       (entry) => entry?.name !== "Angelo"
@@ -144,83 +235,181 @@ document.addEventListener("DOMContentLoaded", () => {
     return safeEntries;
   }
 
+  /**
+   * Runs ensureFixedPlayerEntry.
+   */
   function ensureFixedPlayerEntry() {
-    let entries = [];
+    const safeEntries = loadLeaderboardEntries();
+    if (!hasFixedPlayerEntry(safeEntries)) safeEntries.push({ ...FIXED_PLAYER_ENTRY });
+    const sorted = sortLeaderboard(safeEntries).slice(0, 10);
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(sorted));
+  }
+
+  /**
+   * Runs loadLeaderboardEntries.
+   */
+  function loadLeaderboardEntries() {
     try {
       const raw = localStorage.getItem(LEADERBOARD_KEY);
-      entries = raw ? JSON.parse(raw) : [];
-    } catch (_) {
-      entries = [];
-    }
+      const entries = raw ? JSON.parse(raw) : [];
+      return Array.isArray(entries) ? entries : [];
+    } catch (_) { return []; }
+  }
 
-    const safeEntries = Array.isArray(entries) ? entries : [];
-    const hasFixedEntry = safeEntries.some((entry) =>
+  /**
+   * Runs hasFixedPlayerEntry.
+   * @param {*} entries
+   */
+  function hasFixedPlayerEntry(entries) {
+    return entries.some((entry) =>
       entry &&
       entry.name === FIXED_PLAYER_ENTRY.name &&
       entry.result === FIXED_PLAYER_ENTRY.result &&
       Number(entry.coins) === FIXED_PLAYER_ENTRY.coins &&
       Number(entry.duration) === FIXED_PLAYER_ENTRY.duration
     );
-
-    if (!hasFixedEntry) {
-      safeEntries.push({ ...FIXED_PLAYER_ENTRY });
-    }
-
-    const sorted = sortLeaderboard(safeEntries).slice(0, 10);
-    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(sorted));
   }
 
+  /**
+   * Runs renderLeaderboard.
+   */
   function renderLeaderboard() {
-    if (!leaderboardList || !leaderboardEmpty) {
-      return;
-    }
-
-    let entries = [];
-    try {
-      const raw = localStorage.getItem(LEADERBOARD_KEY);
-      entries = raw ? JSON.parse(raw) : [];
-    } catch (_) {
-      entries = [];
-    }
-
-    entries = sortLeaderboard(entries);
+    if (!leaderboardList || !leaderboardEmpty) return;
+    const entries = sortLeaderboard(loadLeaderboardEntries());
     leaderboardList.innerHTML = "";
-
-    if (!Array.isArray(entries) || entries.length === 0) {
-      leaderboardEmpty.classList.remove("hidden");
-      return;
-    }
-
+    if (entries.length === 0) return leaderboardEmpty.classList.remove("hidden");
     leaderboardEmpty.classList.add("hidden");
-    entries.slice(0, 10).forEach((entry, index) => {
-      const item = document.createElement("li");
-      item.className = "leaderboard-item";
-
-      const duration = Number.isFinite(entry.duration) ? entry.duration : 0;
-      const coins = Number.isFinite(entry.coins) ? entry.coins : 0;
-      const score = Number.isFinite(entry.score) ? entry.score : 0;
-      const result = entry.result || "-";
-      const name = entry.name || "Unbekannt";
-
-      item.innerHTML = `
-        <span class="leaderboard-rank">${index + 1}</span>
-        <span class="leaderboard-main">
-          <span class="leaderboard-name">${name}</span>
-          <span class="leaderboard-meta">${result} | ${coins} Coins | ${formatDuration(duration)}</span>
-        </span>
-        <span class="leaderboard-score">${score}</span>
-      `;
-      leaderboardList.appendChild(item);
-    });
+    entries.slice(0, 10).forEach((entry, index) => leaderboardList.appendChild(buildLeaderboardItem(entry, index)));
   }
 
-  applyVolume(volumeControl.value);
-  updateMuteButtonState();
+  /**
+   * Runs buildLeaderboardItem.
+   * @param {*} entry
+   * @param {*} index
+   */
+  function buildLeaderboardItem(entry, index) {
+    const item = document.createElement("li");
+    item.className = "leaderboard-item";
+    item.innerHTML = getLeaderboardItemMarkup(entry, index);
+    return item;
+  }
+
+  /**
+   * Runs getLeaderboardItemMarkup.
+   * @param {*} entry
+   * @param {*} index
+   */
+  function getLeaderboardItemMarkup(entry, index) {
+    const safe = getLeaderboardEntryValues(entry);
+    return `
+        <span class="leaderboard-rank">${index + 1}</span>
+        <span class="leaderboard-main"><span class="leaderboard-name">${safe.name}</span><span class="leaderboard-meta">${safe.result} | ${safe.coins} Coins | ${formatDuration(safe.duration)}</span></span>
+        <span class="leaderboard-score">${safe.score}</span>
+      `;
+  }
+
+  /**
+   * Runs getLeaderboardEntryValues.
+   * @param {*} entry
+   */
+  function getLeaderboardEntryValues(entry) {
+    return {
+      duration: Number.isFinite(entry.duration) ? entry.duration : 0,
+      coins: Number.isFinite(entry.coins) ? entry.coins : 0,
+      score: Number.isFinite(entry.score) ? entry.score : 0,
+      result: entry.result || "-",
+      name: entry.name || "Unbekannt"
+    };
+  }
+
+  /**
+   * Runs syncAudioSettingsControls.
+   */
+  function syncAudioSettingsControls() {
+    if (musicVolumeControl) musicVolumeControl.value = String(musicVolume);
+    if (sfxVolumeControl) sfxVolumeControl.value = String(sfxVolume);
+  }
+
+  /**
+   * Runs openAudioSettingsPopup.
+   */
+  function openAudioSettingsPopup() {
+    if (!audioSettingsPopup) return;
+    syncAudioSettingsControls();
+    audioSettingsPopup.classList.remove("hidden");
+  }
+
+  /**
+   * Runs closeAudioSettingsPopup.
+   */
+  function closeAudioSettingsPopup() {
+    if (!audioSettingsPopup) return;
+    audioSettingsPopup.classList.add("hidden");
+  }
+
+  /**
+   * Runs updateMusicVolume.
+   * @param {*} value
+   */
+  function updateMusicVolume(value) {
+    const nextVolume = Number.parseFloat(value);
+    if (Number.isNaN(nextVolume)) return;
+    musicVolume = Math.max(0, Math.min(1, nextVolume));
+    if (musicVolume > 0) isMusicMuted = false;
+    applyVolume(musicVolume);
+    persistAudioSettings();
+    updateAudioButtonState();
+  }
+
+  /**
+   * Runs updateSfxVolume.
+   * @param {*} value
+   */
+  function updateSfxVolume(value) {
+    const nextVolume = Number.parseFloat(value);
+    if (Number.isNaN(nextVolume)) return;
+    sfxVolume = Math.max(0, Math.min(1, nextVolume));
+    if (sfxVolume > 0) isSfxMuted = false;
+    persistAudioSettings();
+    updateAudioButtonState();
+  }
+
+  /**
+   * Runs areMobileControlsEnabled.
+   */
+  function areMobileControlsEnabled() {
+    return localStorage.getItem(MOBILE_CONTROLS_KEY) !== "0";
+  }
+
+  /**
+   * Runs syncMobileControlsToggle.
+   */
+  function syncMobileControlsToggle() {
+    if (!mobileControlsToggle) return;
+    mobileControlsToggle.checked = areMobileControlsEnabled();
+  }
+
+  /**
+   * Runs updateMobileControlsPreference.
+   * @param {*} enabled
+   */
+  function updateMobileControlsPreference(enabled) {
+    localStorage.setItem(MOBILE_CONTROLS_KEY, enabled ? "1" : "0");
+  }
+
+  applyVolume(musicVolume);
+  persistAudioSettings();
+  updateAudioButtonState();
   tryStartMainMenuMusic();
   setupMusicUnlockOnFirstInteraction();
+  syncAudioSettingsControls();
+  syncMobileControlsToggle();
 
   const timers = [];
 
+  /**
+   * Runs setFirstFrame.
+   */
   function setFirstFrame() {
     characters.forEach((char) => {
       const type = char.dataset.character;
@@ -231,24 +420,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  /**
+   * Runs startCharacterAnimation.
+   */
   function startCharacterAnimation() {
-    characters.forEach((char) => {
-      const type = char.dataset.character;
-      const frames = characterSprites[type];
-      if (!frames || frames.length === 0 || char.dataset.animating === "true") {
-        return;
-      }
-
-      let index = 0;
-      char.dataset.animating = "true";
-      const timer = window.setInterval(() => {
-        char.style.backgroundImage = `url(${frames[index]})`;
-        index = (index + 1) % frames.length;
-      }, frameDelay);
-      timers.push(timer);
-    });
+    characters.forEach((char) => startCharacterSpriteAnimation(char));
   }
 
+  /**
+   * Runs startCharacterSpriteAnimation.
+   * @param {*} char
+   */
+  function startCharacterSpriteAnimation(char) {
+    const frames = characterSprites[char.dataset.character];
+    if (!frames || frames.length === 0 || char.dataset.animating === "true") return;
+    let index = 0;
+    char.dataset.animating = "true";
+    const timer = window.setInterval(() => {
+      char.style.backgroundImage = `url(${frames[index]})`;
+      index = (index + 1) % frames.length;
+    }, frameDelay);
+    timers.push(timer);
+  }
+
+  /**
+   * Runs positionButtonsBelowTitle.
+   */
   function positionButtonsBelowTitle() {
     if (!homeLayout || !mainTitleLogo) {
       return;
@@ -260,27 +457,14 @@ document.addEventListener("DOMContentLoaded", () => {
     homeLayout.style.setProperty("--start-top", `${Math.round(startTop)}px`);
   }
 
-  settingsButton.addEventListener("click", () => {
-    settingsPanel.classList.toggle("hidden");
-  });
-
-  if (muteButton) {
-    muteButton.addEventListener("click", () => {
-      isMuted = !isMuted;
-      localStorage.setItem("gameMuted", isMuted ? "1" : "0");
-      updateMuteButtonState();
-      applyVolume(volumeControl.value);
-      if (!isMuted) {
-        tryStartMainMenuMusic();
-      }
-    });
-  }
-
-  volumeControl.addEventListener("input", (event) => {
-    const volume = Number.parseFloat(event.target.value);
-    localStorage.setItem("gameVolume", String(volume));
-    applyVolume(volume);
-  });
+  if (muteButton) muteButton.addEventListener("click", (event) => { event.preventDefault(); openAudioSettingsPopup(); });
+  if (mainMuteButton) mainMuteButton.addEventListener("click", (event) => { event.preventDefault(); toggleAllAudioMute(); });
+  if (audioCloseButton) audioCloseButton.addEventListener("click", closeAudioSettingsPopup);
+  if (audioSettingsPopup) audioSettingsPopup.addEventListener("click", (event) => { if (event.target === audioSettingsPopup) closeAudioSettingsPopup(); });
+  if (musicVolumeControl) musicVolumeControl.addEventListener("input", (event) => updateMusicVolume(event.target.value));
+  if (sfxVolumeControl) sfxVolumeControl.addEventListener("input", (event) => updateSfxVolume(event.target.value));
+  if (mobileControlsToggle) mobileControlsToggle.addEventListener("change", (event) => updateMobileControlsPreference(event.target.checked));
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeAudioSettingsPopup(); });
 
   startButton.addEventListener("click", () => {
     popup.classList.remove("hidden");
@@ -321,6 +505,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("resize", positionButtonsBelowTitle);
   window.addEventListener("orientationchange", positionButtonsBelowTitle);
+  window.addEventListener("resize", updateDeviceClasses);
+  window.addEventListener("orientationchange", updateDeviceClasses);
 
   if (mainTitleLogo) {
     if (mainTitleLogo.complete) {
@@ -331,10 +517,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   setFirstFrame();
+  updateDeviceClasses();
   positionButtonsBelowTitle();
   ensureFixedPlayerEntry();
   renderLeaderboard();
 });
-
-
 

@@ -2,7 +2,7 @@
  * @file models/movable-object.class.js
  */
 /**
- * Basisklasse fÃ¼r bewegliche Spielobjekte mit Animation und Kollision.
+ * Base class for movable game objects with animation and collision.
  */
 class MovableObject {
   x = 120;
@@ -21,9 +21,9 @@ class MovableObject {
   energy = 100;
 
   /**
-   * Reduziert die Lebensenergie.
+   * Reduces health.
    *
-   * @param {number} [amount=10] Schadensmenge.
+   * @param {number} [amount=10] Damage amount.
    * @returns {void}
    */
   takeDamage(amount = 10) {
@@ -31,7 +31,7 @@ class MovableObject {
   }
 
   /**
-   * PrÃ¼ft, ob das Objekt keine Lebensenergie mehr hat.
+   * Checks whether the object has no health left.
    *
    * @returns {boolean}
    */
@@ -40,7 +40,7 @@ class MovableObject {
   }
 
   /**
-   * Startet die Schwerkraftberechnung.
+   * Starts gravity simulation.
    *
    * @returns {void}
    */
@@ -58,7 +58,7 @@ class MovableObject {
   }
 
   /**
-   * StandardprÃ¼fung, ob das Objekt Ã¼ber dem Boden liegt.
+   * Default check whether the object is above the ground.
    *
    * @returns {boolean}
    */
@@ -67,9 +67,9 @@ class MovableObject {
   }
 
   /**
-   * LÃ¤dt ein einzelnes Bild als aktives Sprite.
+   * Loads a single image as the active sprite.
    *
-   * @param {string} path Bildpfad.
+   * @param {string} path Image path.
    * @returns {void}
    */
   loadImage(path) {
@@ -78,9 +78,9 @@ class MovableObject {
   }
 
   /**
-   * LÃ¤dt mehrere Bilder in den Cache.
+   * Loads multiple images into the cache.
    *
-   * @param {string[]} paths Bildpfade.
+   * @param {string[]} paths Image paths.
    * @returns {void}
    */
   loadImages(paths) {
@@ -92,9 +92,9 @@ class MovableObject {
   }
 
   /**
-   * Spielt eine zyklische Animation auf Basis des Bild-Caches.
+   * Plays a cyclic animation based on the image cache.
    *
-   * @param {string[]} images Frame-Sequenz.
+   * @param {string[]} images Frame sequence.
    * @returns {void}
    */
   playAnimation(images) {
@@ -104,7 +104,7 @@ class MovableObject {
   }
 
   /**
-   * Bewegt das Objekt nach rechts.
+   * Moves the object to the right.
    *
    * @returns {void}
    */
@@ -113,7 +113,7 @@ class MovableObject {
   }
 
   /**
-   * Bewegt das Objekt nach links.
+   * Moves the object to the left.
    *
    * @returns {void}
    */
@@ -126,9 +126,9 @@ class MovableObject {
   }
 
   /**
-   * PrÃ¼ft AABB-Kollision mit optionalen individuellen Hitboxen.
+   * Checks AABB collision with optional custom hitboxes.
    *
-   * @param {{x: number, y: number, width: number, height: number, getHitbox?: Function}} other Vergleichsobjekt.
+   * @param {{x: number, y: number, width: number, height: number, getHitbox?: Function}} other Comparison object.
    * @returns {boolean}
    */
   isColliding(other) {
@@ -138,7 +138,7 @@ class MovableObject {
   }
 
   /**
-   * Führt getCollisionHitbox aus.
+   * Runs getCollisionHitbox.
    * @param {*} target
    */
   getCollisionHitbox(target) {
@@ -147,7 +147,7 @@ class MovableObject {
   }
 
   /**
-   * Führt isAabbOverlap aus.
+   * Runs isAabbOverlap.
    * @param {*} a
    * @param {*} b
    */
@@ -160,6 +160,7 @@ class MovableObject {
     );
   }
 }
+
 
 
 

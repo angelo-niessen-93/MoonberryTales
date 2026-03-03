@@ -1,14 +1,14 @@
-/**
+﻿/**
  * @file models/world-renderer.class.js
  */
 
 /**
- * Repräsentiert WorldRenderer im Spiel.
+ * Represents WorldRenderer in the game.
  */
 class WorldRenderer {
 
   /**
-   * Führt constructor aus.
+   * Runs constructor.
    * @param {*} world
    */
   constructor(world) {
@@ -18,7 +18,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt renderFrame aus.
+   * Runs renderFrame.
    */
   renderFrame() {
     this.clearCanvas();
@@ -31,7 +31,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getRenderableGroups aus.
+   * Runs getRenderableGroups.
    */
   getRenderableGroups() {
     return [
@@ -46,7 +46,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawEndStateIfNeeded aus.
+   * Runs drawEndStateIfNeeded.
    */
   drawEndStateIfNeeded() {
     if (this.world.isGameOver) this.drawEndScreen(this.world.gameOverImage);
@@ -54,7 +54,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawEndScreen aus.
+   * Runs drawEndScreen.
    * @param {*} endImage
    */
   drawEndScreen(endImage) {
@@ -68,7 +68,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawEndScreenOverlay aus.
+   * Runs drawEndScreenOverlay.
    */
   drawEndScreenOverlay() {
     this.world.ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
@@ -76,7 +76,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawEndScreenTitle aus.
+   * Runs drawEndScreenTitle.
    * @param {*} title
    */
   drawEndScreenTitle(title) {
@@ -85,7 +85,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getEndScreenLayout aus.
+   * Runs getEndScreenLayout.
    * @param {*} endImage
    */
   getEndScreenLayout(endImage) {
@@ -97,7 +97,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getEndLayoutConfig aus.
+   * Runs getEndLayoutConfig.
    */
   getEndLayoutConfig() {
     const restart = this.world.gameOverButtons.restart;
@@ -113,7 +113,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getTitleLayout aus.
+   * Runs getTitleLayout.
    * @param {*} endImage
    * @param {*} cfg
    */
@@ -124,7 +124,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getTitleSize aus.
+   * Runs getTitleSize.
    * @param {*} endImage
    * @param {*} maxTitleWidth
    * @param {*} targetTitleHeight
@@ -139,7 +139,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt scaleImageToHeight aus.
+   * Runs scaleImageToHeight.
    * @param {*} image
    * @param {*} height
    */
@@ -148,7 +148,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt scaleImageToWidth aus.
+   * Runs scaleImageToWidth.
    * @param {*} image
    * @param {*} width
    */
@@ -157,7 +157,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getContentStartY aus.
+   * Runs getContentStartY.
    * @param {*} titleHeight
    * @param {*} restartHeight
    * @param {*} homeHeight
@@ -169,7 +169,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getRestartLayout aus.
+   * Runs getRestartLayout.
    * @param {*} title
    * @param {*} cfg
    */
@@ -180,7 +180,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getHomeLayout aus.
+   * Runs getHomeLayout.
    * @param {*} restart
    * @param {*} title
    * @param {*} cfg
@@ -192,7 +192,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getEndScreenButtons aus.
+   * Runs getEndScreenButtons.
    */
   getEndScreenButtons() {
     const endImage = this.world.isVictory ? this.world.victoryImage : this.world.gameOverImage;
@@ -201,7 +201,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawGameOverButton aus.
+   * Runs drawGameOverButton.
    * @param {*} button
    */
   drawGameOverButton(button) {
@@ -210,7 +210,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawButtonBackground aus.
+   * Runs drawButtonBackground.
    * @param {*} button
    */
   drawButtonBackground(button) {
@@ -226,14 +226,14 @@ class WorldRenderer {
   }
 
   /**
-   * Führt hasButtonImage aus.
+   * Runs hasButtonImage.
    */
   hasButtonImage() {
     return this.endScreenButtonImage.complete && this.endScreenButtonImage.naturalWidth > 0;
   }
 
   /**
-   * Führt drawButtonLabel aus.
+   * Runs drawButtonLabel.
    * @param {*} button
    */
   drawButtonLabel(button) {
@@ -245,28 +245,28 @@ class WorldRenderer {
   }
 
   /**
-   * Führt clearCanvas aus.
+   * Runs clearCanvas.
    */
   clearCanvas() {
     this.world.ctx.clearRect(0, 0, this.world.canvas.width, this.world.canvas.height);
   }
 
   /**
-   * Führt moveCamera aus.
+   * Runs moveCamera.
    */
   moveCamera() {
     this.world.ctx.translate(this.world.camera_x, 0);
   }
 
   /**
-   * Führt resetCamera aus.
+   * Runs resetCamera.
    */
   resetCamera() {
     this.world.ctx.translate(-this.world.camera_x, 0);
   }
 
   /**
-   * Führt addObjectsToMap aus.
+   * Runs addObjectsToMap.
    * @param {*} objects
    */
   addObjectsToMap(objects) {
@@ -274,7 +274,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt addToMap aus.
+   * Runs addToMap.
    * @param {*} obj
    */
   addToMap(obj) {
@@ -286,7 +286,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawMirroredObject aus.
+   * Runs drawMirroredObject.
    * @param {*} obj
    */
   drawMirroredObject(obj) {
@@ -297,7 +297,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawNormalObject aus.
+   * Runs drawNormalObject.
    * @param {*} obj
    */
   drawNormalObject(obj) {
@@ -306,7 +306,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawBossHealthBarInWorld aus.
+   * Runs drawBossHealthBarInWorld.
    */
   drawBossHealthBarInWorld() {
     const boss = this.world.getActiveEndboss();
@@ -317,7 +317,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt isBossVisibleOnScreen aus.
+   * Runs isBossVisibleOnScreen.
    * @param {*} boss
    */
   isBossVisibleOnScreen(boss) {
@@ -327,7 +327,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt getBossHealthBarLayout aus.
+   * Runs getBossHealthBarLayout.
    * @param {*} boss
    */
   getBossHealthBarLayout(boss) {
@@ -341,7 +341,7 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawBossHealthBar aus.
+   * Runs drawBossHealthBar.
    * @param {*} bar
    */
   drawBossHealthBar(bar) {
@@ -357,24 +357,28 @@ class WorldRenderer {
   }
 
   /**
-   * Führt drawObjectFrame aus.
+   * Runs drawObjectFrame.
    * @param {*} frameSource
    * @param {*} originalObject
    */
   drawObjectFrame(frameSource, originalObject) {
     // Hitbox-Frames (rot/blau) deaktiviert.
-    // if (typeof originalObject.getHitbox === "function") {
-    //   const hitbox = originalObject.getHitbox();
-    //   this.drawFrame(hitbox.x, hitbox.y, hitbox.width, hitbox.height, "red");
-    //   return;
-    // }
-    // this.drawFrame(frameSource.x, frameSource.y, frameSource.width, frameSource.height, "blue");
   }
 
-  //drawFrame(x, y, width, height, color = "blue") {
-  //  this.world.ctx.beginPath();
-  //  this.world.ctx.lineWidth = 2;
-  //  this.world.ctx.strokeStyle = color;
-  //  this.world.ctx.strokeRect(x, y, width, height);
-  //}
+  /**
+   * Runs drawFrame.
+   * @param {*} x
+   * @param {*} y
+   * @param {*} width
+   * @param {*} height
+   * @param {*} color
+   */
+  drawFrame(x, y, width, height, color = "blue") {
+    this.world.ctx.beginPath();
+    this.world.ctx.lineWidth = 2;
+    this.world.ctx.strokeStyle = color;
+    this.world.ctx.strokeRect(x, y, width, height);
+  }
 }
+
+

@@ -7,79 +7,302 @@ let keyboard = new Keyboard();
 let gameMusic;
 let levelPassingSound;
 let isMusicMuted = false;
+let isSfxMuted = false;
+let musicVolume = 0.5;
+let sfxVolume = 0.5;
 let isGamePaused = false;
 let hasBossDefeatAudioPlayed = false;
 const SOUND_VOLUME = 0.5;
 const LOADING_SCREEN_DURATION_MS = 3500;
+const LEGACY_MUTE_STORAGE_KEY = "gameMuted";
+const MUSIC_MUTE_STORAGE_KEY = "gameMusicMuted";
+const SFX_MUTE_STORAGE_KEY = "gameSfxMuted";
+const MUSIC_VOLUME_STORAGE_KEY = "gameMusicVolume";
+const SFX_VOLUME_STORAGE_KEY = "gameSfxVolume";
+const MOBILE_CONTROLS_STORAGE_KEY = "mobileControlsEnabled";
 
 /**
- * Führt init aus.
+ * Runs hasTouchScreen.
+ */
+function hasTouchScreen() {
+    return (
+        window.matchMedia("(pointer: coarse)").matches ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0
+    );
+}
+
+/**
+ * Runs updateDeviceClasses.
+ */
+function updateDeviceClasses() {
+    const isTouchDevice = hasTouchScreen();
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    document.documentElement.classList.toggle("is-touch-device", isTouchDevice);
+    document.body.classList.toggle("is-touch-device", isTouchDevice);
+    document.body.classList.toggle("is-portrait", isPortrait);
+    document.body.classList.toggle("is-landscape", !isPortrait);
+}
+
+/**
+ * Runs getStoredMuteState.
+ * @param {*} key
+ * @param {*} fallback
+ */
+function getStoredMuteState(key, fallback) {
+    const value = localStorage.getItem(key);
+    if (value === null) {
+        return fallback;
+    }
+    return value === "1";
+}
+
+/**
+ * Runs getStoredVolume.
+ * @param {*} key
+ * @param {*} fallback
+ */
+function getStoredVolume(key, fallback) {
+    const raw = localStorage.getItem(key);
+    const parsed = Number.parseFloat(raw);
+    if (Number.isNaN(parsed)) return fallback;
+    return clampVolume(parsed);
+}
+
+/**
+ * Runs persistMuteState.
+ */
+function persistMuteState() {
+    localStorage.setItem(MUSIC_MUTE_STORAGE_KEY, isMusicMuted ? "1" : "0");
+    localStorage.setItem(SFX_MUTE_STORAGE_KEY, isSfxMuted ? "1" : "0");
+    localStorage.setItem(LEGACY_MUTE_STORAGE_KEY, isMusicMuted ? "1" : "0");
+}
+
+/**
+ * Runs persistVolumeState.
+ */
+function persistVolumeState() {
+    localStorage.setItem(MUSIC_VOLUME_STORAGE_KEY, String(musicVolume));
+    localStorage.setItem(SFX_VOLUME_STORAGE_KEY, String(sfxVolume));
+}
+
+/**
+ * Runs collectSfxAudios.
+ */
+function collectSfxAudios() {
+    return [...getBaseSfxAudios(), ...getEnemySfxAudios()].filter(Boolean);
+}
+
+/**
+ * Runs getBaseSfxAudios.
+ */
+function getBaseSfxAudios() {
+    return [
+        levelPassingSound, world?.gameOverSound, world?.heartCollectSound, world?.coinCollectSound,
+        world?.character?.attackSound, world?.character?.jumpSound, world?.character?.footstepSound, world?.character?.hurtSound,
+    ];
+}
+
+/**
+ * Runs getEnemySfxAudios.
+ */
+function getEnemySfxAudios() {
+    if (!Array.isArray(world?.enemies)) return [];
+    return world.enemies.map((enemy) => enemy?.attackSound);
+}
+
+/**
+ * Runs applyMutePreferences.
+ */
+function applyMutePreferences() {
+    applyMusicAudioSettings();
+    applySfxAudioSettings();
+}
+
+/**
+ * Runs applyMusicAudioSettings.
+ */
+function applyMusicAudioSettings() {
+    if (!gameMusic) return;
+    gameMusic.muted = isMusicMuted;
+    gameMusic.volume = clampVolume(musicVolume);
+}
+
+/**
+ * Runs applySfxAudioSettings.
+ */
+function applySfxAudioSettings() {
+    collectSfxAudios().forEach((audio) => {
+        audio.muted = isSfxMuted;
+        audio.volume = clampVolume(sfxVolume);
+    });
+}
+
+/**
+ * Runs clampVolume.
+ * @param {*} value
+ */
+function clampVolume(value) {
+    return Math.max(0, Math.min(1, Number(value) || 0));
+}
+
+/**
+ * Runs init.
  */
 function init() {
     const shouldShowLoadingScreen = sessionStorage.getItem("showLoadingScreen") === "1";
+    initMuteSettings();
+    setupDeviceClassSync();
+    buildWorld();
+    setupUiSystems(shouldShowLoadingScreen);
+    console.log('My Character is', world.character);
+}
+
+/**
+ * Runs initMuteSettings.
+ */
+function initMuteSettings() {
+    const legacyMuted = localStorage.getItem(LEGACY_MUTE_STORAGE_KEY) === "1";
+    isMusicMuted = getStoredMuteState(MUSIC_MUTE_STORAGE_KEY, legacyMuted);
+    isSfxMuted = getStoredMuteState(SFX_MUTE_STORAGE_KEY, legacyMuted);
+    musicVolume = getStoredVolume(MUSIC_VOLUME_STORAGE_KEY, SOUND_VOLUME);
+    sfxVolume = getStoredVolume(SFX_VOLUME_STORAGE_KEY, SOUND_VOLUME);
+    persistMuteState();
+    persistVolumeState();
+}
+
+/**
+ * Runs setupDeviceClassSync.
+ */
+function setupDeviceClassSync() {
+    updateDeviceClasses();
+    window.addEventListener("resize", updateDeviceClasses);
+    window.addEventListener("orientationchange", updateDeviceClasses);
+}
+
+/**
+ * Runs buildWorld.
+ */
+function buildWorld() {
     canvas = document.getElementById('canvas');
     world = new World(canvas, keyboard);
+}
+
+/**
+ * Runs setupUiSystems.
+ * @param {*} shouldShowLoadingScreen
+ */
+function setupUiSystems(shouldShowLoadingScreen) {
     setupGameMusic(shouldShowLoadingScreen);
+    applyMutePreferences();
     setupMusicToggle();
     setupFullscreenToggle();
     setupControlsPopup();
     setupPausePopup();
     setupButtonKeyboardGuard();
-    setupMobileTouchControls();
+    if (applyMobileControlsPreference()) setupMobileTouchControls();
     setupBossDefeatAudioFlow();
     hidePageLoadingScreen();
-
-    console.log('My Character is', world.character);
 }
 
 /**
- * Führt hidePageLoadingScreen aus.
+ * Runs applyMobileControlsPreference.
+ */
+function applyMobileControlsPreference() {
+    const enabled = areMobileControlsEnabled();
+    document.body.classList.toggle("mobile-controls-disabled", !enabled);
+    if (!enabled) resetGameplayKeys();
+    return enabled;
+}
+
+/**
+ * Runs areMobileControlsEnabled.
+ */
+function areMobileControlsEnabled() {
+    return localStorage.getItem(MOBILE_CONTROLS_STORAGE_KEY) !== "0";
+}
+
+/**
+ * Runs hidePageLoadingScreen.
  */
 function hidePageLoadingScreen() {
     const loadingScreen = document.getElementById("page-loading-screen");
-    const progressFill = document.getElementById("loading-progress-fill");
-    const progressText = document.getElementById("loading-progress-text");
-    if (!loadingScreen) {
-        sessionStorage.removeItem("showLoadingScreen");
-        startGameMusic();
-        return;
-    }
-
-    if (sessionStorage.getItem("showLoadingScreen") !== "1") {
-        loadingScreen.remove();
-        sessionStorage.removeItem("showLoadingScreen");
-        startGameMusic();
-        return;
-    }
-
-    const startedAt = performance.now();
-    const tickProgress = (now) => {
-        const progress = Math.min((now - startedAt) / LOADING_SCREEN_DURATION_MS, 1);
-        const progressPercent = Math.round(progress * 100);
-        if (progressFill) {
-            progressFill.style.width = `${progress * 100}%`;
-        }
-        if (progressText) {
-            progressText.textContent = `Lade Spielwelt... ${progressPercent}%`;
-        }
-        if (progress < 1) {
-            window.requestAnimationFrame(tickProgress);
-        }
-    };
-    window.requestAnimationFrame(tickProgress);
-
-    window.setTimeout(() => {
-        loadingScreen.classList.add("is-hidden");
-        window.setTimeout(() => {
-            loadingScreen.remove();
-            startGameMusic();
-        }, 260);
-        sessionStorage.removeItem("showLoadingScreen");
-    }, LOADING_SCREEN_DURATION_MS);
+    if (!loadingScreen) return finishLoadingScreen();
+    if (sessionStorage.getItem("showLoadingScreen") !== "1") return removeLoadingScreenNow(loadingScreen);
+    startLoadingScreenProgress();
+    scheduleLoadingScreenHide(loadingScreen);
 }
 
 /**
- * Führt setupButtonKeyboardGuard aus.
+ * Runs finishLoadingScreen.
+ */
+function finishLoadingScreen() {
+    sessionStorage.removeItem("showLoadingScreen");
+    startGameMusic();
+}
+
+/**
+ * Runs removeLoadingScreenNow.
+ * @param {*} loadingScreen
+ */
+function removeLoadingScreenNow(loadingScreen) {
+    loadingScreen.remove();
+    finishLoadingScreen();
+}
+
+/**
+ * Runs startLoadingScreenProgress.
+ */
+function startLoadingScreenProgress() {
+    const startedAt = performance.now();
+    const fill = document.getElementById("loading-progress-fill");
+    const text = document.getElementById("loading-progress-text");
+    window.requestAnimationFrame((now) => tickLoadingProgress(now, startedAt, fill, text));
+}
+
+/**
+ * Runs tickLoadingProgress.
+ * @param {*} now
+ * @param {*} startedAt
+ * @param {*} fill
+ * @param {*} text
+ */
+function tickLoadingProgress(now, startedAt, fill, text) {
+    const progress = Math.min((now - startedAt) / LOADING_SCREEN_DURATION_MS, 1);
+    updateLoadingProgressUi(progress, fill, text);
+    if (progress < 1) window.requestAnimationFrame((next) => tickLoadingProgress(next, startedAt, fill, text));
+}
+
+/**
+ * Runs updateLoadingProgressUi.
+ * @param {*} progress
+ * @param {*} fill
+ * @param {*} text
+ */
+function updateLoadingProgressUi(progress, fill, text) {
+    if (fill) fill.style.width = `${progress * 100}%`;
+    if (text) text.textContent = `Lade Spielwelt... ${Math.round(progress * 100)}%`;
+}
+
+/**
+ * Runs scheduleLoadingScreenHide.
+ * @param {*} loadingScreen
+ */
+function scheduleLoadingScreenHide(loadingScreen) {
+    window.setTimeout(() => hideLoadingScreenWithFade(loadingScreen), LOADING_SCREEN_DURATION_MS);
+}
+
+/**
+ * Runs hideLoadingScreenWithFade.
+ * @param {*} loadingScreen
+ */
+function hideLoadingScreenWithFade(loadingScreen) {
+    loadingScreen.classList.add("is-hidden");
+    window.setTimeout(() => removeLoadingScreenNow(loadingScreen), 260);
+}
+
+/**
+ * Runs setupButtonKeyboardGuard.
  */
 function setupButtonKeyboardGuard() {
     const blockedKeys = new Set([" ", "Enter"]);
@@ -96,183 +319,339 @@ function setupButtonKeyboardGuard() {
 }
 
 /**
- * Führt setGamePaused aus.
+ * Runs setGamePaused.
  * @param {*} paused
  */
 function setGamePaused(paused) {
     isGamePaused = paused;
     window.__moonberryPaused = paused;
-
-    if (world) {
-        world.isPaused = paused;
-        if (paused && typeof world.resetKeyboardState === "function") {
-            world.resetKeyboardState();
-        }
-    }
-
-    if (paused) {
-        keyboard.LEFT = false;
-        keyboard.RIGHT = false;
-        keyboard.UP = false;
-        keyboard.DOWN = false;
-        keyboard.SPACE = false;
-        keyboard.SHIFT = false;
-    }
+    applyWorldPauseState(paused);
+    if (paused) resetGameplayKeys();
 }
 
 /**
- * Führt setupControlsPopup aus.
+ * Runs applyWorldPauseState.
+ * @param {*} paused
+ */
+function applyWorldPauseState(paused) {
+    if (!world) return;
+    world.isPaused = paused;
+    if (paused && typeof world.resetKeyboardState === "function") world.resetKeyboardState();
+}
+
+/**
+ * Runs resetGameplayKeys.
+ */
+function resetGameplayKeys() {
+    keyboard.LEFT = false;
+    keyboard.RIGHT = false;
+    keyboard.UP = false;
+    keyboard.DOWN = false;
+    keyboard.SPACE = false;
+    keyboard.SHIFT = false;
+}
+
+/**
+ * Runs setupControlsPopup.
  */
 function setupControlsPopup() {
+    const controls = getControlsPopupElements();
+    if (!controls) return;
+    const closePopup = () => setPopupVisible(controls.popup, false);
+    controls.infoButton.addEventListener("click", () => setPopupVisible(controls.popup, true));
+    controls.closeButton.addEventListener("click", closePopup);
+    bindBackdropClose(controls.popup, closePopup);
+    bindEscapeClose(closePopup);
+}
+
+/**
+ * Runs getControlsPopupElements.
+ */
+function getControlsPopupElements() {
     const infoButton = document.getElementById("info-toggle");
     const popup = document.getElementById("controls-popup");
     const closeButton = document.getElementById("controls-close");
-
-    if (!infoButton || !popup || !closeButton) return;
-
-    const openPopup = () => {
-        popup.classList.remove("hidden");
-    };
-
-    const closePopup = () => {
-        popup.classList.add("hidden");
-    };
-
-    infoButton.addEventListener("click", openPopup);
-    closeButton.addEventListener("click", closePopup);
-
-    popup.addEventListener("click", (event) => {
-        if (event.target === popup) {
-            closePopup();
-        }
-    });
-
-    window.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-            closePopup();
-        }
-    });
+    if (!infoButton || !popup || !closeButton) return null;
+    return { infoButton, popup, closeButton };
 }
 
 /**
- * Führt setupPausePopup aus.
+ * Runs setPopupVisible.
+ * @param {*} popup
+ * @param {*} visible
+ */
+function setPopupVisible(popup, visible) {
+    popup.classList.toggle("hidden", !visible);
+}
+
+/**
+ * Runs bindBackdropClose.
+ * @param {*} popup
+ * @param {*} onClose
+ */
+function bindBackdropClose(popup, onClose) {
+    popup.addEventListener("click", (event) => { if (event.target === popup) onClose(); });
+}
+
+/**
+ * Runs bindEscapeClose.
+ * @param {*} onClose
+ */
+function bindEscapeClose(onClose) {
+    window.addEventListener("keydown", (event) => { if (event.key === "Escape") onClose(); });
+}
+
+/**
+ * Runs setupPausePopup.
  */
 function setupPausePopup() {
+    const elements = getPausePopupElements();
+    if (!elements) return;
+    const settings = getPauseSettingsElements();
+    const controls = createPausePopupControls(elements.popup, settings?.popup);
+    bindPausePopupButtons(elements, controls);
+    bindPauseSettingsPopup(settings, controls);
+    bindBackdropClose(elements.popup, controls.closePopup);
+    bindPauseEscapeToggle(elements.popup, settings?.popup, controls);
+    syncPauseSettingsSliders(settings);
+}
+
+/**
+ * Runs getPausePopupElements.
+ */
+function getPausePopupElements() {
     const pauseButton = document.getElementById("pause-toggle");
     const popup = document.getElementById("pause-popup");
     const continueButton = document.getElementById("pause-continue");
+    const settingsButton = document.getElementById("pause-settings");
     const homeButton = document.getElementById("pause-home");
+    if (!pauseButton || !popup || !continueButton || !settingsButton || !homeButton) return null;
+    return { pauseButton, popup, continueButton, settingsButton, homeButton };
+}
 
-    if (!pauseButton || !popup || !continueButton || !homeButton) {
-        return;
-    }
+/**
+ * Runs createPausePopupControls.
+ * @param {*} popup
+ * @param {*} settingsPopup
+ */
+function createPausePopupControls(popup, settingsPopup) {
+    const openPopup = () => { if (!canOpenPausePopup()) return; setGamePaused(true); setPopupVisible(popup, true); };
+    const closePopup = () => { setPopupVisible(popup, false); setPopupVisible(settingsPopup, false); setGamePaused(false); };
+    const openSettings = () => setPopupVisible(settingsPopup, true);
+    const closeSettings = () => setPopupVisible(settingsPopup, false);
+    return { openPopup, closePopup, openSettings, closeSettings };
+}
 
-    const openPopup = () => {
-        if (world?.isGameOver || world?.isVictory) {
-            return;
-        }
-        setGamePaused(true);
-        popup.classList.remove("hidden");
-    };
+/**
+ * Runs getPauseSettingsElements.
+ */
+function getPauseSettingsElements() {
+    const popup = document.getElementById("pause-settings-popup");
+    const music = document.getElementById("pause-music-volume");
+    const sfx = document.getElementById("pause-sfx-volume");
+    const close = document.getElementById("pause-settings-close");
+    if (!popup || !music || !sfx || !close) return null;
+    return { popup, music, sfx, close };
+}
 
-    const closePopup = () => {
-        popup.classList.add("hidden");
-        setGamePaused(false);
-    };
+/**
+ * Runs syncPauseSettingsSliders.
+ * @param {*} settings
+ */
+function syncPauseSettingsSliders(settings) {
+    if (!settings) return;
+    settings.music.value = String(musicVolume);
+    settings.sfx.value = String(sfxVolume);
+}
 
-    pauseButton.addEventListener("click", openPopup);
-    continueButton.addEventListener("click", closePopup);
-    homeButton.addEventListener("click", () => {
-        window.location.href = "./index.html";
-    });
+/**
+ * Runs canOpenPausePopup.
+ */
+function canOpenPausePopup() {
+    return !(world?.isGameOver || world?.isVictory);
+}
 
-    popup.addEventListener("click", (event) => {
-        if (event.target === popup) {
-            closePopup();
-        }
-    });
+/**
+ * Runs bindPausePopupButtons.
+ * @param {*} elements
+ * @param {*} controls
+ */
+function bindPausePopupButtons(elements, controls) {
+    elements.pauseButton.addEventListener("click", controls.openPopup);
+    elements.continueButton.addEventListener("click", controls.closePopup);
+    elements.settingsButton.addEventListener("click", controls.openSettings);
+    elements.homeButton.addEventListener("click", () => { window.location.href = "./index.html"; });
+}
 
+/**
+ * Runs bindPauseEscapeToggle.
+ * @param {*} popup
+ * @param {*} settingsPopup
+ * @param {*} controls
+ */
+function bindPauseEscapeToggle(popup, settingsPopup, controls) {
     window.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-            const controlsPopup = document.getElementById("controls-popup");
-            if (controlsPopup && !controlsPopup.classList.contains("hidden")) {
-                return;
-            }
-
-            if (!popup.classList.contains("hidden")) {
-                closePopup();
-            } else {
-                openPopup();
-            }
-        }
+        if (event.key !== "Escape" || isControlsPopupVisible()) return;
+        if (isPauseSettingsOpen(settingsPopup)) return controls.closeSettings();
+        if (popup.classList.contains("hidden")) controls.openPopup(); else controls.closePopup();
     });
 }
 
 /**
- * Führt setupFullscreenToggle aus.
+ * Runs isPauseSettingsOpen.
+ * @param {*} settingsPopup
+ */
+function isPauseSettingsOpen(settingsPopup) {
+    if (!settingsPopup) return false;
+    return !settingsPopup.classList.contains("hidden");
+}
+
+/**
+ * Runs bindPauseSettingsPopup.
+ * @param {*} settings
+ * @param {*} controls
+ */
+function bindPauseSettingsPopup(settings, controls) {
+    if (!settings) return;
+    settings.close.addEventListener("click", controls.closeSettings);
+    bindBackdropClose(settings.popup, controls.closeSettings);
+    settings.music.addEventListener("input", (event) => updateMusicVolume(event.target.value));
+    settings.sfx.addEventListener("input", (event) => updateSfxVolume(event.target.value));
+}
+
+/**
+ * Runs updateMusicVolume.
+ * @param {*} value
+ */
+function updateMusicVolume(value) {
+    musicVolume = clampVolume(value);
+    persistVolumeState();
+    applyMutePreferences();
+}
+
+/**
+ * Runs updateSfxVolume.
+ * @param {*} value
+ */
+function updateSfxVolume(value) {
+    sfxVolume = clampVolume(value);
+    persistVolumeState();
+    applyMutePreferences();
+}
+
+/**
+ * Runs isControlsPopupVisible.
+ */
+function isControlsPopupVisible() {
+    const controlsPopup = document.getElementById("controls-popup");
+    return !!(controlsPopup && !controlsPopup.classList.contains("hidden"));
+}
+
+/**
+ * Runs setupFullscreenToggle.
  */
 function setupFullscreenToggle() {
-    const button = document.getElementById("fullscreen-toggle");
-    const wrapper = document.querySelector(".canvas-wrapper");
-    if (!button || !canvas || !wrapper) return;
-    let exitRequestedByButton = false;
-
-    const updateButtonState = () => {
-        const isFullscreen = document.fullscreenElement === wrapper;
-        button.style.opacity = isFullscreen ? "0.75" : "1";
-        button.setAttribute(
-            "aria-label",
-            isFullscreen ? "Vollbild beenden" : "Vollbild aktivieren",
-        );
-    };
-
-    button.addEventListener("click", async () => {
-        try {
-            if (document.fullscreenElement === wrapper) {
-                exitRequestedByButton = true;
-                await document.exitFullscreen();
-            } else {
-                await wrapper.requestFullscreen();
-            }
-        } catch (_) {}
-
-        updateButtonState();
-    });
-
-    document.addEventListener("fullscreenchange", async () => {
-        if (!document.fullscreenElement && !exitRequestedByButton) {
-            try {
-                await wrapper.requestFullscreen();
-            } catch (_) {}
-        }
-        exitRequestedByButton = false;
-        updateButtonState();
-    });
-
-    updateButtonState();
+    const state = getFullscreenToggleState();
+    if (!state) return;
+    bindFullscreenToggleClick(state);
+    bindFullscreenChange(state);
+    state.updateButtonState();
 }
 
 /**
- * Führt setupGameMusic aus.
+ * Runs getFullscreenToggleState.
+ */
+function getFullscreenToggleState() {
+    const button = document.getElementById("fullscreen-toggle");
+    const wrapper = document.querySelector(".canvas-wrapper");
+    if (!button || !canvas || !wrapper) return null;
+    const state = { button, wrapper, exitRequestedByButton: false };
+    state.updateButtonState = () => updateFullscreenButtonState(state);
+    return state;
+}
+
+/**
+ * Runs updateFullscreenButtonState.
+ * @param {*} state
+ */
+function updateFullscreenButtonState(state) {
+    const isFullscreen = document.fullscreenElement === state.wrapper;
+    state.button.style.opacity = isFullscreen ? "0.75" : "1";
+    state.button.setAttribute("aria-label", isFullscreen ? "Vollbild beenden" : "Vollbild aktivieren");
+}
+
+/**
+ * Runs bindFullscreenToggleClick.
+ * @param {*} state
+ */
+function bindFullscreenToggleClick(state) {
+    state.button.addEventListener("click", async () => {
+        await toggleFullscreen(state);
+        state.updateButtonState();
+    });
+}
+
+async function toggleFullscreen(state) {
+    try {
+        if (document.fullscreenElement === state.wrapper) return await exitFullscreenFromButton(state);
+        await state.wrapper.requestFullscreen();
+    } catch (_) {}
+}
+
+async function exitFullscreenFromButton(state) {
+    state.exitRequestedByButton = true;
+    await document.exitFullscreen();
+}
+
+/**
+ * Runs bindFullscreenChange.
+ * @param {*} state
+ */
+function bindFullscreenChange(state) {
+    document.addEventListener("fullscreenchange", async () => {
+        await restoreFullscreenIfNeeded(state);
+        state.exitRequestedByButton = false;
+        state.updateButtonState();
+    });
+}
+
+async function restoreFullscreenIfNeeded(state) {
+    if (document.fullscreenElement || state.exitRequestedByButton) return;
+    try { await state.wrapper.requestFullscreen(); } catch (_) {}
+}
+
+/**
+ * Runs setupGameMusic.
  * @param {*} shouldDelayStart
  */
 function setupGameMusic(shouldDelayStart = false) {
+    initGameAudio();
+    applyMutePreferences();
+    if (!shouldDelayStart) startGameMusic();
+    bindGameMusicUnlockEvents();
+}
+
+/**
+ * Runs initGameAudio.
+ */
+function initGameAudio() {
     gameMusic = new Audio("audio/music%20moonberrytales.mp3");
     gameMusic.loop = true;
     gameMusic.volume = SOUND_VOLUME;
     levelPassingSound = new Audio("audio/level-passing-sound.mp3");
     levelPassingSound.volume = SOUND_VOLUME;
+}
 
-    if (!shouldDelayStart) {
-        startGameMusic();
-    }
-
+/**
+ * Runs bindGameMusicUnlockEvents.
+ */
+function bindGameMusicUnlockEvents() {
     window.addEventListener("keydown", startGameMusic, { once: true });
     window.addEventListener("click", startGameMusic, { once: true });
 }
 
 /**
- * Führt startGameMusic aus.
+ * Runs startGameMusic.
  */
 function startGameMusic() {
     if (!gameMusic || isMusicMuted || hasBossDefeatAudioPlayed) {
@@ -282,7 +661,7 @@ function startGameMusic() {
 }
 
 /**
- * Führt stopGameMusic aus.
+ * Runs stopGameMusic.
  */
 function stopGameMusic() {
     if (!gameMusic) {
@@ -293,7 +672,7 @@ function stopGameMusic() {
 }
 
 /**
- * Führt playLevelPassingSound aus.
+ * Runs playLevelPassingSound.
  */
 function playLevelPassingSound() {
     if (!levelPassingSound) {
@@ -304,7 +683,7 @@ function playLevelPassingSound() {
 }
 
 /**
- * Führt stopLevelPassingSound aus.
+ * Runs stopLevelPassingSound.
  */
 function stopLevelPassingSound() {
     if (!levelPassingSound) {
@@ -315,157 +694,277 @@ function stopLevelPassingSound() {
 }
 
 /**
- * Führt setupBossDefeatAudioFlow aus.
+ * Runs setupBossDefeatAudioFlow.
  */
 function setupBossDefeatAudioFlow() {
-    window.addEventListener("boss-defeated", () => {
-        if (hasBossDefeatAudioPlayed) {
-            return;
-        }
-        hasBossDefeatAudioPlayed = true;
-        stopGameMusic();
-        playLevelPassingSound();
-    });
+    window.addEventListener("boss-defeated", onBossDefeated);
+    window.addEventListener("game-restarted", onGameRestarted);
+}
 
-    window.addEventListener("game-restarted", () => {
-        hasBossDefeatAudioPlayed = false;
-        stopLevelPassingSound();
-        startGameMusic();
+/**
+ * Runs onBossDefeated.
+ */
+function onBossDefeated() {
+    if (hasBossDefeatAudioPlayed) return;
+    hasBossDefeatAudioPlayed = true;
+    stopGameMusic();
+    playLevelPassingSound();
+}
+
+/**
+ * Runs onGameRestarted.
+ */
+function onGameRestarted() {
+    hasBossDefeatAudioPlayed = false;
+    stopLevelPassingSound();
+    applyMutePreferences();
+    startGameMusic();
+}
+
+/**
+ * Runs setupMusicToggle.
+ */
+function setupMusicToggle() {
+    const state = getMusicToggleElements();
+    if (!state) return;
+    state.updateButtonState = () => updateMusicToggleState(state);
+    bindMusicPanelToggle(state);
+    bindMusicOutsideClose(state);
+    bindMusicButtons(state);
+    state.updateButtonState();
+}
+
+/**
+ * Runs getMusicToggleElements.
+ */
+function getMusicToggleElements() {
+    const panelRoot = document.getElementById("audio-control-game");
+    const toggleButton = document.getElementById("music-toggle");
+    const musicToggle = document.getElementById("music-mute-toggle-game");
+    const sfxToggle = document.getElementById("sfx-mute-toggle-game");
+    if (!panelRoot || !toggleButton || !musicToggle || !sfxToggle) return null;
+    return { panelRoot, toggleButton, musicToggle, sfxToggle };
+}
+
+/**
+ * Runs updateMusicToggleState.
+ * @param {*} state
+ */
+function updateMusicToggleState(state) {
+    const allMuted = isMusicMuted && isSfxMuted;
+    state.toggleButton.style.opacity = allMuted ? "0.45" : "1";
+    state.toggleButton.setAttribute("aria-label", allMuted ? "Audio-Menü (alles stumm)" : "Audio-Menü öffnen");
+    state.musicToggle.classList.toggle("is-muted", isMusicMuted);
+    state.sfxToggle.classList.toggle("is-muted", isSfxMuted);
+    state.musicToggle.textContent = `Musik: ${isMusicMuted ? "Aus" : "An"}`;
+    state.sfxToggle.textContent = `Soundeffekte: ${isSfxMuted ? "Aus" : "An"}`;
+}
+
+/**
+ * Runs bindMusicPanelToggle.
+ * @param {*} state
+ */
+function bindMusicPanelToggle(state) {
+    state.toggleButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const isOpen = state.panelRoot.classList.toggle("is-open");
+        state.toggleButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
     });
 }
 
 /**
- * Führt setupMusicToggle aus.
+ * Runs bindMusicOutsideClose.
+ * @param {*} state
  */
-function setupMusicToggle() {
-    const button = document.getElementById("music-toggle");
-    if (!button) return;
-
-    const updateButtonState = () => {
-        button.style.opacity = isMusicMuted ? "0.45" : "1";
-        button.setAttribute(
-            "aria-label",
-            isMusicMuted ? "Musik aktivieren" : "Musik stummschalten",
-        );
-    };
-
-    button.addEventListener("click", () => {
-        isMusicMuted = !isMusicMuted;
-        gameMusic.muted = isMusicMuted;
-        if (!isMusicMuted) {
-            startGameMusic();
-        }
-        updateButtonState();
+function bindMusicOutsideClose(state) {
+    document.addEventListener("click", (event) => {
+        if (state.panelRoot.contains(event.target)) return;
+        state.panelRoot.classList.remove("is-open");
+        state.toggleButton.setAttribute("aria-expanded", "false");
     });
+}
 
+/**
+ * Runs bindMusicButtons.
+ * @param {*} state
+ */
+function bindMusicButtons(state) {
+    state.musicToggle.addEventListener("click", () => toggleMusicMute(state.updateButtonState));
+    state.sfxToggle.addEventListener("click", () => toggleSfxMute(state.updateButtonState));
+}
+
+/**
+ * Runs toggleMusicMute.
+ * @param {*} updateButtonState
+ */
+function toggleMusicMute(updateButtonState) {
+    isMusicMuted = !isMusicMuted;
+    persistMuteState();
+    applyMutePreferences();
+    if (!isMusicMuted) startGameMusic();
     updateButtonState();
 }
 
 /**
- * Führt setupMobileTouchControls aus.
+ * Runs toggleSfxMute.
+ * @param {*} updateButtonState
+ */
+function toggleSfxMute(updateButtonState) {
+    isSfxMuted = !isSfxMuted;
+    persistMuteState();
+    applyMutePreferences();
+    updateButtonState();
+}
+
+/**
+ * Runs setupMobileTouchControls.
  */
 function setupMobileTouchControls() {
+    const controls = getMobileControlElements();
+    if (!controls) return;
+    const context = createTouchContext(controls.touchControl);
+    bindTouchMoveEvents(controls.touchControl, context);
+    bindAttackEvents(controls.attackControl);
+    bindTouchBlurReset(context);
+}
+
+/**
+ * Runs getMobileControlElements.
+ */
+function getMobileControlElements() {
     const touchControl = document.getElementById("mobile-arrows-control");
     const attackControl = document.getElementById("mobile-attack-control");
-    if (!touchControl || !attackControl) {
-        return;
-    }
+    if (!touchControl || !attackControl) return null;
+    return { touchControl, attackControl };
+}
 
+/**
+ * Runs createTouchContext.
+ * @param {*} touchControl
+ */
+function createTouchContext(touchControl) {
     const activeTouchZones = new Map();
+    const applyKeyboardState = () => applyTouchKeyboardState(activeTouchZones);
+    const detectZone = (touch) => detectTouchZone(touchControl, touch);
+    return { activeTouchZones, applyKeyboardState, detectZone };
+}
 
-    const detectZone = (touch) => {
-        const rect = touchControl.getBoundingClientRect();
-        if (!rect.width || !rect.height) {
-            return null;
-        }
+/**
+ * Runs detectTouchZone.
+ * @param {*} touchControl
+ * @param {*} touch
+ */
+function detectTouchZone(touchControl, touch) {
+    const rect = touchControl.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    const ratioX = (touch.clientX - rect.left) / rect.width;
+    if (ratioX < 0 || ratioX > 1) return null;
+    if (ratioX < 0.34) return "left";
+    if (ratioX > 0.66) return "right";
+    return "up";
+}
 
-        const ratioX = (touch.clientX - rect.left) / rect.width;
-        if (ratioX < 0 || ratioX > 1) {
-            return null;
-        }
+/**
+ * Runs applyTouchKeyboardState.
+ * @param {*} activeTouchZones
+ */
+function applyTouchKeyboardState(activeTouchZones) {
+    const zones = Array.from(activeTouchZones.values());
+    keyboard.LEFT = zones.includes("left");
+    keyboard.RIGHT = zones.includes("right");
+    keyboard.UP = zones.includes("up");
+}
 
-        if (ratioX < 0.34) {
-            return "left";
-        }
-        if (ratioX > 0.66) {
-            return "right";
-        }
-        return "up";
-    };
+/**
+ * Runs bindTouchMoveEvents.
+ * @param {*} touchControl
+ * @param {*} context
+ */
+function bindTouchMoveEvents(touchControl, context) {
+    touchControl.addEventListener("touchstart", (event) => onTouchStart(event, context), { passive: false });
+    touchControl.addEventListener("touchmove", (event) => onTouchMove(event, context), { passive: false });
+    touchControl.addEventListener("touchend", (event) => onTouchEnd(event, context), { passive: false });
+    touchControl.addEventListener("touchcancel", (event) => onTouchEnd(event, context), { passive: false });
+}
 
-    const applyKeyboardState = () => {
-        const zones = Array.from(activeTouchZones.values());
-        keyboard.LEFT = zones.includes("left");
-        keyboard.RIGHT = zones.includes("right");
-        keyboard.UP = zones.includes("up");
-    };
+/**
+ * Runs onTouchStart.
+ * @param {*} event
+ * @param {*} context
+ */
+function onTouchStart(event, context) {
+    event.preventDefault();
+    updateTouchZones(event.changedTouches, context, true);
+    context.applyKeyboardState();
+}
 
-    const onTouchStart = (event) => {
-        event.preventDefault();
-        for (const touch of event.changedTouches) {
-            const zone = detectZone(touch);
-            if (zone) {
-                activeTouchZones.set(touch.identifier, zone);
-            }
-        }
-        applyKeyboardState();
-    };
+/**
+ * Runs onTouchMove.
+ * @param {*} event
+ * @param {*} context
+ */
+function onTouchMove(event, context) {
+    event.preventDefault();
+    updateTouchZones(event.changedTouches, context, false);
+    context.applyKeyboardState();
+}
 
-    const onTouchMove = (event) => {
-        event.preventDefault();
-        for (const touch of event.changedTouches) {
-            const zone = detectZone(touch);
-            if (zone) {
-                activeTouchZones.set(touch.identifier, zone);
-            } else {
-                activeTouchZones.delete(touch.identifier);
-            }
-        }
-        applyKeyboardState();
-    };
+/**
+ * Runs updateTouchZones.
+ * @param {*} changedTouches
+ * @param {*} context
+ * @param {*} keepPreviousZoneOnNull
+ */
+function updateTouchZones(changedTouches, context, keepPreviousZoneOnNull) {
+    for (const touch of changedTouches) {
+        const zone = context.detectZone(touch);
+        if (zone) context.activeTouchZones.set(touch.identifier, zone);
+        if (!zone && !keepPreviousZoneOnNull) context.activeTouchZones.delete(touch.identifier);
+    }
+}
 
-    const onTouchEnd = (event) => {
-        event.preventDefault();
-        for (const touch of event.changedTouches) {
-            activeTouchZones.delete(touch.identifier);
-        }
-        applyKeyboardState();
-    };
+/**
+ * Runs onTouchEnd.
+ * @param {*} event
+ * @param {*} context
+ */
+function onTouchEnd(event, context) {
+    event.preventDefault();
+    for (const touch of event.changedTouches) context.activeTouchZones.delete(touch.identifier);
+    context.applyKeyboardState();
+}
 
-    touchControl.addEventListener("touchstart", onTouchStart, { passive: false });
-    touchControl.addEventListener("touchmove", onTouchMove, { passive: false });
-    touchControl.addEventListener("touchend", onTouchEnd, { passive: false });
-    touchControl.addEventListener("touchcancel", onTouchEnd, { passive: false });
+/**
+ * Runs bindAttackEvents.
+ * @param {*} attackControl
+ */
+function bindAttackEvents(attackControl) {
+    attackControl.addEventListener("touchstart", (event) => setAttackPressed(true, event), { passive: false });
+    attackControl.addEventListener("touchend", (event) => setAttackPressed(false, event), { passive: false });
+    attackControl.addEventListener("touchcancel", (event) => setAttackPressed(false, event), { passive: false });
+    attackControl.addEventListener("pointerdown", (event) => { event.preventDefault(); setAttackPressed(true); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach((type) => attackControl.addEventListener(type, () => setAttackPressed(false)));
+}
 
-    const setAttackPressed = (pressed, event) => {
-        if (event) {
-            event.preventDefault();
-        }
-        keyboard.SPACE = pressed;
-    };
+/**
+ * Runs setAttackPressed.
+ * @param {*} pressed
+ * @param {*} event
+ */
+function setAttackPressed(pressed, event) {
+    if (event) event.preventDefault();
+    keyboard.SPACE = pressed;
+}
 
-    attackControl.addEventListener("touchstart", (event) => setAttackPressed(true, event), {
-        passive: false,
-    });
-    attackControl.addEventListener("touchend", (event) => setAttackPressed(false, event), {
-        passive: false,
-    });
-    attackControl.addEventListener("touchcancel", (event) => setAttackPressed(false, event), {
-        passive: false,
-    });
-
-    attackControl.addEventListener("pointerdown", (event) => {
-        event.preventDefault();
-        setAttackPressed(true);
-    });
-    attackControl.addEventListener("pointerup", () => setAttackPressed(false));
-    attackControl.addEventListener("pointerleave", () => setAttackPressed(false));
-    attackControl.addEventListener("pointercancel", () => setAttackPressed(false));
-
+/**
+ * Runs bindTouchBlurReset.
+ * @param {*} context
+ */
+function bindTouchBlurReset(context) {
     window.addEventListener("blur", () => {
-        activeTouchZones.clear();
+        context.activeTouchZones.clear();
         keyboard.SPACE = false;
-        applyKeyboardState();
+        context.applyKeyboardState();
     });
 }
 
@@ -516,6 +1015,7 @@ window.addEventListener('keyup', (e) => {
         keyboard.SHIFT = false;
     }
 });
+
 
 
 

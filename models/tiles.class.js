@@ -1,21 +1,22 @@
-/**
+﻿/**
  * @file models/tiles.class.js
  */
 /**
- * Kachelobjekt für Plattformen inklusive separater Hitbox.
+ * Tile object for platforms including a separate hitbox.
  */
 class Tiles extends MovableObject {
   static DEFAULT_SIZE = { width: 64, height: 64 };
-  static DEFAULT_HITBOX = { x: 1, y: 50, width: 10, height: 10 };
+  static DEFAULT_HITBOX = { x: 2, y: 36, width: 60, height: 14 };
+  static PLATFORM_Y_OFFSET = 8;
   static LAYOUT = [];
 
   /**
-   * @param {string} imagePath Bildpfad der Kachel.
-   * @param {number} [x=0] X-Position.
-   * @param {number} [y=350] Y-Position.
-   * @param {number} [width=Tiles.DEFAULT_SIZE.width] Breite.
-   * @param {number} [height=Tiles.DEFAULT_SIZE.height] Höhe.
-   * @param {{x: number, y: number, width: number, height: number}} [hitbox=Tiles.DEFAULT_HITBOX] Lokale Hitbox.
+   * @param {string} imagePath Tile image path.
+   * @param {number} [x=0] X position.
+   * @param {number} [y=350] Y position.
+   * @param {number} [width=Tiles.DEFAULT_SIZE.width] Width.
+   * @param {number} [height=Tiles.DEFAULT_SIZE.height] Height.
+   * @param {{x: number, y: number, width: number, height: number}} [hitbox=Tiles.DEFAULT_HITBOX] Local hitbox.
    */
   constructor(imagePath, x = 0, y = 350, width = Tiles.DEFAULT_SIZE.width, height = Tiles.DEFAULT_SIZE.height, hitbox = Tiles.DEFAULT_HITBOX) {
     super();
@@ -29,7 +30,7 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Liefert die Welt-Hitbox der Kachel.
+   * Returns the world hitbox of the tile.
    * @returns {{x: number, y: number, width: number, height: number}}
    */
   getHitbox() {
@@ -42,10 +43,10 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Erzeugt Kacheln aus einem Layout-Array.
-   * @param {Array<{image: string, x: number, y: number, width?: number, height?: number, hitbox?: {x: number, y: number, width: number, height: number}}>} [layout=Tiles.LAYOUT] Layoutdaten.
-   * @param {number} [minX=-Infinity] Linke Filtergrenze.
-   * @param {number} [maxX=Infinity] Rechte Filtergrenze.
+   * Creates tiles from a layout array.
+   * @param {Array<{image: string, x: number, y: number, width?: number, height?: number, hitbox?: {x: number, y: number, width: number, height: number}}>} [layout=Tiles.LAYOUT] Layout data.
+   * @param {number} [minX=-Infinity] Left filter boundary.
+   * @param {number} [maxX=Infinity] Right filter boundary.
    * @returns {Tiles[]}
    */
   static createFromLayout(layout = Tiles.LAYOUT, minX = -Infinity, maxX = Infinity) {
@@ -53,7 +54,7 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Führt isInHorizontalRange aus.
+   * Runs isInHorizontalRange.
    * @param {*} entry
    * @param {*} minX
    * @param {*} maxX
@@ -64,7 +65,7 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Führt createTile aus.
+   * Runs createTile.
    * @param {*} entry
    */
   static createTile(entry) {
@@ -79,12 +80,12 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Erstellt ein wiederholtes Gruppenlayout als Rohdaten.
-   * @param {string[]} groupImages Bildpfade für eine Gruppe.
-   * @param {number} startX Startposition der ersten Gruppe.
-   * @param {number} y Y-Position.
-   * @param {number} [count=1] Anzahl Gruppen.
-   * @param {number} [gap=0] Abstand zwischen Gruppen.
+   * Creates a repeated group layout as raw data.
+   * @param {string[]} groupImages Image paths for one group.
+   * @param {number} startX Start position of the first group.
+   * @param {number} y Y position.
+   * @param {number} [count=1] Number of groups.
+   * @param {number} [gap=0] Spacing between groups.
    * @returns {Array<{image: string, x: number, y: number}>}
    */
   static createRepeatedGroup(groupImages, startX, y, count = 1, gap = 0) {
@@ -97,7 +98,7 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Führt getGroupBaseX aus.
+   * Runs getGroupBaseX.
    * @param {*} groupImages
    * @param {*} startX
    * @param {*} groupIndex
@@ -109,7 +110,7 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Führt pushGroupTiles aus.
+   * Runs pushGroupTiles.
    * @param {*} target
    * @param {*} groupImages
    * @param {*} baseX
@@ -121,10 +122,10 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Erstellt eine einzelne Plattform aus mehreren Tiles.
-   * @param {number} [startX=600] X-Startposition.
-   * @param {number} [y=350] Y-Position.
-   * @param {object} [options={}] Tile-Optionen.
+   * Creates a single platform from multiple tiles.
+   * @param {number} [startX=600] X start position.
+   * @param {number} [y=350] Y position.
+   * @param {object} [options={}] Tile options.
    * @returns {Tiles[]}
    */
   static createPlatform(startX = 600, y = 350, options = {}) {
@@ -133,7 +134,7 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Führt getDefaultPlatformImages aus.
+   * Runs getDefaultPlatformImages.
    */
   static getDefaultPlatformImages() {
     return [
@@ -144,7 +145,7 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Führt createPlatformTile aus.
+   * Runs createPlatformTile.
    * @param {*} imagePath
    * @param {*} index
    * @param {*} startX
@@ -155,7 +156,7 @@ class Tiles extends MovableObject {
     return new Tiles(
       imagePath,
       startX + index * Tiles.DEFAULT_SIZE.width,
-      y,
+      y + Tiles.PLATFORM_Y_OFFSET,
       options.tileWidth ?? Tiles.DEFAULT_SIZE.width,
       options.tileHeight ?? Tiles.DEFAULT_SIZE.height,
       options.tileHitbox ?? Tiles.DEFAULT_HITBOX,
@@ -163,12 +164,12 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Erstellt Plattformen für einen Bereich aus Layout oder generiertem Muster.
-   * @param {number} minX Linke Grenze.
-   * @param {number} maxX Rechte Grenze.
-   * @param {number} [gapX=320] Horizontaler Plattformabstand.
-   * @param {number[]} [heights=[170, 230, 290, 350]] Rotierende Plattformhöhen.
-   * @param {object} [options={}] Erstellungsoptionen.
+   * Creates platforms for an area from layout or generated pattern.
+   * @param {number} minX Left boundary.
+   * @param {number} maxX Right boundary.
+   * @param {number} [gapX=320] Horizontal platform spacing.
+   * @param {number[]} [heights=[170, 230, 290, 350]] Rotating platform heights.
+   * @param {object} [options={}] Creation options.
    * @returns {Tiles[]}
    */
   static createPlatformsForArea(minX, maxX, gapX = 320, heights = [170, 230, 290, 350], options = {}) {
@@ -178,7 +179,7 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Führt createGeneratedPlatforms aus.
+   * Runs createGeneratedPlatforms.
    * @param {*} minX
    * @param {*} maxX
    * @param {*} gapX
@@ -195,7 +196,7 @@ class Tiles extends MovableObject {
   }
 
   /**
-   * Führt getPlatformY aus.
+   * Runs getPlatformY.
    * @param {*} x
    * @param {*} minX
    * @param {*} gapX
@@ -206,4 +207,6 @@ class Tiles extends MovableObject {
     return heights[index];
   }
 }
+
+
 

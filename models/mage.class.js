@@ -3,7 +3,7 @@
  */
 
 /**
- * Repräsentiert Mage im Spiel.
+ * Represents Mage in the game.
  */
 class Mage extends Character {
     height = 200;
@@ -103,7 +103,7 @@ class Mage extends Character {
     ];
 
     /**
-     * Führt constructor aus.
+     * Runs constructor.
      */
     constructor() {
         super();
@@ -117,7 +117,7 @@ class Mage extends Character {
  }
 
     /**
-     * Führt startAttack aus.
+     * Runs startAttack.
      */
     startAttack() {
         const didStartAttack = super.startAttack();
@@ -128,7 +128,7 @@ class Mage extends Character {
     }
 
     /**
-     * Führt playAttackAnimation aus.
+     * Runs playAttackAnimation.
      */
     playAttackAnimation() {
         const path = this.IMAGES_ATTACKING[this.attackFrame];
@@ -139,7 +139,7 @@ class Mage extends Character {
     }
 
     /**
-     * Führt tryShootProjectile aus.
+     * Runs tryShootProjectile.
      */
     tryShootProjectile() {
         const shouldShoot = this.attackFrame === this.projectileStartFrame && !this.hasShotInCurrentAttack;
@@ -149,7 +149,7 @@ class Mage extends Character {
     }
 
     /**
-     * Führt finishAttackIfNeeded aus.
+     * Runs finishAttackIfNeeded.
      */
     finishAttackIfNeeded() {
         if (this.attackFrame < this.IMAGES_ATTACKING.length) return;
@@ -159,7 +159,7 @@ class Mage extends Character {
     }
 
     /**
-     * Führt spawnFireProjectile aus.
+     * Runs spawnFireProjectile.
      */
     spawnFireProjectile() {
         const now = Date.now();
@@ -170,7 +170,7 @@ class Mage extends Character {
     }
 
     /**
-     * Führt createFireProjectile aus.
+     * Runs createFireProjectile.
      */
     createFireProjectile() {
         const size = { width: 80, height: 80 };
@@ -181,7 +181,7 @@ class Mage extends Character {
     }
 
     /**
-     * Führt getProjectileSpawnX aus.
+     * Runs getProjectileSpawnX.
      * @param {*} projectileWidth
      * @param {*} spawnPadding
      */
@@ -191,16 +191,17 @@ class Mage extends Character {
     }
 
     /**
-     * Führt getProjectileOptions aus.
+     * Runs getProjectileOptions.
      * @param {*} x
      * @param {*} y
      * @param {*} size
      */
     getProjectileOptions(x, y, size) {
-        return { x, y, movingLeft: this.othersDirection, images: this.FIRE_PROJECTILE_IMAGES, width: size.width, height: size.height, speed: 5, lifetimeMs: 2000, hitboxInset: 24, frameIntervalMs: 60, loopAnimation: false };
+        return { x, y, movingLeft: this.othersDirection, images: this.FIRE_PROJECTILE_IMAGES, width: size.width, height: size.height, speed: 5, lifetimeMs: 2000, hitboxInset: 28, frameIntervalMs: 60, loopAnimation: false };
     }
 
 }
+
 
 
 

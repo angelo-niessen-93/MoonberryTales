@@ -2,7 +2,7 @@
  * @file models/items.class.js
  */
 /**
- * ReprÃ¤sentiert sammelbare Items wie Herzen und MÃ¼nzen.
+ * Represents collectible items such as hearts and coins.
  */
 class Items extends MovableObject {
     static HEART_IMAGES = [
@@ -32,10 +32,10 @@ class Items extends MovableObject {
     ];
 
     /**
-     * @param {"heart"|"coin"} [type="heart"] Item-Typ.
-     * @param {number} [x=0] X-Position.
-     * @param {number} [y=0] Y-Position.
-     * @param {object} [options={}] Weitere Item-Optionen.
+     * @param {"heart"|"coin"} [type="heart"] Item type.
+     * @param {number} [x=0] X position.
+     * @param {number} [y=0] Y position.
+     * @param {object} [options={}] Additional item options.
      */
     constructor(type = 'heart', x = 0, y = 0, options = {}) {
         const imageSet = Items.getImageSet(type, options);
@@ -45,7 +45,7 @@ class Items extends MovableObject {
     }
 
     /**
-     * Führt getImageSet aus.
+     * Runs getImageSet.
      * @param {*} type
      * @param {*} options
      */
@@ -56,7 +56,7 @@ class Items extends MovableObject {
     }
 
     /**
-     * Führt initializeItemState aus.
+     * Runs initializeItemState.
      * @param {*} type
      * @param {*} x
      * @param {*} y
@@ -74,9 +74,9 @@ class Items extends MovableObject {
     }
 
     /**
-     * Startet die zyklische Item-Animation.
+     * Starts cyclic item animation.
      *
-     * @param {number} [speedMs=120] Intervall in Millisekunden.
+     * @param {number} [speedMs=120] Interval in milliseconds.
      * @returns {void}
      */
     animate(speedMs = 120) {
@@ -89,10 +89,10 @@ class Items extends MovableObject {
     }
 
     /**
-     * Erzeugt Herzen Ã¼ber ausgewÃ¤hlten Plattformen.
+     * Creates hearts above selected platforms.
      *
-     * @param {Tiles[]} [tiles=[]] Plattformkacheln.
-     * @param {object} [options={}] Platzierungsoptionen.
+     * @param {Tiles[]} [tiles=[]] Platform tiles.
+     * @param {object} [options={}] Placement options.
      * @returns {Items[]}
      */
     static createHeartsForPlatforms(tiles = [], options = {}) {
@@ -110,7 +110,7 @@ class Items extends MovableObject {
     }
 
     /**
-     * Führt getHeartPlacementConfig aus.
+     * Runs getHeartPlacementConfig.
      * @param {*} options
      */
     static getHeartPlacementConfig(options = {}) {
@@ -123,7 +123,7 @@ class Items extends MovableObject {
     }
 
     /**
-     * Führt getItemSize aus.
+     * Runs getItemSize.
      * @param {*} options
      */
     static getItemSize(options = {}) {
@@ -131,7 +131,7 @@ class Items extends MovableObject {
     }
 
     /**
-     * Führt getHeartPosition aus.
+     * Runs getHeartPosition.
      * @param {*} tile
      * @param {*} itemSize
      * @param {*} cfg
@@ -144,12 +144,12 @@ class Items extends MovableObject {
     }
 
     /**
-     * PrÃ¼ft, ob eine Position in der NÃ¤he bestehender Herzen liegt.
+     * Checks whether a position is near existing hearts.
      *
-     * @param {number} x X-Position.
-     * @param {number} y Y-Position.
-     * @param {Items[]} [hearts=[]] Referenz-Herzen.
-     * @param {number} [minDistance=90] Mindestabstand.
+     * @param {number} x X position.
+     * @param {number} y Y position.
+     * @param {Items[]} [hearts=[]] Reference hearts.
+     * @param {number} [minDistance=90] Minimum distance.
      * @returns {boolean}
      */
     static isInHeartZone(x, y, hearts = [], minDistance = 90) {
@@ -161,13 +161,13 @@ class Items extends MovableObject {
     }
 
     /**
-     * Erzeugt zufÃ¤llige MÃ¼nzen in einem Bereich.
+     * Creates random coins in an area.
      *
-     * @param {number} minX Linke Bereichsgrenze.
-     * @param {number} maxX Rechte Bereichsgrenze.
-     * @param {Items[]} [hearts=[]] Bereits platzierte Herzen.
-     * @param {number} [count=28] Anzahl MÃ¼nzen.
-     * @param {object} [options={}] Platzierungsoptionen.
+     * @param {number} minX Left area boundary.
+     * @param {number} maxX Right area boundary.
+     * @param {Items[]} [hearts=[]] Already placed hearts.
+     * @param {number} [count=28] Number of coins.
+     * @param {object} [options={}] Placement options.
      * @returns {Items[]}
      */
     static createCoinsForArea(minX, maxX, hearts = [], count = 28, options = {}) {
@@ -185,7 +185,7 @@ class Items extends MovableObject {
     }
 
     /**
-     * Führt getCoinPlacementConfig aus.
+     * Runs getCoinPlacementConfig.
      * @param {*} options
      */
     static getCoinPlacementConfig(options = {}) {
@@ -197,7 +197,7 @@ class Items extends MovableObject {
     }
 
     /**
-     * Führt getRandomCoinPosition aus.
+     * Runs getRandomCoinPosition.
      * @param {*} minX
      * @param {*} maxX
      * @param {*} cfg
@@ -209,13 +209,13 @@ class Items extends MovableObject {
     }
 
     /**
-     * Erzeugt alle Sammelitems fÃ¼r ein Level.
+     * Creates all collectible items for a level.
      *
-     * @param {Tiles[]} [tiles=[]] Plattformkacheln.
-     * @param {number} [minX=-720] Linke Bereichsgrenze.
-     * @param {number} [maxX=720 * 5] Rechte Bereichsgrenze.
-     * @param {number} [coinCount=28] Anzahl MÃ¼nzen.
-     * @param {object} [options={}] Platzierungsoptionen.
+     * @param {Tiles[]} [tiles=[]] Platform tiles.
+     * @param {number} [minX=-720] Left area boundary.
+     * @param {number} [maxX=720 * 5] Right area boundary.
+     * @param {number} [coinCount=28] Number of coins.
+     * @param {object} [options={}] Placement options.
      * @returns {Items[]}
      */
     static createForLevel(tiles = [], minX = -720, maxX = 720 * 5, coinCount = 28, options = {}) {
@@ -227,7 +227,7 @@ class Items extends MovableObject {
     }
 
     /**
-     * Führt getItemSpawnRange aus.
+     * Runs getItemSpawnRange.
      * @param {*} minX
      * @param {*} maxX
      * @param {*} options
@@ -242,7 +242,7 @@ class Items extends MovableObject {
     }
 
     /**
-     * Führt getTilesInSpawnRange aus.
+     * Runs getTilesInSpawnRange.
      * @param {*} tiles
      * @param {*} minX
      */
@@ -250,6 +250,8 @@ class Items extends MovableObject {
         return tiles.filter((tile) => tile.x + tile.width >= minX);
     }
 }
+
+
 
 
 

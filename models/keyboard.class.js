@@ -2,7 +2,7 @@
  * @file models/keyboard.class.js
  */
 /**
- * Speichert den Zustand der gedrÃ¼ckten Eingabetasten.
+ * Stores the state of pressed input keys.
  */
 class Keyboard {
     LEFT = false;

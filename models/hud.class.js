@@ -2,11 +2,11 @@
  * @file models/hud.class.js
  */
 /**
- * Zeichnet und verwaltet das Heads-up-Display (Leben und MÃ¼nzen).
+ * Draws and manages the heads-up display (health and coins).
  */
 class HUD {
   /**
-   * Initialisiert Anzeigezustand und HUD-Assets.
+   * Initializes display state and HUD assets.
    */
   constructor() {
     this.coinsCollected = 0;
@@ -17,9 +17,9 @@ class HUD {
   }
 
   /**
-   * ErhÃ¶ht den MÃ¼nzstand.
+   * Increases the coin count.
    *
-   * @param {number} [amount=1] Anzahl gesammelter MÃ¼nzen.
+   * @param {number} [amount=1] Number of collected coins.
    * @returns {void}
    */
   addCoin(amount = 1) {
@@ -27,10 +27,10 @@ class HUD {
   }
 
   /**
-   * Rendert das HUD auf dem Canvas.
+   * Renders the HUD on the canvas.
    *
-   * @param {CanvasRenderingContext2D} ctx Rendering-Kontext.
-   * @param {{energy?: number}} character Aktueller Spielerstatus.
+   * @param {CanvasRenderingContext2D} ctx Rendering context.
+   * @param {{energy?: number}} character Current player state.
    * @returns {void}
    */
   draw(ctx, character) {
@@ -45,7 +45,7 @@ class HUD {
   }
 
   /**
-   * Führt getHealthData aus.
+   * Runs getHealthData.
    * @param {*} character
    */
   getHealthData(character) {
@@ -55,14 +55,14 @@ class HUD {
   }
 
   /**
-   * Führt getHudLayout aus.
+   * Runs getHudLayout.
    */
   getHudLayout() {
     return { barX: 20, barY: 18, barWidth: 220, barHeight: 24, heartIconSize: 16, coinIconSize: 24 };
   }
 
   /**
-   * Führt drawHudBackground aus.
+   * Runs drawHudBackground.
    * @param {*} ctx
    */
   drawHudBackground(ctx) {
@@ -75,7 +75,7 @@ class HUD {
   }
 
   /**
-   * Führt drawHealthSection aus.
+   * Runs drawHealthSection.
    * @param {*} ctx
    * @param {*} health
    * @param {*} layout
@@ -90,7 +90,7 @@ class HUD {
   }
 
   /**
-   * Führt drawHealthBar aus.
+   * Runs drawHealthBar.
    * @param {*} ctx
    * @param {*} health
    * @param {*} layout
@@ -107,7 +107,7 @@ class HUD {
   }
 
   /**
-   * Führt drawHeartIcon aus.
+   * Runs drawHeartIcon.
    * @param {*} ctx
    * @param {*} layout
    */
@@ -119,7 +119,7 @@ class HUD {
   }
 
   /**
-   * Führt drawCoinSection aus.
+   * Runs drawCoinSection.
    * @param {*} ctx
    * @param {*} layout
    */
@@ -134,6 +134,7 @@ class HUD {
   }
 
 }
+
 
 
 

@@ -2,17 +2,17 @@
  * @file models/background-object.class.js
  */
 /**
- * ReprÃ¤sentiert ein statisches Hintergrundelement.
+ * Represents a static background element.
  */
 class BackgroundObject extends MovableObject {
 
     width = 720;
     height = 480;
     /**
-     * @param {string} imagePath Pfad zum Hintergrundbild.
-     * @param {number} x X-Position.
-     * @param {number} y Y-Position.
-     * @param {{width?: number, height?: number}} [config={}] Optionale GrÃ¶ÃŸenanpassung.
+     * @param {string} imagePath Path to the background image.
+     * @param {number} x X position.
+     * @param {number} y Y position.
+     * @param {{width?: number, height?: number}} [config={}] Optional size adjustment.
      */
     constructor(imagePath, x, y, config = {}) {
         super().loadImage(imagePath);
@@ -32,13 +32,13 @@ class BackgroundObject extends MovableObject {
     ];
 
     /**
-     * Erstellt Hintergrundobjekte fÃ¼r einen kompletten Levelbereich.
+     * Creates background objects for a full level area.
      *
-     * @param {number} [minX=-720] Linke Grenze.
-     * @param {number} [maxX=720 * 5] Rechte Grenze.
-     * @param {number} [step=720] Abstand zwischen Segmenten.
-     * @param {number} [y=0] Gemeinsame Y-Position.
-     * @param {{layerPaths?: string[], width?: number, height?: number}} [options={}] Erstellungsoptionen.
+     * @param {number} [minX=-720] Left boundary.
+     * @param {number} [maxX=720 * 5] Right boundary.
+     * @param {number} [step=720] Spacing between segments.
+     * @param {number} [y=0] Shared Y position.
+     * @param {{layerPaths?: string[], width?: number, height?: number}} [options={}] Creation options.
      * @returns {BackgroundObject[]}
      */
     static createForArea(minX = -720, maxX = 720 * 5, step = 720, y = 0, options = {}) {
@@ -54,6 +54,8 @@ class BackgroundObject extends MovableObject {
         return objects;
     }
 }
+
+
 
 
 

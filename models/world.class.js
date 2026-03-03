@@ -3,7 +3,7 @@
  */
 
 /**
- * Repräsentiert World im Spiel.
+ * Represents World in the game.
  */
 class World {
   camera_x = 0;
@@ -19,7 +19,7 @@ class World {
   resultSavedForRun = false;
 
   /**
-   * Führt constructor aus.
+   * Runs constructor.
    * @param {*} canvas
    */
   constructor(canvas) {
@@ -37,7 +37,7 @@ class World {
   }
 
   /**
-   * Führt applyLevelData aus.
+   * Runs applyLevelData.
    */
   applyLevelData() {
     this.enemies = this.level.enemies;
@@ -49,7 +49,7 @@ class World {
   }
 
   /**
-   * Führt setupMedia aus.
+   * Runs setupMedia.
    */
   setupMedia() {
     this.gameOverImage = this.createImage("img/Game-over.png");
@@ -61,7 +61,7 @@ class World {
   }
 
   /**
-   * Führt createImage aus.
+   * Runs createImage.
    * @param {*} path
    */
   createImage(path) {
@@ -71,7 +71,7 @@ class World {
   }
 
   /**
-   * Führt createAudio aus.
+   * Runs createAudio.
    * @param {*} path
    * @param {*} volume
    */
@@ -82,7 +82,7 @@ class World {
   }
 
   /**
-   * Führt createGameOverButtons aus.
+   * Runs createGameOverButtons.
    */
   createGameOverButtons() {
     return {
@@ -92,7 +92,7 @@ class World {
   }
 
   /**
-   * Führt setupSystems aus.
+   * Runs setupSystems.
    */
   setupSystems() {
     this.hud = new HUD();
@@ -101,7 +101,7 @@ class World {
   }
 
   /**
-   * Führt createLevel aus.
+   * Runs createLevel.
    */
   createLevel() {
     if (typeof createLevel1 === "function") return createLevel1();
@@ -112,7 +112,7 @@ class World {
   }
 
   /**
-   * Führt createFallbackLevel aus.
+   * Runs createFallbackLevel.
    * @param {*} tiles
    * @param {*} items
    */
@@ -127,7 +127,7 @@ class World {
   }
 
   /**
-   * Führt setWorld aus.
+   * Runs setWorld.
    */
   setWorld() {
     this.character.world = this;
@@ -135,7 +135,7 @@ class World {
   }
 
   /**
-   * Führt setupGameOverInteraction aus.
+   * Runs setupGameOverInteraction.
    */
   setupGameOverInteraction() {
     this.canvas.addEventListener("click", (event) => this.handleEndScreenClick(event));
@@ -143,7 +143,7 @@ class World {
   }
 
   /**
-   * Führt handleEndScreenClick aus.
+   * Runs handleEndScreenClick.
    * @param {*} event
    */
   handleEndScreenClick(event) {
@@ -155,7 +155,7 @@ class World {
   }
 
   /**
-   * Führt handleEndScreenHover aus.
+   * Runs handleEndScreenHover.
    * @param {*} event
    */
   handleEndScreenHover(event) {
@@ -168,14 +168,14 @@ class World {
   }
 
   /**
-   * Führt isEndStateActive aus.
+   * Runs isEndStateActive.
    */
   isEndStateActive() {
     return this.isGameOver || this.isVictory;
   }
 
   /**
-   * Führt setCanvasCursor aus.
+   * Runs setCanvasCursor.
    * @param {*} cursor
    */
   setCanvasCursor(cursor) {
@@ -183,7 +183,7 @@ class World {
   }
 
   /**
-   * Führt getCanvasPoint aus.
+   * Runs getCanvasPoint.
    * @param {*} event
    */
   getCanvasPoint(event) {
@@ -197,7 +197,7 @@ class World {
   }
 
   /**
-   * Führt createCharacter aus.
+   * Runs createCharacter.
    */
   createCharacter() {
     const selectedCharacter = localStorage.getItem("selectedCharacter");
@@ -211,7 +211,7 @@ class World {
   }
 
   /**
-   * Führt restartGame aus.
+   * Runs restartGame.
    */
   restartGame() {
     this.disposeEntity(this.character);
@@ -225,7 +225,7 @@ class World {
   }
 
   /**
-   * Führt resetRunState aus.
+   * Runs resetRunState.
    */
   resetRunState() {
     this.isGameOver = false;
@@ -239,7 +239,7 @@ class World {
   }
 
   /**
-   * Führt rebuildWorldState aus.
+   * Runs rebuildWorldState.
    */
   rebuildWorldState() {
     this.hud = new HUD();
@@ -249,7 +249,7 @@ class World {
   }
 
   /**
-   * Führt disposeEntity aus.
+   * Runs disposeEntity.
    * @param {*} entity
    */
   disposeEntity(entity) {
@@ -259,7 +259,7 @@ class World {
   }
 
   /**
-   * Führt resetKeyboardState aus.
+   * Runs resetKeyboardState.
    */
   resetKeyboardState() {
     if (!this.keyboard) {
@@ -274,7 +274,7 @@ class World {
   }
 
   /**
-   * Führt isPointInButton aus.
+   * Runs isPointInButton.
    * @param {*} point
    * @param {*} button
    */
@@ -287,38 +287,66 @@ class World {
     );
   }
 
+  /**
+   * Runs draw.
+   */
   draw = () => {
-    if (!this.isPaused && !this.isGameOver && !this.isVictory) {
-      this.collisionSystem.updateProjectiles();
-      this.collisionSystem.resolveCharacterGround();
-      this.collisionSystem.checkCharacterCollisions();
-      this.collisionSystem.checkItemCollections();
-
-      if (this.isBossDefeated()) {
-        if (!this.isVictoryPending) {
-          this.isVictoryPending = true;
-          this.victoryReadyAt = Date.now() + 2000;
-          this.notifyBossDefeated();
-        }
-        if (Date.now() >= this.victoryReadyAt) {
-          this.isVictory = true;
-          this.isVictoryPending = false;
-          this.saveRunResult("victory");
-        }
-      } else if (typeof this.character.isDead === "function" && this.character.isDead()) {
-        this.isGameOver = true;
-        this.playGameOverSound();
-        this.saveRunResult("defeat");
-      }
-    }
-
+    this.updateWorldState();
     this.renderer.renderFrame();
-
     requestAnimationFrame(this.draw);
   };
 
   /**
-   * Führt isEndboss aus.
+   * Runs updateWorldState.
+   */
+  updateWorldState() {
+    if (this.isPaused || this.isGameOver || this.isVictory) return;
+    this.collisionSystem.updateProjectiles();
+    this.collisionSystem.resolveCharacterGround();
+    this.collisionSystem.checkCharacterCollisions();
+    this.collisionSystem.checkItemCollections();
+    this.updateRunOutcome();
+  }
+
+  /**
+   * Runs updateRunOutcome.
+   */
+  updateRunOutcome() {
+    if (this.isBossDefeated()) return this.updateVictoryState();
+    if (typeof this.character.isDead === "function" && this.character.isDead()) this.updateDefeatState();
+  }
+
+  /**
+   * Runs updateVictoryState.
+   */
+  updateVictoryState() {
+    if (!this.isVictoryPending) this.startVictoryCountdown();
+    if (Date.now() < this.victoryReadyAt) return;
+    this.isVictory = true;
+    this.isVictoryPending = false;
+    this.saveRunResult("victory");
+  }
+
+  /**
+   * Runs startVictoryCountdown.
+   */
+  startVictoryCountdown() {
+    this.isVictoryPending = true;
+    this.victoryReadyAt = Date.now() + 2000;
+    this.notifyBossDefeated();
+  }
+
+  /**
+   * Runs updateDefeatState.
+   */
+  updateDefeatState() {
+    this.isGameOver = true;
+    this.playGameOverSound();
+    this.saveRunResult("defeat");
+  }
+
+  /**
+   * Runs isEndboss.
    * @param {*} enemy
    */
   isEndboss(enemy) {
@@ -334,7 +362,7 @@ class World {
   }
 
   /**
-   * Führt isBossDefeated aus.
+   * Runs isBossDefeated.
    */
   isBossDefeated() {
     if (!this.hasEndboss) return false;
@@ -345,7 +373,7 @@ class World {
   }
 
   /**
-   * Führt getActiveEndboss aus.
+   * Runs getActiveEndboss.
    */
   getActiveEndboss() {
     if (!this.hasEndboss) return null;
@@ -356,7 +384,7 @@ class World {
   }
 
   /**
-   * Führt notifyBossDefeated aus.
+   * Runs notifyBossDefeated.
    */
   notifyBossDefeated() {
     if (this.bossDefeatEventDispatched) {
@@ -367,7 +395,7 @@ class World {
   }
 
   /**
-   * Führt playCoinCollectSound aus.
+   * Runs playCoinCollectSound.
    */
   playCoinCollectSound() {
     if (!this.coinCollectSound) {
@@ -379,7 +407,7 @@ class World {
   }
 
   /**
-   * Führt playHeartCollectSound aus.
+   * Runs playHeartCollectSound.
    */
   playHeartCollectSound() {
     if (!this.heartCollectSound) {
@@ -391,7 +419,7 @@ class World {
   }
 
   /**
-   * Führt playGameOverSound aus.
+   * Runs playGameOverSound.
    */
   playGameOverSound() {
     if (!this.gameOverSound) {
@@ -403,7 +431,7 @@ class World {
   }
 
   /**
-   * Führt saveRunResult aus.
+   * Runs saveRunResult.
    * @param {*} resultType
    */
   saveRunResult(resultType) {
@@ -419,7 +447,7 @@ class World {
   }
 
   /**
-   * Führt buildRunEntry aus.
+   * Runs buildRunEntry.
    * @param {*} resultType
    */
   buildRunEntry(resultType) {
@@ -437,7 +465,7 @@ class World {
   }
 
   /**
-   * Führt calculateRunScore aus.
+   * Runs calculateRunScore.
    * @param {*} coins
    * @param {*} duration
    * @param {*} resultType
@@ -448,7 +476,7 @@ class World {
   }
 
   /**
-   * Führt getSortedLeaderboard aus.
+   * Runs getSortedLeaderboard.
    * @param {*} list
    * @param {*} newEntry
    */
@@ -460,7 +488,7 @@ class World {
   }
 
   /**
-   * Führt compareLeaderboardEntries aus.
+   * Runs compareLeaderboardEntries.
    * @param {*} a
    * @param {*} b
    */
@@ -470,6 +498,7 @@ class World {
     return (Number(a.duration) || 0) - (Number(b.duration) || 0);
   }
 }
+
 
 
 

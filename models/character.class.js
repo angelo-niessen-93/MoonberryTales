@@ -3,7 +3,7 @@
  */
 
 /**
- * Repräsentiert Character im Spiel.
+ * Represents Character in the game.
  */
 class Character extends MovableObject {
    
@@ -38,7 +38,7 @@ class Character extends MovableObject {
     intervalIds = [];
 
     /**
-     * Führt constructor aus.
+     * Runs constructor.
      */
     constructor() {
         super();
@@ -50,14 +50,14 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt setupInitialCharacterImage aus.
+     * Runs setupInitialCharacterImage.
      */
     setupInitialCharacterImage() {
         if (this.IMAGES_WALKING.length) this.loadImage(this.IMAGES_WALKING[0]);
     }
 
     /**
-     * Führt setupCharacterAudio aus.
+     * Runs setupCharacterAudio.
      */
     setupCharacterAudio() {
         if (this.attackSound) this.attackSound.volume = 0.5;
@@ -68,7 +68,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt loadAllImages aus.
+     * Runs loadAllImages.
      */
     loadAllImages() {
         [this.IMAGES_IDLE, this.IMAGES_WALKING, this.IMAGES_JUMPING, this.IMAGES_ATTACKING, this.IMAGES_HURT, this.IMAGES_DEAD]
@@ -77,7 +77,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt animate aus.
+     * Runs animate.
      */
     animate() {
         const movementInterval = setInterval(() => this.handleMovementTick(), 1000 / 60);
@@ -87,7 +87,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt handleMovementTick aus.
+     * Runs handleMovementTick.
      */
     handleMovementTick() {
         if (!this.canProcessMovement()) return;
@@ -99,7 +99,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt canProcessMovement aus.
+     * Runs canProcessMovement.
      */
     canProcessMovement() {
         if (!this.world || !this.world.keyboard) return false;
@@ -110,7 +110,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt stopAndBlockMovement aus.
+     * Runs stopAndBlockMovement.
      */
     stopAndBlockMovement() {
         this.stopFootsteps();
@@ -118,7 +118,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt applyHorizontalMovement aus.
+     * Runs applyHorizontalMovement.
      */
     applyHorizontalMovement() {
         if (this.world.keyboard.RIGHT && this.x < this.world.levelEndX) this.moveCharacterRight();
@@ -126,7 +126,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt moveCharacterRight aus.
+     * Runs moveCharacterRight.
      */
     moveCharacterRight() {
         this.x += this.speed;
@@ -134,7 +134,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt moveCharacterLeft aus.
+     * Runs moveCharacterLeft.
      */
     moveCharacterLeft() {
         this.x -= this.speed;
@@ -142,14 +142,14 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt handleJumpInput aus.
+     * Runs handleJumpInput.
      */
     handleJumpInput() {
         if (this.world.keyboard.UP && !this.isAboveGround()) this.jump();
     }
 
     /**
-     * Führt handleAttackInput aus.
+     * Runs handleAttackInput.
      */
     handleAttackInput() {
         if (this.world.keyboard.SPACE && !this.lastSpacePressed) this.startAttack();
@@ -157,7 +157,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt syncWalkAudio aus.
+     * Runs syncWalkAudio.
      */
     syncWalkAudio() {
         const isWalking = (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.isAboveGround();
@@ -166,7 +166,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt handleAnimationTick aus.
+     * Runs handleAnimationTick.
      */
     handleAnimationTick() {
         if (!this.world || !this.world.keyboard) return;
@@ -178,7 +178,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt playDefaultStateAnimation aus.
+     * Runs playDefaultStateAnimation.
      */
     playDefaultStateAnimation() {
         if (this.isAboveGround()) return this.playAnimation(this.IMAGES_JUMPING);
@@ -189,26 +189,29 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt isAboveGround aus.
+     * Runs isAboveGround.
      */
     isAboveGround() {
         return this.y < this.groundY;
     }
 
     /**
-     * Führt getHitbox aus.
+     * Runs getHitbox.
      */
     getHitbox() {
+        const insetX = 30;
+        const insetTop = 102;
+        const insetBottom = 22;
         return {
-            x: this.x + 20,
-            y: this.y + 88,
-            width: this.width - 40,
-            height: this.height - 96,
+            x: this.x + insetX,
+            y: this.y + insetTop,
+            width: this.width - insetX * 2,
+            height: this.height - insetTop - insetBottom,
         };
     }
 
     /**
-     * Führt getAttackHitbox aus.
+     * Runs getAttackHitbox.
      */
     getAttackHitbox() {
         const body = this.getHitbox();
@@ -222,10 +225,10 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt jump aus.
+     * Runs jump.
      */
     jump() {
-        this.speedY = 20;
+        this.speedY = 22;
         this.stopFootsteps();
         if (this.jumpSound) {
             this.jumpSound.currentTime = 0;
@@ -234,7 +237,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt playFootsteps aus.
+     * Runs playFootsteps.
      */
     playFootsteps() {
         if (this.footstepSound && this.footstepSound.paused) {
@@ -243,7 +246,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt stopFootsteps aus.
+     * Runs stopFootsteps.
      */
     stopFootsteps() {
         if (this.footstepSound && !this.footstepSound.paused) {
@@ -253,7 +256,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt startAttack aus.
+     * Runs startAttack.
      */
     startAttack() {
         if (this.isAttacking || this.isDead() || !this.IMAGES_ATTACKING.length) {
@@ -271,7 +274,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt playAttackAnimation aus.
+     * Runs playAttackAnimation.
      */
     playAttackAnimation() {
         const path = this.IMAGES_ATTACKING[this.attackFrame];
@@ -284,7 +287,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt playDeathAnimation aus.
+     * Runs playDeathAnimation.
      */
     playDeathAnimation() {
         const deathIndex = Math.min(this.deadFrame, this.IMAGES_DEAD.length - 1);
@@ -296,14 +299,14 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt isHurt aus.
+     * Runs isHurt.
      */
     isHurt() {
         return !this.isDead() && Date.now() - this.lastHitAt < 500;
     }
 
     /**
-     * Führt takeHit aus.
+     * Runs takeHit.
      * @param {*} fromEnemyX
      * @param {*} damage
      */
@@ -320,7 +323,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt canTakeHitNow aus.
+     * Runs canTakeHitNow.
      */
     canTakeHitNow() {
         const now = Date.now();
@@ -330,7 +333,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt playHurtSound aus.
+     * Runs playHurtSound.
      */
     playHurtSound() {
         if (!this.hurtSound) return;
@@ -339,7 +342,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt applyHitKnockback aus.
+     * Runs applyHitKnockback.
      * @param {*} fromEnemyX
      */
     applyHitKnockback(fromEnemyX) {
@@ -348,14 +351,14 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt applyHitVerticalImpulse aus.
+     * Runs applyHitVerticalImpulse.
      */
     applyHitVerticalImpulse() {
         if (!this.isAboveGround()) this.speedY = 8;
     }
 
     /**
-     * Führt resetAttackStateOnDeath aus.
+     * Runs resetAttackStateOnDeath.
      */
     resetAttackStateOnDeath() {
         if (!this.isDead()) return;
@@ -366,7 +369,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Führt dispose aus.
+     * Runs dispose.
      */
     dispose() {
         this.intervalIds.forEach((id) => clearInterval(id));
@@ -374,6 +377,7 @@ class Character extends MovableObject {
         this.stopFootsteps();
     }
 }
+
 
 
 

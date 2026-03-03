@@ -2,15 +2,15 @@
  * @file models/level.class.js
  */
 /**
- * Container fÃ¼r alle Objekte eines Levels.
+ * Container for all objects in a level.
  */
 class Level {
     /**
-     * @param {object[]} [enemies=[]] Gegnerobjekte.
-     * @param {object[]} [chain=[]] Ketten-/Vordergrundobjekte.
-     * @param {object[]} [backgroundObjects=[]] Hintergrundobjekte.
-     * @param {object[]} [tiles=[]] Plattformkacheln.
-     * @param {object[]} [items=[]] Sammelitems.
+     * @param {object[]} [enemies=[]] Enemy objects.
+     * @param {object[]} [chain=[]] Chain/foreground objects.
+     * @param {object[]} [backgroundObjects=[]] Background objects.
+     * @param {object[]} [tiles=[]] Platform tiles.
+     * @param {object[]} [items=[]] Collectible items.
      */
     constructor(enemies = [], chain = [], backgroundObjects = [], tiles = [], items = []) {
         this.enemies = enemies;
@@ -20,6 +20,7 @@ class Level {
         this.items = items;
     }
 }
+
 
 
 

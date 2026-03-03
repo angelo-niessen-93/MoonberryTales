@@ -22,7 +22,7 @@ const LEVEL1_CONFIG = {
     chain: {
         imagePath: 'img/Background/myst.png',
         y: 20,
-        width: 720,
+        width: 724,
         height: 480,
         speed: 0.35,
     },
@@ -79,74 +79,105 @@ const LEVEL1_CONFIG = {
 };
 
 /**
- * Führt createLevelFromConfig aus.
+ * Runs createLevelFromConfig.
  * @param {*} config
  */
 function createLevelFromConfig(config) {
+    const bounds = getLevelBounds(config);
+    const enemies = createLevelEnemies(config);
+    const chain = createLevelChain(config, bounds);
+    const backgroundObjects = createLevelBackground(config, bounds);
+    const tiles = createLevelTiles(config, bounds);
+    const items = createLevelItems(config, bounds, tiles);
+    return new Level(enemies, chain, backgroundObjects, tiles, items);
+}
+
+/**
+ * Runs getLevelBounds.
+ * @param {*} config
+ */
+function getLevelBounds(config) {
     const minX = config.world.minX;
     const maxX = config.world.maxX;
     const step = config.world.step;
     const bossSpawnMinX = config.boss?.spawnMinX ?? (maxX - 900);
     const blockedAreaPadding = config.boss?.blockedAreaPadding ?? 180;
-    const accessibleMaxX = config.boss?.enabled
-        ? Math.max(minX, Math.min(maxX, bossSpawnMinX - blockedAreaPadding))
-        : maxX;
+    const accessibleMaxX = config.boss?.enabled ? Math.max(minX, Math.min(maxX, bossSpawnMinX - blockedAreaPadding)) : maxX;
+    return { minX, maxX, step, accessibleMaxX };
+}
 
+/**
+ * Runs createLevelEnemies.
+ * @param {*} config
+ */
+function createLevelEnemies(config) {
     const enemies = Monster.createForLevel(
         config.monsters.characterStartX,
         config.monsters.count,
         config.monsters,
     );
-
-    if (config.boss?.enabled) {
-        enemies.push(new Endboss(null, config.boss));
-    }
-
-    const chain = Myst.createForArea(minX, maxX, step, {
-        ...config.chain,
-        minLoopX: minX,
-        maxLoopX: maxX,
-    });
-
-    const backgroundObjects = BackgroundObject.createForArea(
-        minX,
-        maxX,
-        step,
-        config.background.y,
-        config.background,
-    );
-
-    const tiles = Tiles.createPlatformsForArea(
-        minX,
-        accessibleMaxX,
-        config.tiles.gapX,
-        config.tiles.heights,
-        config.tiles,
-    );
-
-    const items = Items.createForLevel(
-        tiles,
-        minX,
-        accessibleMaxX,
-        config.items.coinCount,
-        {
-            ...config.items,
-            characterStartX: config.monsters.characterStartX,
-            itemMaxX: accessibleMaxX,
-        },
-    );
-
-    return new Level(enemies, chain, backgroundObjects, tiles, items);
+    if (config.boss?.enabled) enemies.push(new Endboss(null, config.boss));
+    return enemies;
 }
 
 /**
- * Führt createLevel1 aus.
+ * Runs createLevelChain.
+ * @param {*} config
+ * @param {*} bounds
+ */
+function createLevelChain(config, bounds) {
+    return Myst.createForArea(bounds.minX, bounds.maxX, bounds.step, {
+        ...config.chain,
+        minLoopX: bounds.minX,
+        maxLoopX: bounds.maxX,
+    });
+}
+
+/**
+ * Runs createLevelBackground.
+ * @param {*} config
+ * @param {*} bounds
+ */
+function createLevelBackground(config, bounds) {
+    return BackgroundObject.createForArea(
+        bounds.minX, bounds.maxX, bounds.step, config.background.y, config.background,
+    );
+}
+
+/**
+ * Runs createLevelTiles.
+ * @param {*} config
+ * @param {*} bounds
+ */
+function createLevelTiles(config, bounds) {
+    return Tiles.createPlatformsForArea(
+        bounds.minX, bounds.accessibleMaxX, config.tiles.gapX, config.tiles.heights, config.tiles,
+    );
+}
+
+/**
+ * Runs createLevelItems.
+ * @param {*} config
+ * @param {*} bounds
+ * @param {*} tiles
+ */
+function createLevelItems(config, bounds, tiles) {
+    return Items.createForLevel(tiles, bounds.minX, bounds.accessibleMaxX, config.items.coinCount, {
+        ...config.items,
+        characterStartX: config.monsters.characterStartX,
+        itemMaxX: bounds.accessibleMaxX,
+    });
+}
+
+/**
+ * Runs createLevel1.
  */
 function createLevel1() {
     return createLevelFromConfig(LEVEL1_CONFIG);
 }
 
 const level1 = createLevel1();
+
 
 
 

@@ -2,14 +2,14 @@
  * @file models/myst.class.js
  */
 /**
- * Bewegte Nebel-Ebene im Hintergrund.
+ * Represents an animated mist layer in the background.
  */
 class Myst extends MovableObject {
     static MIN_X = -720;
     static MAX_X = 720 * 5;
 
     /**
-     * @param {number} [x=0] Startposition auf der X-Achse.
+     * @param {number} [x=0] Start position on the X axis.
      * @param {{
      *   imagePath?: string,
      *   y?: number,
@@ -18,7 +18,7 @@ class Myst extends MovableObject {
      *   speed?: number,
      *   minLoopX?: number,
      *   maxLoopX?: number
-     * }} [options={}] Konfigurationsoptionen.
+     * }} [options={}] Configuration options.
      */
     constructor(x = 0, options = {}) {
         super().loadImage(options.imagePath ?? 'img/Background/myst.png');
@@ -36,12 +36,12 @@ class Myst extends MovableObject {
     }
 
     /**
-     * Erstellt Nebelobjekte Ã¼ber einen horizontalen Bereich.
+     * Creates mist objects over a horizontal area.
      *
-     * @param {number} [minX=-720] Linke Grenze.
-     * @param {number} [maxX=720 * 5] Rechte Grenze.
-     * @param {number} [step=720] Abstand zwischen Nebelobjekten.
-     * @param {object} [options={}] Konfigurationsoptionen.
+     * @param {number} [minX=-720] Left boundary.
+     * @param {number} [maxX=720 * 5] Right boundary.
+     * @param {number} [step=720] Spacing between mist objects.
+     * @param {object} [options={}] Configuration options.
      * @returns {Myst[]}
      */
     static createForArea(minX = -720, maxX = 720 * 5, step = 720, options = {}) {
@@ -55,7 +55,7 @@ class Myst extends MovableObject {
     }
 
     /**
-     * Startet die Nebelbewegung.
+     * Starts mist movement.
      *
      * @returns {void}
      */
@@ -64,7 +64,7 @@ class Myst extends MovableObject {
     }
 
     /**
-     * Verschiebt den Nebel kontinuierlich nach links und loope ihn am Rand.
+     * Moves the mist continuously to the left and loops it at the edge.
      *
      * @returns {void}
      */
@@ -82,6 +82,8 @@ class Myst extends MovableObject {
     }
 
 }
+
+
 
 
 

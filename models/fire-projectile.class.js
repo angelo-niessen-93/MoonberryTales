@@ -2,7 +2,7 @@
  * @file models/fire-projectile.class.js
  */
 /**
- * Projektil mit begrenzter Lebensdauer und Frame-Animation.
+ * Projectile with limited lifetime and frame animation.
  */
 class FireProjectile extends MovableObject {
   othersDirection = false;
@@ -29,7 +29,7 @@ class FireProjectile extends MovableObject {
    *   hitboxInset?: number,
    *   frameIntervalMs?: number,
    *   loopAnimation?: boolean
-   * }} options Projektil-Initialisierung.
+   * }} options Projectile initialization.
    */
   constructor({
     x,
@@ -66,9 +66,9 @@ class FireProjectile extends MovableObject {
   }
 
   /**
-   * Aktualisiert Position, Animation und Lebensdauer.
+   * Updates position, animation, and lifetime.
    *
-   * @param {number} levelEndX Rechte Levelgrenze.
+   * @param {number} levelEndX Right level boundary.
    * @returns {void}
    */
   update(levelEndX) {
@@ -87,7 +87,7 @@ class FireProjectile extends MovableObject {
   }
 
   /**
-   * Schaltet die Projektile-Animation auf das nÃ¤chste Frame.
+   * Advances projectile animation to the next frame.
    *
    * @returns {void}
    */
@@ -101,7 +101,7 @@ class FireProjectile extends MovableObject {
   }
 
   /**
-   * Führt advanceAnimationFrame aus.
+   * Runs advanceAnimationFrame.
    */
   advanceAnimationFrame() {
     if (this.loopAnimation) {
@@ -112,21 +112,32 @@ class FireProjectile extends MovableObject {
   }
 
   /**
-   * PrÃ¼ft eine Kollision gegen ein anderes Objekt.
+   * Checks collision against another object.
    *
-   * @param {{x: number, y: number, width: number, height: number}} other Vergleichsobjekt.
+   * @param {{x: number, y: number, width: number, height: number}} other Comparison object.
    * @returns {boolean}
    */
   isColliding(other) {
-    const inset = this.hitboxInset;
+    const inset = Math.max(0, this.hitboxInset);
+    const projectile = {
+      x: this.x + inset,
+      y: this.y + inset,
+      width: Math.max(2, this.width - inset * 2),
+      height: Math.max(2, this.height - inset * 2),
+    };
+    const target = typeof other.getHitbox === "function"
+      ? other.getHitbox()
+      : { x: other.x, y: other.y, width: other.width, height: other.height };
     return (
-      this.x + this.width > other.x + inset &&
-      this.y + this.height > other.y + inset &&
-      this.x < other.x + other.width - inset &&
-      this.y < other.y + other.height - inset
+      projectile.x + projectile.width > target.x &&
+      projectile.y + projectile.height > target.y &&
+      projectile.x < target.x + target.width &&
+      projectile.y < target.y + target.height
     );
   }
 }
+
+
 
 
 

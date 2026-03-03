@@ -3,7 +3,7 @@
  */
 
 /**
- * Repräsentiert Knight im Spiel.
+ * Represents Knight in the game.
  */
 class Knight extends Character {
     
@@ -84,7 +84,7 @@ class Knight extends Character {
     hurtSound = new Audio("audio/hurt.mp3");
 
     /**
-     * Führt constructor aus.
+     * Runs constructor.
      */
     constructor() {
         super();  
@@ -97,6 +97,7 @@ class Knight extends Character {
         this.loadImages(this.IMAGES_DEAD);
     }
 }
+
 
 
 

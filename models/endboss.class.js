@@ -3,7 +3,7 @@
  */
 
 /**
- * Repräsentiert Endboss im Spiel.
+ * Represents the end boss in the game.
  */
 class Endboss extends MovableObject {
     static LEVEL_END_X = 720 * 5;
@@ -49,7 +49,7 @@ class Endboss extends MovableObject {
     ];
 
     /**
-     * Führt constructor aus.
+     * Runs constructor.
      * @param {*} x
      * @param {*} config
      */
@@ -64,7 +64,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt getSpawnConfig aus.
+     * Runs getSpawnConfig.
      * @param {*} config
      */
     getSpawnConfig(config) {
@@ -76,7 +76,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt initializeCoreState aus.
+     * Runs initializeCoreState.
      * @param {*} x
      * @param {*} config
      * @param {*} spawn
@@ -90,7 +90,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt applyMotionConfig aus.
+     * Runs applyMotionConfig.
      * @param {*} config
      */
     applyMotionConfig(config) {
@@ -103,7 +103,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt applyCombatConfig aus.
+     * Runs applyCombatConfig.
      * @param {*} config
      */
     applyCombatConfig(config) {
@@ -120,7 +120,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt applyImageConfig aus.
+     * Runs applyImageConfig.
      * @param {*} config
      */
     applyImageConfig(config) {
@@ -131,7 +131,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt setupAttackSound aus.
+     * Runs setupAttackSound.
      * @param {*} config
      */
     setupAttackSound(config) {
@@ -141,7 +141,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt loadBossImages aus.
+     * Runs loadBossImages.
      */
     loadBossImages() {
         this.loadImage(this.IMAGES_WALKING[0]);
@@ -152,7 +152,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt getSpawnX aus.
+     * Runs getSpawnX.
      * @param {*} spawnMinX
      * @param {*} spawnMaxX
      */
@@ -161,7 +161,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt triggerAttack aus.
+     * Runs triggerAttack.
      * @param {*} target
      */
     triggerAttack(target = null) {
@@ -174,7 +174,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt canStartAttack aus.
+     * Runs canStartAttack.
      */
     canStartAttack() {
         if (this.isDead()) return false;
@@ -183,7 +183,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt playAttackSound aus.
+     * Runs playAttackSound.
      */
     playAttackSound() {
         if (!this.attackSound) return;
@@ -192,7 +192,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt takeHit aus.
+     * Runs takeHit.
      * @param {*} fromCharacterX
      * @param {*} damage
      */
@@ -206,7 +206,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt canTakeHitNow aus.
+     * Runs canTakeHitNow.
      */
     canTakeHitNow() {
         const now = Date.now();
@@ -216,7 +216,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt applyKnockback aus.
+     * Runs applyKnockback.
      * @param {*} fromCharacterX
      */
     applyKnockback(fromCharacterX) {
@@ -226,7 +226,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt resetDeathAnimationIfNeeded aus.
+     * Runs resetDeathAnimationIfNeeded.
      */
     resetDeathAnimationIfNeeded() {
         if (!this.isDead()) return;
@@ -237,14 +237,14 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt canBeRemoved aus.
+     * Runs canBeRemoved.
      */
     canBeRemoved() {
         return this.isDead() && this.deathAnimationDone;
     }
 
     /**
-     * Führt getHitbox aus.
+     * Runs getHitbox.
      */
     getHitbox() {
         return {
@@ -256,7 +256,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt animate aus.
+     * Runs animate.
      */
     animate() {
         const movementInterval = setInterval(() => this.handleMovementTick(), 1000 / 60);
@@ -266,7 +266,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt handleMovementTick aus.
+     * Runs handleMovementTick.
      */
     handleMovementTick() {
         if (window.__moonberryPaused || this.world?.isPaused) return;
@@ -276,7 +276,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt movePatrolLeft aus.
+     * Runs movePatrolLeft.
      */
     movePatrolLeft() {
         this.x -= this.speed;
@@ -287,7 +287,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt movePatrolRight aus.
+     * Runs movePatrolRight.
      */
     movePatrolRight() {
         this.x += this.speed;
@@ -298,7 +298,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt handleAnimationTick aus.
+     * Runs handleAnimationTick.
      */
     handleAnimationTick() {
         if (window.__moonberryPaused || this.world?.isPaused) return;
@@ -308,7 +308,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt playDeathTick aus.
+     * Runs playDeathTick.
      */
     playDeathTick() {
         const deadIndex = Math.min(this.deadFrame, this.IMAGES_DEAD.length - 1);
@@ -319,7 +319,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt playAttackTick aus.
+     * Runs playAttackTick.
      */
     playAttackTick() {
         const path = this.IMAGES_ATTACKING[this.attackFrame];
@@ -331,7 +331,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt playWalkTick aus.
+     * Runs playWalkTick.
      */
     playWalkTick() {
         const i = this.currentImage % this.IMAGES_WALKING.length;
@@ -340,13 +340,14 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Führt dispose aus.
+     * Runs dispose.
      */
     dispose() {
         this.intervalIds.forEach((id) => clearInterval(id));
         this.intervalIds = [];
     }
 }
+
 
 
 

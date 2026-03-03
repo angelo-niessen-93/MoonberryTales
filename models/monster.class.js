@@ -3,7 +3,7 @@
  */
 
 /**
- * Repräsentiert Monster im Spiel.
+ * Represents Monster in the game.
  */
 class Monster extends MovableObject {
     y = 320;
@@ -92,7 +92,7 @@ class Monster extends MovableObject {
 
 
     /**
-     * Führt constructor aus.
+     * Runs constructor.
      * @param {*} type
      * @param {*} x
      * @param {*} patrolMinX
@@ -112,7 +112,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt getSetConfig aus.
+     * Runs getSetConfig.
      * @param {*} config
      */
     getSetConfig(config) {
@@ -125,7 +125,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt initializeType aus.
+     * Runs initializeType.
      * @param {*} type
      * @param {*} walkingSets
      */
@@ -140,7 +140,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt applyTypeAssets aus.
+     * Runs applyTypeAssets.
      * @param {*} sets
      */
     applyTypeAssets(sets) {
@@ -150,7 +150,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt applyTypeSize aus.
+     * Runs applyTypeSize.
      * @param {*} typeSizes
      */
     applyTypeSize(typeSizes) {
@@ -162,7 +162,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt initializeMonsterState aus.
+     * Runs initializeMonsterState.
      * @param {*} x
      * @param {*} patrolMinX
      * @param {*} patrolMaxX
@@ -179,7 +179,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt initializeCombatState aus.
+     * Runs initializeCombatState.
      * @param {*} config
      */
     initializeCombatState(config) {
@@ -194,7 +194,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt setupAttackSound aus.
+     * Runs setupAttackSound.
      * @param {*} config
      */
     setupAttackSound(config) {
@@ -205,7 +205,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt loadMonsterImages aus.
+     * Runs loadMonsterImages.
      */
     loadMonsterImages() {
         this.loadImages(this.IMAGES_WALKING);
@@ -214,7 +214,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt createForLevel aus.
+     * Runs createForLevel.
      * @param {*} characterStartX
      * @param {*} count
      * @param {*} options
@@ -232,7 +232,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt getLevelSpawnRange aus.
+     * Runs getLevelSpawnRange.
      * @param {*} characterStartX
      * @param {*} options
      */
@@ -248,7 +248,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt createSpawnPoint aus.
+     * Runs createSpawnPoint.
      * @param {*} index
      * @param {*} step
      * @param {*} range
@@ -267,7 +267,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt getRandomSpawnX aus.
+     * Runs getRandomSpawnX.
      */
     getRandomSpawnX() {
         const playerX = this.world?.character?.x ?? 120;
@@ -282,7 +282,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt setPatrolRange aus.
+     * Runs setPatrolRange.
      * @param {*} minX
      * @param {*} maxX
      */
@@ -300,19 +300,22 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt getHitbox aus.
+     * Runs getHitbox.
      */
     getHitbox() {
+        const insetX = Math.round(this.width * 0.22);
+        const insetTop = Math.round(this.height * 0.34);
+        const insetBottom = Math.round(this.height * 0.18);
         return {
-            x: this.x + 34,
-            y: this.y + 74,
-            width: this.width - 68,
-            height: this.height - 102,
+            x: this.x + insetX,
+            y: this.y + insetTop,
+            width: Math.max(26, this.width - insetX * 2),
+            height: Math.max(30, this.height - insetTop - insetBottom),
         };
     }
 
     /**
-     * Führt movePatrol aus.
+     * Runs movePatrol.
      */
     movePatrol() {
         const patrolInterval = setInterval(() => this.handlePatrolTick(), 1000 / 60);
@@ -320,7 +323,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt handlePatrolTick aus.
+     * Runs handlePatrolTick.
      */
     handlePatrolTick() {
         if (window.__moonberryPaused || this.world?.isPaused) return;
@@ -330,7 +333,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt movePatrolLeft aus.
+     * Runs movePatrolLeft.
      */
     movePatrolLeft() {
         this.x -= this.speed;
@@ -341,7 +344,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt movePatrolRight aus.
+     * Runs movePatrolRight.
      */
     movePatrolRight() {
         this.x += this.speed;
@@ -352,7 +355,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt triggerAttack aus.
+     * Runs triggerAttack.
      * @param {*} target
      */
     triggerAttack(target = null) {
@@ -365,7 +368,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt canStartAttack aus.
+     * Runs canStartAttack.
      */
     canStartAttack() {
         if (this.isDead()) return false;
@@ -374,7 +377,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt playAttackSound aus.
+     * Runs playAttackSound.
      */
     playAttackSound() {
         if (!this.attackSound) return;
@@ -383,7 +386,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt takeHit aus.
+     * Runs takeHit.
      * @param {*} fromCharacterX
      * @param {*} damage
      */
@@ -397,7 +400,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt canTakeHitNow aus.
+     * Runs canTakeHitNow.
      */
     canTakeHitNow() {
         const now = Date.now();
@@ -407,7 +410,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt applyKnockback aus.
+     * Runs applyKnockback.
      * @param {*} fromCharacterX
      */
     applyKnockback(fromCharacterX) {
@@ -417,7 +420,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt resetDeathAnimationIfNeeded aus.
+     * Runs resetDeathAnimationIfNeeded.
      */
     resetDeathAnimationIfNeeded() {
         if (!this.isDead()) return;
@@ -428,14 +431,14 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt canBeRemoved aus.
+     * Runs canBeRemoved.
      */
     canBeRemoved() {
         return this.isDead() && this.deathAnimationDone;
     }
 
     /**
-     * Führt animate aus.
+     * Runs animate.
      */
     animate() {
         this.movePatrol();
@@ -444,7 +447,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt handleAnimationTick aus.
+     * Runs handleAnimationTick.
      */
     handleAnimationTick() {
         if (window.__moonberryPaused || this.world?.isPaused) return;
@@ -454,7 +457,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt playDeathTick aus.
+     * Runs playDeathTick.
      */
     playDeathTick() {
         if (!this.IMAGES_DEAD.length) return this.markDeathAnimationDone();
@@ -465,14 +468,14 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt markDeathAnimationDone aus.
+     * Runs markDeathAnimationDone.
      */
     markDeathAnimationDone() {
         this.deathAnimationDone = true;
     }
 
     /**
-     * Führt playAttackTick aus.
+     * Runs playAttackTick.
      */
     playAttackTick() {
         const path = this.IMAGES_ATTACKING[this.attackFrame];
@@ -484,7 +487,7 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt playWalkTick aus.
+     * Runs playWalkTick.
      */
     playWalkTick() {
         const i = this.currentImage % this.IMAGES_WALKING.length;
@@ -493,13 +496,14 @@ class Monster extends MovableObject {
     }
 
     /**
-     * Führt dispose aus.
+     * Runs dispose.
      */
     dispose() {
         this.intervalIds.forEach((id) => clearInterval(id));
         this.intervalIds = [];
     }
 }
+
 
 
 

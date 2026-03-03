@@ -4,13 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Moonberry Tales - Home</title>
-  <link rel="icon" href="data:,">
+  <link rel="icon" type="image/png" href="./img/favicon.ico.png">
   <link rel="stylesheet" href="./css/style.css">
-   <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
 </head>
 <body class="home-page">
   <div id="rotate-device-overlay-home" aria-hidden="true">
     <img src="./img/drehen.png" alt="Bitte Geraet drehen">
+  </div>
+  <button id="main-mute-toggle" type="button" aria-label="Global stumm aktivieren" aria-pressed="false">
+    <img src="./img/mute.png" alt="Mute">
+  </button>
+  <div id="mobile-controls-toggle-wrap" aria-label="Mobile Buttons umschalten">
+    <span>Mobile Buttons</span>
+    <label class="switch" for="mobile-controls-toggle">
+      <input id="mobile-controls-toggle" type="checkbox" checked>
+      <span class="switch-slider"></span>
+    </label>
   </div>
   <main class="home-layout">
     <img id="main-title-logo" src="./img/logo_main_page.png" alt="Moonberry Tales">
@@ -19,21 +28,14 @@
       <img src="./img_mainpage\03potions\forward_button.png" alt="Start">
       <span>Start</span>
     </button>
+    <div id="audio-control-game" class="audio-control-game">
+      <button id="music-toggle" type="button" aria-label="Audio-Menü öffnen" aria-expanded="false">
+        <span>Sounds</span>
+      </button>
+    </div>
     <button id="leaderboard-button" type="button" aria-label="Leaderboard anzeigen">
       Bestenliste
     </button>
-
-    <button id="settings-button" type="button" aria-label="Einstellungen">
-      <img src="./img_mainpage/03potions/settings_button.png" alt="Einstellungen" onerror="this.parentElement.textContent='⚙'; this.parentElement.classList.add('fallback');">
-    </button>
-    <button id="mute-button" type="button" aria-label="Ton stummschalten">
-      <img src="./img/mute.png" alt="Mute">
-    </button>
-
-    <section id="settings-panel" class="hidden" aria-label="Audio Einstellungen">
-      <label for="volume-control">Lautstärke</label>
-      <input type="range" id="volume-control" min="0" max="1" step="0.01" value="0.5">
-    </section>
 
     <section id="leaderboard-panel" class="hidden" aria-label="Bestenliste">
       <h2>Leaderboard</h2>
@@ -42,7 +44,22 @@
       <p id="leaderboard-empty" class="hidden">Noch keine Einträge vorhanden.</p>
     </section>
   </main>
-
+  <div id="home-audio-settings-popup" class="hidden" role="dialog" aria-modal="true" aria-label="Audio-Einstellungen">
+    <div class="home-audio-settings-card">
+      <img class="home-audio-title" src="./img/14Pause/Pause.png" alt="Einstellungen">
+      <div class="home-audio-row">
+        <label for="home-music-volume">Musik</label>
+        <input id="home-music-volume" type="range" min="0" max="1" step="0.01" value="0.5">
+      </div>
+      <div class="home-audio-row">
+        <label for="home-sfx-volume">Soundeffekte</label>
+        <input id="home-sfx-volume" type="range" min="0" max="1" step="0.01" value="0.5">
+      </div>
+      <button id="home-audio-close" class="home-popup-button" type="button" aria-label="Einstellungen schließen">
+        <span>Schließen</span>
+      </button>
+    </div>
+  </div>
   <div id="character-popup" class="hidden" role="dialog" aria-modal="true" aria-label="Heldenauswahl">
     <div class="popup-card">
       <h2>Wähle deinen Helden</h2>

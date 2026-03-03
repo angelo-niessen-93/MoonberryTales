@@ -38,6 +38,12 @@ body.game-page {
     overflow: hidden;
 }
 
+body.is-touch-device {
+    --icon-size: clamp(54px, 8.5vw, 74px);
+    --icon-edge: 12px;
+    --icon-gap: 10px;
+}
+
 #page-loading-screen {
     position: fixed;
     inset: 0;
@@ -86,7 +92,7 @@ body.game-page {
 #loading-progress-text {
     position: absolute;
     left: 50%;
-    bottom: 9.6vh;
+    bottom: calc(8vh + 22px);
     transform: translateX(-50%);
     margin: 0;
     width: min(560px, 82vw);
@@ -96,7 +102,7 @@ body.game-page {
     font-weight: 700;
     letter-spacing: 0.02em;
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
-    z-index: 1;
+    z-index: 2;
 }
 
 #loading-progress {
@@ -164,17 +170,55 @@ body.game-page {
     filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.55));
 }
 
-#music-toggle {
+#audio-control-game {
     position: absolute;
     top: var(--icon-edge);
     right: var(--icon-edge);
+    z-index: 2;
+}
+
+#music-toggle {
+    position: relative;
     width: var(--icon-size);
     height: var(--icon-size);
     padding: 0;
     border: none;
     background: transparent;
     cursor: pointer;
-    z-index: 2;
+}
+
+.audio-hover-panel-game {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(220px, 68vw);
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(4, 8, 18, 0.88);
+    display: none;
+    gap: 6px;
+}
+
+#audio-control-game:hover .audio-hover-panel-game,
+#audio-control-game:focus-within .audio-hover-panel-game,
+#audio-control-game.is-open .audio-hover-panel-game {
+    display: grid;
+}
+
+.audio-toggle-row-game {
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: #f8f1df;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.audio-toggle-row-game.is-muted {
+    opacity: 0.75;
 }
 
 #info-toggle {
@@ -216,7 +260,7 @@ body.game-page {
     z-index: 2;
 }
 
-.canvas-wrapper:fullscreen #music-toggle {
+.canvas-wrapper:fullscreen #audio-control-game {
     z-index: 4;
 }
 
@@ -259,7 +303,7 @@ body.game-page {
 #mobile-arrows-control {
     position: absolute;
     left: 30px;
-    bottom: 180px;
+    bottom: 90px;
     z-index: 5;
     display: none;
     width: clamp(92px, 16vw, 132px);
@@ -435,6 +479,49 @@ body.game-page {
     pointer-events: none;
 }
 
+#pause-settings-popup {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
+.pause-settings-card {
+    width: min(88%, 420px);
+    background-image: url("img/10Defeat/begie_border2.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    padding: 26px 24px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    color: #1b1204;
+}
+
+.pause-settings-row {
+    width: min(80%, 280px);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pause-settings-row label {
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.pause-settings-row input[type="range"] {
+    width: 100%;
+    accent-color: #f7b500;
+}
+
 canvas {
     display: block;
     width: 100%;
@@ -473,7 +560,7 @@ canvas {
     }
 
     #loading-progress-text {
-        bottom: 7.7vh;
+        bottom: calc(4vh + 18px);
     }
 
     .impressum-button {
@@ -516,26 +603,26 @@ canvas {
     }
 }
 
-@media only screen and (max-width: 1024px) and (orientation: portrait) {
-    #game-title-logo {
+@media only screen and (orientation: portrait) {
+    body.is-touch-device #game-title-logo {
         display: none;
     }
 }
 
-@media only screen and (max-width: 1024px) and (orientation: landscape) {
-    html,
-    body {
+@media only screen and (orientation: landscape) {
+    html.is-touch-device,
+    body.is-touch-device {
         width: 100vw;
         height: 100vh;
         overflow: hidden;
     }
 
-    body {
+    body.is-touch-device {
         padding: 0;
         gap: 0;
     }
 
-    .canvas-wrapper {
+    body.is-touch-device .canvas-wrapper {
         position: fixed;
         inset: 0;
         width: 100vw;
@@ -544,29 +631,34 @@ canvas {
         margin: 0;
     }
 
-    canvas {
+    body.is-touch-device canvas {
         width: 100vw;
         height: 100vh;
         max-height: none;
         aspect-ratio: auto;
     }
 
-    #music-toggle,
-    #fullscreen-toggle,
-    #info-toggle,
-    #pause-toggle {
+    body.is-touch-device #audio-control-game,
+    body.is-touch-device #fullscreen-toggle,
+    body.is-touch-device #info-toggle,
+    body.is-touch-device #pause-toggle {
         top: 8px;
     }
 
-    #mobile-arrows-control {
+    body.is-touch-device #mobile-arrows-control {
         display: block;
     }
 
-    #mobile-attack-control {
+    body.is-touch-device #mobile-attack-control {
         display: block;
     }
 
-    #game-title-logo {
+    body.is-touch-device.mobile-controls-disabled #mobile-arrows-control,
+    body.is-touch-device.mobile-controls-disabled #mobile-attack-control {
+        display: none !important;
+    }
+
+    body.is-touch-device #game-title-logo {
         display: none;
     }
 }
