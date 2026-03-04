@@ -1,0 +1,33 @@
+{
+  "source": {
+    "include": [
+      "game.js",
+      "home.js",
+      "levels/level1.js",
+      "levels/level2.js",
+      "models/background-object.class.js",
+      "models/character.class.js",
+      "models/endboss.class.js",
+      "models/fire-projectile.class.js",
+      "models/hud.class.js",
+      "models/items.class.js",
+      "models/keyboard.class.js",
+      "models/knight.class.js",
+      "models/level.class.js",
+      "models/mage.class.js",
+      "models/monster.class.js",
+      "models/movable-object.class.js",
+      "models/myst.class.js",
+      "models/rogue.class.js",
+      "models/tiles.class.js",
+      "models/world-collision.class.js",
+      "models/world-renderer.class.js",
+      "models/world.class.js"
+    ],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "opts": {
+    "recurse": false
+  }
+}
