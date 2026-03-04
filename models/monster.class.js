@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file models/monster.class.js
  */
 
@@ -166,7 +166,7 @@ class Monster extends MovableObject {
     };
     static ATTACK_SOUND_BY_TYPE = {
         ghost: 'audio/ghost-attack.mp3',
-        skeleton: 'audio/skleton-attck.mp3',
+        skeleton: 'audio/skeleton-attack.mp3',
     };
     static SPIDER_WEB_IMAGES = [
         'img/level2img/level2monster/spider/web1.png',
@@ -719,6 +719,7 @@ class Monster extends MovableObject {
         this.intervalIds = [];
     }
 }
+
 
 
 

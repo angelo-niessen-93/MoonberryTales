@@ -12,8 +12,13 @@ let musicVolume = 0.5;
 let sfxVolume = 0.5;
 let isGamePaused = false;
 let hasBossDefeatAudioPlayed = false;
+let hasFinalOutroStarted = false;
 const SOUND_VOLUME = 0.5;
 const LOADING_SCREEN_DURATION_MS = 3500;
+const FINAL_LEVEL_ID = "level2";
+const FINAL_OUTRO_TARGET = "./index.html";
+const FINAL_OUTRO_VIDEO_SELECTOR = "#outro-video";
+const FINAL_OUTRO_OVERLAY_SELECTOR = "#outro-video-overlay";
 const LEGACY_MUTE_STORAGE_KEY = "gameMuted";
 const MUSIC_MUTE_STORAGE_KEY = "gameMusicMuted";
 const SFX_MUTE_STORAGE_KEY = "gameSfxMuted";
@@ -501,7 +506,7 @@ function bindPausePopupButtons(elements, controls) {
     elements.pauseButton.addEventListener("click", controls.openPopup);
     elements.continueButton.addEventListener("click", controls.closePopup);
     elements.settingsButton.addEventListener("click", controls.openSettings);
-    elements.homeButton.addEventListener("click", () => { window.location.href = "./index.html"; });
+    elements.homeButton.addEventListener("click", () => navigateHomeFromGame());
 }
 
 /**
@@ -737,10 +742,80 @@ function onBossDefeated() {
  */
 function onGameRestarted() {
     hasBossDefeatAudioPlayed = false;
+    hasFinalOutroStarted = false;
+    resetFinalOutroVideo();
     stopLevelPassingSound();
     applyMutePreferences();
     startGameMusic();
 }
+
+/**
+ * Runs isFinalLevel.
+ */
+function isFinalLevel() {
+    return resolveCurrentLevelId() === FINAL_LEVEL_ID;
+}
+
+/**
+ * Runs navigateHomeFromGame.
+ */
+function navigateHomeFromGame() {
+    if (!isFinalLevel()) {
+        window.location.href = FINAL_OUTRO_TARGET;
+        return;
+    }
+    stopGameMusic();
+    stopLevelPassingSound();
+    setGamePaused(true);
+    playFinalOutroVideo();
+}
+
+/**
+ * Runs playFinalOutroVideo.
+ */
+function playFinalOutroVideo() {
+    if (hasFinalOutroStarted) return;
+    hasFinalOutroStarted = true;
+    stopLevelPassingSound();
+    const overlay = document.querySelector(FINAL_OUTRO_OVERLAY_SELECTOR);
+    const video = document.querySelector(FINAL_OUTRO_VIDEO_SELECTOR);
+    if (!(overlay instanceof HTMLElement) || !(video instanceof HTMLVideoElement)) return redirectToHomeAfterOutro();
+    overlay.classList.remove("hidden");
+    video.currentTime = 0;
+    video.muted = isMusicMuted && isSfxMuted;
+    const finish = () => redirectToHomeAfterOutro();
+    video.addEventListener("ended", finish, { once: true });
+    video.addEventListener("error", finish, { once: true });
+    video.play().catch(() => {
+        const startOnClick = () => {
+            overlay.removeEventListener("click", startOnClick);
+            video.play().catch(() => finish());
+        };
+        overlay.addEventListener("click", startOnClick, { once: true });
+    });
+}
+
+/**
+ * Runs resetFinalOutroVideo.
+ */
+function resetFinalOutroVideo() {
+    const overlay = document.querySelector(FINAL_OUTRO_OVERLAY_SELECTOR);
+    const video = document.querySelector(FINAL_OUTRO_VIDEO_SELECTOR);
+    if (video instanceof HTMLVideoElement) {
+        video.pause();
+        video.currentTime = 0;
+    }
+    if (overlay instanceof HTMLElement) overlay.classList.add("hidden");
+}
+
+/**
+ * Runs redirectToHomeAfterOutro.
+ */
+function redirectToHomeAfterOutro() {
+    window.location.href = FINAL_OUTRO_TARGET;
+}
+
+window.navigateHomeFromGame = navigateHomeFromGame;
 
 /**
  * Runs setupMusicToggle.

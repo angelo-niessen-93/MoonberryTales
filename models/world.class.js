@@ -200,7 +200,18 @@ class World {
     if (!hit) return;
     if (hit.id === "continue") return this.startNextLevel();
     if (hit.id === "restart") return this.restartGame();
-    if (hit.id === "home") window.location.href = "./index.html";
+    if (hit.id === "home") return this.navigateHome();
+  }
+
+  /**
+   * Runs navigateHome.
+   */
+  navigateHome() {
+    if (typeof window.navigateHomeFromGame === "function") {
+      window.navigateHomeFromGame();
+      return;
+    }
+    window.location.href = "./index.html";
   }
 
   /**
