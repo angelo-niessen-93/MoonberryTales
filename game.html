@@ -28,6 +28,7 @@
     </div>
     <img id="game-title-logo" src="./img/lgog_game.png" alt="Moonberry Tales">
     <div class="canvas-wrapper">
+        <div id="level-indicator" aria-live="polite">Level 1</div>
         <button id="pause-toggle" type="button" aria-label="Spiel pausieren">
             <img src="img/Pause.png" alt="Pause">
         </button>
@@ -105,6 +106,7 @@
     
     <script src="./models/movable-object.class.js"></script>
     <script src="./models/monster.class.js"></script>
+    <script src="./models/monster-behavior.class.js"></script>
     <script src="./models/endboss.class.js"></script>
     <script src="./models/character.class.js"></script>
     <script src="./models/myst.class.js"></script>
@@ -118,11 +120,15 @@
     <script src="./models/world-collision.class.js"></script>
     <script src="./models/world-renderer.class.js"></script>
     <script src="./models/world.class.js"></script>
+    <script src="./models/world-runtime.class.js"></script>
     <script src="./models/keyboard.class.js"></script>
     <script src="./models/knight.class.js"></script>
     <script src="./models/fire-projectile.class.js"></script>
     <script src="./models/mage.class.js"></script>
     <script src="./models/rogue.class.js"></script>
+    <script src="./js/ui/game-ui-controls.js"></script>
+    <script src="./js/audio/game-audio.js"></script>
+    <script src="./js/input/game-input.js"></script>
     <script src="./game.js"></script>
 </body>
 </html>

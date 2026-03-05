@@ -73,11 +73,15 @@ body.home-page {
   padding: 0 10px;
   background: rgba(0, 0, 0, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.28);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   color: #f8f1df;
+}
+
+body.is-touch-device #mobile-controls-toggle-wrap {
+  display: flex;
 }
 
 #mobile-controls-toggle-wrap span {
@@ -252,6 +256,7 @@ body.home-page {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  opacity: 0.92;
 }
 
 #music-toggle img {
@@ -268,7 +273,7 @@ body.home-page {
 }
 
 #music-toggle.is-muted {
-  opacity: 0.75;
+  opacity: 0.72;
 }
 
 #music-toggle:hover {
@@ -586,9 +591,10 @@ body.home-page {
 
 .github-button {
   position: fixed;
-  left: 50%;
+  left: 16px;
+  right: auto;
   bottom: 16px;
-  transform: translateX(-50%);
+  transform: none;
   z-index: 6;
   width: 76px;
   height: 76px;
@@ -734,9 +740,12 @@ body.home-page {
   }
 
   .github-button {
+    left: 10px;
+    right: auto;
     bottom: 10px;
-    width: 64px;
-    height: 64px;
+    transform: none;
+    width: 56px;
+    height: 56px;
   }
 
   .promo-banner {

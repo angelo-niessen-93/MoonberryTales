@@ -57,58 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.toggle("is-portrait", isPortrait);
     document.body.classList.toggle("is-landscape", !isPortrait);
   }
-  const characterSprites = {
-    Knight: [
-      "./img/Knight/Idle/knight_idle1.png",
-      "./img/Knight/Idle/knight_idle2.png",
-      "./img/Knight/Idle/knight_idle3.png",
-      "./img/Knight/Idle/knight_idle4.png",
-      "./img/Knight/Idle/knight_idle5.png",
-      "./img/Knight/Idle/knight_idle6.png",
-      "./img/Knight/Idle/knight_idle7.png",
-      "./img/Knight/Idle/knight_idle8.png",
-      "./img/Knight/Idle/knight_idle9.png",
-      "./img/Knight/Idle/knight_idle10.png",
-      "./img/Knight/Idle/knight_idle11.png",
-      "./img/Knight/Idle/knight_idle12.png"
-    ],
-    Mage: [
-      "./img/Mage/Idle/mage_idle1.png",
-      "./img/Mage/Idle/mage_idle2.png",
-      "./img/Mage/Idle/mage_idle3.png",
-      "./img/Mage/Idle/mage_idle4.png",
-      "./img/Mage/Idle/mage_idle5.png",
-      "./img/Mage/Idle/mage_idle6.png",
-      "./img/Mage/Idle/mage_idle7.png",
-      "./img/Mage/Idle/mage_idle8.png",
-      "./img/Mage/Idle/mage_idle9.png",
-      "./img/Mage/Idle/mage_idle10.png",
-      "./img/Mage/Idle/mage_idle11.png",
-      "./img/Mage/Idle/mage_idle12.png",
-      "./img/Mage/Idle/mage_idle13.png",
-      "./img/Mage/Idle/mage_idle14.png"
-    ],
-    Rogue: [
-      "./img/Rogue/Idle/rogue_idle1.png",
-      "./img/Rogue/Idle/rogue_idle2.png",
-      "./img/Rogue/Idle/rogue_idle3.png",
-      "./img/Rogue/Idle/rogue_idle4.png",
-      "./img/Rogue/Idle/rogue_idle5.png",
-      "./img/Rogue/Idle/rogue_idle6.png",
-      "./img/Rogue/Idle/rogue_idle7.png",
-      "./img/Rogue/Idle/rogue_idle8.png",
-      "./img/Rogue/Idle/rogue_idle9.png",
-      "./img/Rogue/Idle/rogue_idle10.png",
-      "./img/Rogue/Idle/rogue_idle11.png",
-      "./img/Rogue/Idle/rogue_idle12.png",
-      "./img/Rogue/Idle/rogue_idle13.png",
-      "./img/Rogue/Idle/rogue_idle14.png",
-      "./img/Rogue/Idle/rogue_idle15.png",
-      "./img/Rogue/Idle/rogue_idle16.png",
-      "./img/Rogue/Idle/rogue_idle17.png",
-      "./img/Rogue/Idle/rogue_idle18.png"
-    ]
-  };
+  const characterSprites = window.HomeCharacterSprites || {};
 
   const MUSIC_MUTE_KEY = "gameMusicMuted";
   const SFX_MUTE_KEY = "gameSfxMuted";
@@ -210,119 +159,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!nextMuted) tryStartMainMenuMusic();
   }
 
-  /**
-   * Runs formatDuration.
-   * @param {*} totalSeconds
-   */
-  function formatDuration(totalSeconds) {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  }
-
-  /**
-   * Runs sortLeaderboard.
-   * @param {*} entries
-   */
-  function sortLeaderboard(entries) {
-    const safeEntries = (Array.isArray(entries) ? entries : []).filter(
-      (entry) => entry?.name !== "Angelo"
-    );
-    safeEntries.sort((a, b) => {
-      const scoreDiff = (Number(b.score) || 0) - (Number(a.score) || 0);
-      if (scoreDiff !== 0) {
-        return scoreDiff;
-      }
-      return (Number(a.duration) || 0) - (Number(b.duration) || 0);
-    });
-    return safeEntries;
-  }
-
-  /**
-   * Runs ensureFixedPlayerEntry.
-   */
   function ensureFixedPlayerEntry() {
-    const safeEntries = loadLeaderboardEntries();
-    if (!hasFixedPlayerEntry(safeEntries)) safeEntries.push({ ...FIXED_PLAYER_ENTRY });
-    const sorted = sortLeaderboard(safeEntries).slice(0, 10);
-    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(sorted));
+    if (!window.HomeLeaderboard) return;
+    window.HomeLeaderboard.ensureFixedPlayerEntry(LEADERBOARD_KEY, FIXED_PLAYER_ENTRY);
   }
 
-  /**
-   * Runs loadLeaderboardEntries.
-   */
-  function loadLeaderboardEntries() {
-    try {
-      const raw = localStorage.getItem(LEADERBOARD_KEY);
-      const entries = raw ? JSON.parse(raw) : [];
-      return Array.isArray(entries) ? entries : [];
-    } catch (_) { return []; }
-  }
-
-  /**
-   * Runs hasFixedPlayerEntry.
-   * @param {*} entries
-   */
-  function hasFixedPlayerEntry(entries) {
-    return entries.some((entry) =>
-      entry &&
-      entry.name === FIXED_PLAYER_ENTRY.name &&
-      entry.result === FIXED_PLAYER_ENTRY.result &&
-      Number(entry.coins) === FIXED_PLAYER_ENTRY.coins &&
-      Number(entry.duration) === FIXED_PLAYER_ENTRY.duration
-    );
-  }
-
-  /**
-   * Runs renderLeaderboard.
-   */
   function renderLeaderboard() {
-    if (!leaderboardList || !leaderboardEmpty) return;
-    const entries = sortLeaderboard(loadLeaderboardEntries());
-    leaderboardList.innerHTML = "";
-    if (entries.length === 0) return leaderboardEmpty.classList.remove("hidden");
-    leaderboardEmpty.classList.add("hidden");
-    entries.slice(0, 10).forEach((entry, index) => leaderboardList.appendChild(buildLeaderboardItem(entry, index)));
-  }
-
-  /**
-   * Runs buildLeaderboardItem.
-   * @param {*} entry
-   * @param {*} index
-   */
-  function buildLeaderboardItem(entry, index) {
-    const item = document.createElement("li");
-    item.className = "leaderboard-item";
-    item.innerHTML = getLeaderboardItemMarkup(entry, index);
-    return item;
-  }
-
-  /**
-   * Runs getLeaderboardItemMarkup.
-   * @param {*} entry
-   * @param {*} index
-   */
-  function getLeaderboardItemMarkup(entry, index) {
-    const safe = getLeaderboardEntryValues(entry);
-    return `
-        <span class="leaderboard-rank">${index + 1}</span>
-        <span class="leaderboard-main"><span class="leaderboard-name">${safe.name}</span><span class="leaderboard-meta">${safe.result} | ${safe.coins} Coins | ${formatDuration(safe.duration)}</span></span>
-        <span class="leaderboard-score">${safe.score}</span>
-      `;
-  }
-
-  /**
-   * Runs getLeaderboardEntryValues.
-   * @param {*} entry
-   */
-  function getLeaderboardEntryValues(entry) {
-    return {
-      duration: Number.isFinite(entry.duration) ? entry.duration : 0,
-      coins: Number.isFinite(entry.coins) ? entry.coins : 0,
-      score: Number.isFinite(entry.score) ? entry.score : 0,
-      result: entry.result || "-",
-      name: entry.name || "Unbekannt"
-    };
+    if (!window.HomeLeaderboard) return;
+    window.HomeLeaderboard.renderLeaderboard(LEADERBOARD_KEY, leaderboardList, leaderboardEmpty);
   }
 
   /**
@@ -381,15 +225,16 @@ document.addEventListener("DOMContentLoaded", () => {
    * Runs areMobileControlsEnabled.
    */
   function areMobileControlsEnabled() {
-    return localStorage.getItem(MOBILE_CONTROLS_KEY) !== "0";
+    if (!window.HomeLeaderboard) return true;
+    return window.HomeLeaderboard.areMobileControlsEnabled(MOBILE_CONTROLS_KEY);
   }
 
   /**
    * Runs syncMobileControlsToggle.
    */
   function syncMobileControlsToggle() {
-    if (!mobileControlsToggle) return;
-    mobileControlsToggle.checked = areMobileControlsEnabled();
+    if (!window.HomeLeaderboard) return;
+    window.HomeLeaderboard.syncMobileControlsToggle(mobileControlsToggle, MOBILE_CONTROLS_KEY);
   }
 
   /**
@@ -397,32 +242,27 @@ document.addEventListener("DOMContentLoaded", () => {
    * @param {*} enabled
    */
   function updateMobileControlsPreference(enabled) {
-    localStorage.setItem(MOBILE_CONTROLS_KEY, enabled ? "1" : "0");
+    if (!window.HomeLeaderboard) return;
+    window.HomeLeaderboard.updateMobileControlsPreference(MOBILE_CONTROLS_KEY, enabled);
   }
 
   /**
    * Runs applyLevelSelectionFromQuery.
    */
   function applyLevelSelectionFromQuery() {
-    const level = new URLSearchParams(window.location.search).get("level");
-    if (level === "2" || String(level).toLowerCase() === "level2") localStorage.setItem(LEVEL_STORAGE_KEY, "level2");
-    if (level === "1" || String(level).toLowerCase() === "level1") localStorage.setItem(LEVEL_STORAGE_KEY, "level1");
-  }
-
-  /**
-   * Runs hasLevelSelectionInQuery.
-   */
-  function hasLevelSelectionInQuery() {
-    const level = new URLSearchParams(window.location.search).get("level");
-    return level === "2" || String(level).toLowerCase() === "level2" || level === "1" || String(level).toLowerCase() === "level1";
+    if (!window.HomeLeaderboard) return;
+    window.HomeLeaderboard.applyLevelSelectionFromQuery(LEVEL_STORAGE_KEY);
   }
 
   /**
    * Runs ensureDefaultLevelSelection.
    */
   function ensureDefaultLevelSelection() {
-    if (hasLevelSelectionInQuery()) return;
-    localStorage.setItem(LEVEL_STORAGE_KEY, "level1");
+    if (!window.HomeLeaderboard) {
+      localStorage.setItem(LEVEL_STORAGE_KEY, "level1");
+      return;
+    }
+    window.HomeLeaderboard.ensureDefaultLevelSelection(LEVEL_STORAGE_KEY);
   }
 
   /**
@@ -561,4 +401,5 @@ document.addEventListener("DOMContentLoaded", () => {
   ensureFixedPlayerEntry();
   renderLeaderboard();
 });
+
 

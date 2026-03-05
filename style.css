@@ -177,6 +177,29 @@ body.is-touch-device {
     z-index: 2;
 }
 
+#level-indicator {
+    position: absolute;
+    top: var(--icon-edge);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    min-width: 82px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 8px;
+    border: none;
+    background: url("img/14Pause/button_yellow.png") center / 100% 100% no-repeat;
+    color: #1b1204;
+    font-size: clamp(10px, 1.1vw, 12px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 24px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+}
+
 #music-toggle {
     position: relative;
     width: var(--icon-size);
@@ -200,8 +223,6 @@ body.is-touch-device {
     gap: 6px;
 }
 
-#audio-control-game:hover .audio-hover-panel-game,
-#audio-control-game:focus-within .audio-hover-panel-game,
 #audio-control-game.is-open .audio-hover-panel-game {
     display: grid;
 }
@@ -273,6 +294,10 @@ body.is-touch-device {
 }
 
 .canvas-wrapper:fullscreen #pause-toggle {
+    z-index: 4;
+}
+
+.canvas-wrapper:fullscreen #level-indicator {
     z-index: 4;
 }
 
